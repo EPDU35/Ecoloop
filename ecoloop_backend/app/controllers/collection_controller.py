@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
@@ -11,7 +12,7 @@ from app.models.waste import LotStatus, WasteLot
 from app.schemas.waste_schema import CollectionValidateSchema
 
 
-async def reserve_lot(db: AsyncSession, collector: User, waste_lot_id) -> tuple[Collection, str]:
+async def reserve_lot(db: AsyncSession, collector: User, waste_lot_id) -> tuple[Collection, str, "uuid.UUID"]:
     """
     Réservation atomique d'un lot.
 
@@ -46,9 +47,10 @@ async def reserve_lot(db: AsyncSession, collector: User, waste_lot_id) -> tuple[
     await db.flush()
 
     # Le code de validation en clair est renvoyé une seule fois à l'appelant
-    # (route) pour transmission au producteur (SMS/notification) — jamais stocké
-    # en clair, jamais renvoyé lors d'une consultation ultérieure.
-    return collection, validation_code
+    # (route), accompagné de l'id du PRODUCTEUR, pour transmission du code via
+    # notification_service — jamais stocké en clair, jamais renvoyé dans la
+    # réponse HTTP, jamais renvoyé lors d'une consultation ultérieure.
+    return collection, validation_code, lot.producer_id
 
 
 async def get_collection_or_404(db: AsyncSession, collection_id) -> Collection:

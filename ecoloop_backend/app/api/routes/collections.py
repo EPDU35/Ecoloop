@@ -8,7 +8,11 @@ from app.controllers import collection_controller
 from app.middlewares.roles import require_roles
 from app.models.user import User, UserRole
 from app.schemas.waste_schema import CollectionOutSchema, CollectionReserveSchema, CollectionValidateSchema
-from app.services.notification_service import notify_collection_reserved, notify_collection_validated
+from app.services.notification_service import (
+    notify_collection_reserved,
+    notify_collection_validated,
+    notify_validation_code,
+)
 
 router = APIRouter(tags=["Collectes"])
 
@@ -19,11 +23,14 @@ async def reserve(
     db: AsyncSession = Depends(get_db),
     collector: User = Depends(require_roles(UserRole.COLLECTEUR)),
 ):
-    collection, validation_code = await collection_controller.reserve_lot(db, collector, payload.waste_lot_id)
+    collection, validation_code, producer_id = await collection_controller.reserve_lot(
+        db, collector, payload.waste_lot_id
+    )
     await db.commit()
-    # TODO intégration réelle : transmettre validation_code au producteur via
-    # notification_service (jamais renvoyé dans cette réponse HTTP).
+    # Le code n'est jamais renvoyé dans cette réponse HTTP : il est transmis au
+    # producteur via notification_service (SMS/push en prod, log dev-only sinon).
     await notify_collection_reserved(collector.id)
+    await notify_validation_code(producer_id, validation_code)
     return collection
 
 

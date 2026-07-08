@@ -11,18 +11,31 @@ import logging
 import uuid
 from typing import Protocol
 
+from app.config.settings import settings
+
 logger = logging.getLogger("ecoloop.notifications")
 
 
 class NotificationSender(Protocol):
-    async def send(self, user_id: uuid.UUID, title: str, body: str) -> None: ...
+    async def send(self, user_id: uuid.UUID, title: str, body: str, *, sensitive: bool = False) -> None: ...
 
 
 class LoggingNotificationSender:
-    """Implémentation par défaut pour le développement : log uniquement, aucun envoi réel."""
+    """
+    Implémentation par défaut pour le développement : log uniquement, aucun envoi réel.
 
-    async def send(self, user_id: uuid.UUID, title: str, body: str) -> None:
-        logger.info("Notification -> user=%s title=%s", user_id, title)
+    RÈGLE DE SÉCURITÉ : le corps d'une notification marquée `sensitive=True` (ex :
+    code de validation OTP) n'est jamais écrit en clair dans les logs, sauf en
+    environnement de développement explicite (DEBUG=true et ENVIRONMENT != production).
+    Ceci permet de tester le flux localement en attendant l'intégration SMS/push
+    réelle, sans jamais exposer de secret dans des logs de production.
+    """
+
+    async def send(self, user_id: uuid.UUID, title: str, body: str, *, sensitive: bool = False) -> None:
+        if sensitive and not (settings.debug and not settings.is_production):
+            logger.info("Notification -> user=%s title=%s body=[masqué: contenu sensible]", user_id, title)
+        else:
+            logger.info("Notification -> user=%s title=%s body=%s", user_id, title, body)
 
 
 _sender: NotificationSender = LoggingNotificationSender()
@@ -40,6 +53,21 @@ async def notify_new_lot_available(user_id: uuid.UUID, lot_category: str) -> Non
 
 async def notify_collection_reserved(user_id: uuid.UUID) -> None:
     await _sender.send(user_id, "Collecte réservée", "Votre lot a été réservé par un collecteur.")
+
+
+async def notify_validation_code(producer_id: uuid.UUID, validation_code: str) -> None:
+    """
+    Transmet le code de validation au PRODUCTEUR (jamais au collecteur, qui est
+    justement celui qui doit le saisir pour prouver la légitimité de la collecte).
+    En production, ceci doit être branché sur un vrai canal SMS/push (Twilio, FCM...) ;
+    tant que ce n'est pas fait, `LoggingNotificationSender` ne l'écrira en clair que
+    dans les logs de développement (voir `sensitive=True`).
+    """
+    body = (
+        f"Votre code de validation de collecte est {validation_code}. "
+        "Communiquez-le uniquement au collecteur venu récupérer votre lot."
+    )
+    await _sender.send(producer_id, "Code de validation de collecte", body, sensitive=True)
 
 
 async def notify_collection_validated(user_id: uuid.UUID) -> None:
