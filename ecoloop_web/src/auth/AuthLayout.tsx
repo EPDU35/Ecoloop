@@ -20,15 +20,20 @@ function MaterialStamp() {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     const interval = setInterval(() => {
       setVisible(false);
-      const timeout = setTimeout(() => {
+      timeoutId = setTimeout(() => {
         setIndex((i) => (i + 1) % MATERIALS.length);
         setVisible(true);
       }, 250);
-      return () => clearTimeout(timeout);
     }, 2600);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const material = MATERIALS[index];
