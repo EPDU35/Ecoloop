@@ -76,3 +76,30 @@ async def notify_collection_validated(user_id: uuid.UUID) -> None:
 
 async def notify_payment_completed(user_id: uuid.UUID, net_amount: float) -> None:
     await _sender.send(user_id, "Paiement effectué", f"Un paiement de {net_amount} FCFA a été enregistré.")
+
+
+async def create_db_notification(
+    db,
+    user_id: uuid.UUID,
+    title: str,
+    content: str,
+    notification_type: str,
+    entity_type: str | None = None,
+    entity_id: uuid.UUID | None = None
+) -> None:
+    from app.models.notification import Notification, NotificationType
+    
+    if isinstance(notification_type, str):
+        notification_type = NotificationType(notification_type)
+
+    notification = Notification(
+        user_id=user_id,
+        title=title,
+        content=content,
+        type=notification_type,
+        entity_type=entity_type,
+        entity_id=entity_id
+    )
+    db.add(notification)
+    await db.flush()
+    await _sender.send(user_id, title, content)

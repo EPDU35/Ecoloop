@@ -1,0 +1,163 @@
+2026-07-08 16:37:36,318 | DEBUG | asyncio | Using proactor: IocpProactor
+2026-07-08 16:37:36,365 | INFO | alembic.runtime.plugins | setup plugin alembic.autogenerate.schemas
+2026-07-08 16:37:36,365 | INFO | alembic.runtime.plugins | setup plugin alembic.autogenerate.tables
+2026-07-08 16:37:36,365 | INFO | alembic.runtime.plugins | setup plugin alembic.autogenerate.types
+2026-07-08 16:37:36,365 | INFO | alembic.runtime.plugins | setup plugin alembic.autogenerate.constraints
+2026-07-08 16:37:36,365 | INFO | alembic.runtime.plugins | setup plugin alembic.autogenerate.defaults
+2026-07-08 16:37:36,365 | INFO | alembic.runtime.plugins | setup plugin alembic.autogenerate.comments
+[INIT] URL DB lue dans .env : postgresql+asyncpg://ecoloop_user:CHANGE_ME@localhost:5432/ecoloop_db
+[WARN] Impossible de créer la base : connection was closed in the middle of operation
+[WARN] Impossible de créer la base : connection was closed in the middle of operation
+[WARN] Impossible de créer la base : connection was closed in the middle of operation
+[WARN] Impossible de créer la base : connection was closed in the middle of operation
+[WARN] Impossible de créer la base : connection was closed in the middle of operation
+[WARN] Impossible de créer la base : connection was closed in the middle of operation
+[WARN] Impossible de créer la base : connection was closed in the middle of operation
+[INIT] Test de connexion : postgresql+asyncpg://ecoloop_user:ecoloop_pass@localhost:5432/ecoloop_db
+[INIT] Test de connexion : postgresql+asyncpg://ecoloop_user:postgres@localhost:5432/ecoloop_db
+[INIT] Test de connexion : postgresql+asyncpg://ecoloop_user:root@localhost:5432/ecoloop_db
+[INIT] Test de connexion : postgresql+asyncpg://postgres:postgres@localhost:5432/ecoloop_db
+[INIT] Test de connexion : postgresql+asyncpg://postgres:postgres@localhost:5432/postgres
+[INIT] Test de connexion : postgresql+asyncpg://ecoloop_user:ecoloop_pass@localhost:5432/ecoloop_db
+[INIT] Test de connexion : postgresql+asyncpg://ecoloop_user:CHANGE_ME@localhost:5432/ecoloop_db
+[WARN] Aucune connexion DB n'a fonctionné.
+[MIGRATION] Exécution des migrations Alembic programmatiquement...
+D:\EcoLoop\ecoloop_backend\scratch\test_e2e_flow.py:156: RuntimeWarning: coroutine 'run_migrations_online' was never awaited
+  print(f"[MIGRATION] Erreur ou avertissement lors de l'application d'Alembic: {e}")
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+[MIGRATION] Erreur ou avertissement lors de l'application d'Alembic: asyncio.run() cannot be called from a running event loop
+Traceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\windows_events.py", line 463, in finish_socket_func
+    return ov.getresult()
+           ~~~~~~~~~~~~^^
+OSError: [WinError 64] Le nom réseau spécifié n’est plus disponible
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\proactor_events.py", line 286, in _loop_reading
+    length = fut.result()
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\windows_events.py", line 807, in _poll
+    value = callback(transferred, key, ov)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\windows_events.py", line 467, in finish_socket_func
+    raise ConnectionResetError(*exc.args)
+ConnectionResetError: [WinError 64] Le nom réseau spécifié n’est plus disponible
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\EcoLoop\ecoloop_backend\scratch\test_e2e_flow.py", line 762, in <module>
+    asyncio.run(test_e2e_flow())
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\runners.py", line 205, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "D:\EcoLoop\ecoloop_backend\scratch\test_e2e_flow.py", line 229, in test_e2e_flow
+    await clean_test_data(session)
+  File "D:\EcoLoop\ecoloop_backend\scratch\test_e2e_flow.py", line 165, in clean_test_data
+    res = await session.execute(select(User).where(User.email.in_(test_emails)))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\ext\asyncio\session.py", line 448, in execute
+    result = await greenlet_spawn(
+             ^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 201, in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2373, in execute
+    return self._execute_internal(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        _add_event=_add_event,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2261, in _execute_internal
+    conn = self._connection_for_bind(bind)
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2113, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 2, in _connection_for_bind
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1191, in _connection_for_bind
+    conn = bind.connect()
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3295, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 144, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3319, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\pool\base.py", line 448, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1272, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 178, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\pool\base.py", line 389, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\engine\create.py", line 667, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 630, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 955, in connect
+    await_only(creator_fn(*arg, **kw)),
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\asyncpg\connection.py", line 2443, in connect
+    return await connect_utils._connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<22 lines>...
+    )
+    ^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\asyncpg\connect_utils.py", line 1218, in _connect
+    conn = await _connect_addr(
+           ^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\asyncpg\connect_utils.py", line 1054, in _connect_addr
+    return await __connect_addr(params, True, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\EcoLoop\ecoloop_backend\.venv\Lib\site-packages\asyncpg\connect_utils.py", line 1102, in __connect_addr
+    await connected
+asyncpg.exceptions.ConnectionDoesNotExistError: connection was closed in the middle of operation

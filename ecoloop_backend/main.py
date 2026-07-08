@@ -17,6 +17,9 @@ from app.api.routes import (
     transactions,
     users,
     wastes,
+    rewards,
+    reviews,
+    notifications,
 )
 from app.config.settings import settings
 from app.utils.helpers import limiter
@@ -103,6 +106,9 @@ app.include_router(transactions.router, prefix=prefix)
 app.include_router(payments.router, prefix=prefix)
 app.include_router(industrial.router, prefix=prefix)
 app.include_router(municipality.router, prefix=prefix)
+app.include_router(rewards.router, prefix=prefix)
+app.include_router(reviews.router, prefix=prefix)
+app.include_router(notifications.router, prefix=prefix)
 
 
 @app.get("/health", tags=["Système"])

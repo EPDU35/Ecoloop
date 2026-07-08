@@ -9,7 +9,19 @@ from app.config.settings import settings
 
 # Import de tous les modèles pour qu'Alembic détecte le schéma complet lors de
 # l'autogénération des migrations.
-from app.models import collection, reward, transaction, user, waste  # noqa: F401
+from app.models import (  # noqa: F401
+    audit_log,
+    collection,
+    collector_location,
+    collector_profile,
+    notification,
+    review,
+    reward,
+    reward_transaction,
+    transaction,
+    user,
+    waste,
+)
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

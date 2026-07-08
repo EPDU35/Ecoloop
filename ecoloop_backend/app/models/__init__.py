@@ -3,3 +3,9 @@ from app.models.reward import Reward  # noqa: F401
 from app.models.transaction import PaymentMethod, Transaction, TransactionStatus  # noqa: F401
 from app.models.user import User, UserRole  # noqa: F401
 from app.models.waste import LotStatus, WasteCategory, WasteLot  # noqa: F401
+from app.models.collector_profile import CollectorProfile, CollectorStatus, VerificationStatus  # noqa: F401
+from app.models.collector_location import CollectorLocation  # noqa: F401
+from app.models.reward_transaction import RewardTransaction, RewardAction  # noqa: F401
+from app.models.review import Review  # noqa: F401
+from app.models.notification import Notification, NotificationType  # noqa: F401
+from app.models.audit_log import AuditLog  # noqa: F401
