@@ -1,12 +1,18 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import { setupCache } from 'axios-cache-interceptor';
 import { API_BASE_URL } from '../config';
 
-const api: AxiosInstance = axios.create({
+const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+const api = setupCache(axiosInstance, {
+  ttl: 15 * 1000, // 15 seconds cache
+  methods: ['get'],
+}) as unknown as AxiosInstance;
 
 // Interceptor to add JWT Access Token to all requests
 api.interceptors.request.use(

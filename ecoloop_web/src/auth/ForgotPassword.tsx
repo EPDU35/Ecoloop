@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from './AuthLayout';
+import api from '../services/api';
 import './auth.css';
 
 const ArrowIcon = () => (
@@ -25,8 +26,6 @@ export default function ForgotPassword() {
     setError('');
     setSubmitting(true);
     try {
-      // Appel API pour demander le reset
-      const api = (await import('../services/api')).default;
       await api.post('/auth/password-reset/request', { email });
       setStep('sent');
     } catch (err: any) {
@@ -42,7 +41,6 @@ export default function ForgotPassword() {
     setError('');
     setSubmitting(true);
     try {
-      const api = (await import('../services/api')).default;
       await api.post('/auth/password-reset/confirm', { email, code, new_password: newPassword });
       setStep('reset');
     } catch (err: any) {

@@ -12,6 +12,10 @@ from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from redis import asyncio as aioredis
+
 from app.api.routes import (
     admin,
     ai,
@@ -43,8 +47,6 @@ logger = logging.getLogger("ecoloop")
 app = FastAPI(
     title=settings.app_name,
     version="1.0.0",
-    # En production, la doc interactive n'est exposée qu'aux environnements
-    # non publics — évite de cartographier toute l'API à un attaquant.
     docs_url="/docs" if not settings.is_production else None,
     redoc_url="/redoc" if not settings.is_production else None,
     openapi_url="/openapi.json" if not settings.is_production else None,
@@ -71,7 +73,6 @@ app.add_middleware(
     allowed_hosts=settings.allowed_hosts_list if settings.is_production else ["*"],
 )
 
-
 @app.middleware("http")
 async def security_headers_middleware(request: Request, call_next):
     """En-têtes de sécurité HTTP appliqués à toutes les réponses."""
@@ -85,19 +86,12 @@ async def security_headers_middleware(request: Request, call_next):
         response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
     return response
 
-
-# --- Gestion d'erreurs uniforme : jamais de stack trace ni de détail interne au client ---
-
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    # Les messages de validation Pydantic sont sûrs à renvoyer (ils décrivent le
-    # format attendu, pas l'état interne du serveur). jsonable_encoder évite les
-    # erreurs de sérialisation (ex: objets ValueError non sérialisables).
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content=jsonable_encoder({"detail": exc.errors()}),
     )
-
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
@@ -107,7 +101,6 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         headers=exc.headers,
     )
 
-
 @app.on_event("shutdown")
 async def shutdown_event():
     await ai_service.close()
@@ -116,12 +109,10 @@ async def keep_alive_task():
     url = os.environ.get("RENDER_EXTERNAL_URL")
     if not url:
         return
-    
     ping_url = f"{url.rstrip('/')}/health"
-    
     async with httpx.AsyncClient(timeout=10.0) as client:
         while True:
-            await asyncio.sleep(14 * 60)  # Render dort après 15 min, on ping à 14 min
+            await asyncio.sleep(14 * 60)
             try:
                 await client.get(ping_url)
                 logger.info("Keep-alive ping sent successfully")
@@ -130,10 +121,10 @@ async def keep_alive_task():
 
 @app.on_event("startup")
 async def startup_event():
+    redis = aioredis.from_url(settings.redis_url, encoding="utf8", decode_responses=True)
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     if os.environ.get("RENDER_EXTERNAL_URL"):
         asyncio.create_task(keep_alive_task())
-
-
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):

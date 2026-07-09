@@ -7,11 +7,23 @@ RAPPEL DE CONVENTION SÉCURITÉ (voir app/config/database.py) :
 - Si une requête brute est indispensable, utiliser `sqlalchemy.text()` avec des
   paramètres nommés bindés : `text("... WHERE email = :email")` + `{"email": email}`.
 """
-from fastapi import Request
+from fastapi import Request, Response
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from app.config.settings import settings
+
+def user_cache_key_builder(
+    func,
+    namespace: str = "",
+    request: Request = None,
+    response: Response = None,
+    *args,
+    **kwargs,
+):
+    user = kwargs.get("current_user") or kwargs.get("_mairie")
+    user_id = user.id if user else "anonymous"
+    return f"{namespace}:{func.__module__}:{func.__name__}:{user_id}"
 
 # Limiteur de débit basé sur l'IP du client. Empêche le brute-force sur les
 # endpoints sensibles (login, register, OTP) même en cas de vol du user-agent.

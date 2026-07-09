@@ -1,10 +1,18 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
+import { setupCache } from 'axios-cache-interceptor';
 import { API_BASE_URL } from '../config';
 
-const api = axios.create({
+const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
+
+const api = setupCache(axiosInstance, {
+  ttl: 15 * 1000, // 15 seconds cache
+  methods: ['get'],
+}) as unknown as AxiosInstance;
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token');

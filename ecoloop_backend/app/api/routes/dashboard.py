@@ -17,12 +17,16 @@ from app.models.user import User, UserRole
 from app.models.waste import LotStatus, WasteCategory, WasteLot
 from app.services.ai_service import ai_service
 
+from app.utils.helpers import user_cache_key_builder
+from fastapi_cache.decorator import cache
+
 router = APIRouter(prefix="/dashboard", tags=["Tableau de bord"])
 
 CO2_PER_KG = 0.65
 
 
 @router.get("/producer")
+@cache(expire=30, key_builder=user_cache_key_builder)
 async def producer_dashboard(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_roles(UserRole.PRODUCTEUR)),
@@ -89,6 +93,7 @@ async def producer_dashboard(
 
 
 @router.get("/collector")
+@cache(expire=30, key_builder=user_cache_key_builder)
 async def collector_dashboard(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_roles(UserRole.COLLECTEUR)),
@@ -157,6 +162,7 @@ async def collector_dashboard(
 
 
 @router.get("/industrial")
+@cache(expire=30, key_builder=user_cache_key_builder)
 async def industrial_dashboard(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_roles(UserRole.INDUSTRIEL)),
@@ -207,6 +213,7 @@ async def industrial_dashboard(
 
 
 @router.get("/municipality")
+@cache(expire=30, key_builder=user_cache_key_builder)
 async def municipality_dashboard(
     db: AsyncSession = Depends(get_db),
     _mairie: User = Depends(require_roles(UserRole.MAIRIE, UserRole.ADMIN)),

@@ -24,6 +24,9 @@ from app.services.ai_service import ai_service
 from app.services.email_service import email_service
 from app.services.event_manager import event_manager
 
+from app.utils.helpers import user_cache_key_builder
+from fastapi_cache.decorator import cache
+
 logger = logging.getLogger("ecoloop.admin")
 router = APIRouter(prefix="/admin", tags=["Administration"])
 
@@ -31,6 +34,7 @@ CO2_PER_KG = 0.65
 
 
 @router.get("/stats")
+@cache(expire=30, key_builder=user_cache_key_builder)
 async def admin_stats(
     db: AsyncSession = Depends(get_db),
     _admin: User = Depends(require_roles(UserRole.ADMIN)),
