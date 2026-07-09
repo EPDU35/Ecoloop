@@ -38,6 +38,9 @@ api.interceptors.response.use(
           localStorage.removeItem('refresh_token');
           window.location.href = '/login?expired=true';
         }
+      } else {
+        localStorage.removeItem('access_token');
+        window.location.href = '/login?expired=true';
       }
     }
     return Promise.reject(error);

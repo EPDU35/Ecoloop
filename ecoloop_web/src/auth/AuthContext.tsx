@@ -30,7 +30,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchProfile = async () => {
     try {
       const res = await api.get('/users/me');
-      setUser(res.data);
+      // Le backend renvoie le rôle en MAJUSCULES (ex: "PRODUCTEUR").
+      // On normalise en minuscules pour que le routing (routes.tsx) matche.
+      const raw = res.data;
+      setUser({ ...raw, role: String(raw.role || '').toLowerCase() });
     } catch (e) {
       logout();
     } finally {

@@ -57,6 +57,9 @@ api.interceptors.response.use(
           localStorage.removeItem('refresh_token');
           window.location.href = '/connexion?expired=true';
         }
+      } else {
+        localStorage.removeItem('access_token');
+        window.location.href = '/connexion?expired=true';
       }
     }
     

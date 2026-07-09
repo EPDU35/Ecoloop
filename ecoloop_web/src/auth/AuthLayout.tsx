@@ -58,13 +58,10 @@ function MaterialStamp() {
 }
 
 type AuthLayoutProps = {
-  ticketCode?: string;
   children: React.ReactNode;
 };
 
-export default function AuthLayout({ ticketCode, children }: AuthLayoutProps) {
-  const code = ticketCode ?? `EL-${Math.floor(10000 + Math.random() * 89999)}`;
-
+export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="el-root">
       {/* Left: brand panel */}
@@ -114,15 +111,6 @@ export default function AuthLayout({ ticketCode, children }: AuthLayoutProps) {
             }}>
               <span style={{ fontSize: '1rem', lineHeight: 1 }}>←</span> Retour à l'accueil
             </a>
-            <span style={{ 
-              fontFamily: "'IBM Plex Mono', monospace", 
-              fontSize: '10.5px', 
-              fontWeight: 600,
-              color: 'var(--el-ink-soft)',
-              letterSpacing: '0.05em'
-            }}>
-              TICKET N° {code}
-            </span>
           </div>
           {children}
         </div>
