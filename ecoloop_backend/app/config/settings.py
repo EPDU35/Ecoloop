@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
 
     # --- CORS / hosts ---
-    cors_origins: str = ""
+    cors_origins: str = "http://localhost:5000,http://localhost:3000,http://localhost:3001,https://ecoloop-backoffice.vercel.app,https://ecoloop-web-alpha.vercel.app"
     allowed_hosts: str = "localhost,127.0.0.1,*.onrender.com,*.vercel.app"
 
     # --- Cloudinary ---
