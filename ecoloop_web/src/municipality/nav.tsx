@@ -26,12 +26,20 @@ export const ImpactIcon = () => (
   </svg>
 );
 
+export const PreventifIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M12 22V12m0 0a5 5 0 10-5-5M12 12a5 5 0 115-5" />
+    <path d="M8 14h8M8 18h8" />
+  </svg>
+);
+
 export const NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
   { key: 'carte', label: 'Carte des déchets', icon: <MapIcon /> },
   { key: 'alertes', label: 'Signalements', icon: <AlertIcon /> },
   { key: 'impact', label: 'Impact RSE', icon: <ImpactIcon /> },
   { key: 'reports', label: 'Rapports', icon: <ReportsIcon /> },
+  { key: 'preventif', label: 'Système préventif', icon: <PreventifIcon /> },
 ];
 
 export const NAV_PATHS: Record<string, string> = {
@@ -40,4 +48,5 @@ export const NAV_PATHS: Record<string, string> = {
   alertes: '/mairie/alertes',
   impact: '/mairie/impact',
   reports: '/mairie/rapports',
+  preventif: '/mairie/preventif',
 };

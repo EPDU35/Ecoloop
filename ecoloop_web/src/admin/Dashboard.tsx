@@ -4,7 +4,6 @@ import AppLayout from '../components/AppLayout';
 import { useAuth } from '../auth/AuthContext';
 import { getAdminActivity, type PlatformActivity } from '../services/analytics.service';
 import api from '../services/api';
-import '../../styles/dark-dashboard.css';
 
 interface AdminStats {
   users: { total: number; producers: number; collectors: number; verified: number };

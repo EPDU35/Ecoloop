@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 from app.config.security import password_meets_policy
 from app.models.user import UserRole
 
-PHONE_REGEX = re.compile(r"^\+?[0-9]{8,15}$")
+PHONE_REGEX = re.compile(r"^\+?[\d\s\-\(\)]{8,20}$")
 
 
 class UserRegisterSchema(BaseModel):

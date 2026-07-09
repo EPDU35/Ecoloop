@@ -4,7 +4,6 @@ import AppLayout from '../components/AppLayout';
 import { useAuth } from '../auth/AuthContext';
 import { NAV_PATHS } from './nav';
 import api from '../services/api';
-import '../../styles/dark-dashboard.css';
 
 interface IndustrialDash {
   total_revenue_fcfa: number;

@@ -6,7 +6,6 @@ import { NAV_ITEMS, NAV_PATHS } from './nav';
 import { getCollectorDashboard, getAvailableWastes, reserveWasteLot } from '../services/collecteur.service';
 import { useAuth } from '../auth/AuthContext';
 import type { CollectorDashboard, WasteLotOut } from '../models/Waste';
-import '../../styles/dark-dashboard.css';
 
 const CATEGORY_COLORS: Record<string, string> = {
   PET: '#10B981', HDPE: '#3B82F6', CARTON: '#F59E0B', VERRE: '#8B5CF6',

@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import Home from "../pages/Home";
+import Fonctionnement from "../pages/Fonctionnement";
+import Pricing from "../pages/Pricing";
 
 import IndustrialDashboard from "../industrial/Dashboard";
 import IndustrialMarketplace from "../industrial/Marketplace";
@@ -8,12 +10,14 @@ import IndustrialSuppliers from "../industrial/Suppliers";
 import IndustrialContracts from "../industrial/Contracts";
 import IndustrialOrders from "../industrial/Orders";
 import IndustrialReports from "../industrial/Reports";
+import HistoriqueAchats from "../industrial/HistoriqueAchats";
 
 import MunicipalityDashboard from "../municipality/Dashboard";
 import MunicipalityWasteMap from "../municipality/WasteMap";
 import MunicipalityAlerts from "../municipality/Alerts";
 import MunicipalityImpact from "../municipality/Impact";
 import MunicipalityReports from "../municipality/Reports";
+import MairiePreventif from "../municipality/Preventif";
 
 import AdminDashboard from "../admin/Dashboard";
 import AdminUsers from "../admin/Users";
@@ -31,17 +35,22 @@ import ProducteurDashboard from "../producteur/Dashboard";
 import ProducteurLots from "../producteur/Lots";
 import ProducteurCollectes from "../producteur/Collectes";
 import ProducteurRevenus from "../producteur/Revenus";
+import NouvelleCollecte from "../producteur/NouvelleCollecte";
+import SuiviCollecte from "../producteur/SuiviCollecte";
+import Recompenses from "../producteur/Recompenses";
 
 import CollecteurDashboard from "../collecteur/Dashboard";
 import CollecteurMarketplace from "../collecteur/Marketplace";
 import CollecteurTournees from "../collecteur/Tournees";
 import CollecteurRevenus from "../collecteur/Revenus";
+import CollecteurMissionDetail from "../collecteur/MissionDetail";
+import CollecteurCollecteEnCours from "../collecteur/CollecteEnCours";
 
 import Profil from "../pages/shared/Profil";
 import FAQ from "../pages/FAQ";
 import CGU from "../pages/CGU";
 
-// Pages de pied de page premium créées pour le client
+// Pages de pied de page premium crées pour le client
 import { About, Partners, Contact } from "../pages/FooterPages";
 
 function ComingSoon({ title }: { title: string }) {
@@ -80,8 +89,10 @@ export default function AppRoutes() {
     <Routes>
       {/* Pages publiques */}
       <Route path="/" element={<HomeRedirect />} />
+      <Route path="/fonctionnement" element={<Fonctionnement />} />
       <Route path="/about" element={<About />} />
       <Route path="/partners" element={<Partners />} />
+      <Route path="/pricing" element={<Pricing />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/cgu" element={<CGU />} />
@@ -101,13 +112,18 @@ export default function AppRoutes() {
       {/* Producteur */}
       <Route path="/producteur" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurDashboard /></ProtectedRoute>} />
       <Route path="/producteur/lots" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurLots /></ProtectedRoute>} />
+      <Route path="/producteur/nouvelle-collecte" element={<ProtectedRoute allowedRoles={['producteur']}><NouvelleCollecte /></ProtectedRoute>} />
       <Route path="/producteur/collectes" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurCollectes /></ProtectedRoute>} />
+      <Route path="/producteur/suivi/:id" element={<ProtectedRoute allowedRoles={['producteur']}><SuiviCollecte /></ProtectedRoute>} />
       <Route path="/producteur/revenus" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurRevenus /></ProtectedRoute>} />
+      <Route path="/producteur/recompenses" element={<ProtectedRoute allowedRoles={['producteur']}><Recompenses /></ProtectedRoute>} />
 
       {/* Collecteur */}
       <Route path="/collecteur" element={<ProtectedRoute allowedRoles={['collecteur']}><CollecteurDashboard /></ProtectedRoute>} />
       <Route path="/collecteur/marketplace" element={<ProtectedRoute allowedRoles={['collecteur']}><CollecteurMarketplace /></ProtectedRoute>} />
+      <Route path="/collecteur/mission/:id" element={<ProtectedRoute allowedRoles={['collecteur']}><CollecteurMissionDetail /></ProtectedRoute>} />
       <Route path="/collecteur/tournees" element={<ProtectedRoute allowedRoles={['collecteur']}><CollecteurTournees /></ProtectedRoute>} />
+      <Route path="/collecteur/collecte/:id" element={<ProtectedRoute allowedRoles={['collecteur']}><CollecteurCollecteEnCours /></ProtectedRoute>} />
       <Route path="/collecteur/revenus" element={<ProtectedRoute allowedRoles={['collecteur']}><CollecteurRevenus /></ProtectedRoute>} />
 
       {/* Industriel (Refactorisé) */}
@@ -117,13 +133,15 @@ export default function AppRoutes() {
       <Route path="/industrial/contracts" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialContracts /></ProtectedRoute>} />
       <Route path="/industrial/orders" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialOrders /></ProtectedRoute>} />
       <Route path="/industrial/reports" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialReports /></ProtectedRoute>} />
+      <Route path="/industrial/historique" element={<ProtectedRoute allowedRoles={['industriel']}><HistoriqueAchats /></ProtectedRoute>} />
 
-      {/* Mairie / RSE (Refactorisé) */}
+{/* Mairie / RSE (Refactorisé) */}
       <Route path="/mairie" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityDashboard /></ProtectedRoute>} />
       <Route path="/mairie/carte" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityWasteMap /></ProtectedRoute>} />
       <Route path="/mairie/alertes" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityAlerts /></ProtectedRoute>} />
       <Route path="/mairie/impact" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityImpact /></ProtectedRoute>} />
       <Route path="/mairie/rapports" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityReports /></ProtectedRoute>} />
+      <Route path="/mairie/preventif" element={<ProtectedRoute allowedRoles={['mairie']}><MairiePreventif /></ProtectedRoute>} />
 
       {/* Compatibilité ancienne route */}
       <Route path="/industriel" element={<Navigate to="/industrial" replace />} />
