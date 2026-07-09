@@ -10,7 +10,26 @@
 
 services:
   # ---------------------------------------------------------------------------
-  # Backend API (Node/Express ou FastAPI) — DOIT ÊTRE EN PREMIER pour CORS
+  # Base de données PostgreSQL
+  # ---------------------------------------------------------------------------
+  - type: pserv
+    name: ecoloop-db
+    plan: free
+    region: oregon
+    ipAllowList: []
+    postgresMajorVersion: 16
+
+  # ---------------------------------------------------------------------------
+  # Redis (cache + rate limiting)
+  # ---------------------------------------------------------------------------
+  - type: redis
+    name: ecoloop-redis
+    plan: free
+    region: oregon
+    ipAllowList: []
+
+  # ---------------------------------------------------------------------------
+  # Backend API (FastAPI)
   # ---------------------------------------------------------------------------
   - type: web
     name: ecoloop-backend
@@ -18,20 +37,36 @@ services:
     dockerfilePath: ./ecoloop_backend/Dockerfile
     dockerContext: ./ecoloop_backend
     plan: free
+    region: oregon
     healthCheckPath: /api/v1/health
     envVars:
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: ecoloop-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: ecoloop-redis
+          property: connectionString
       - key: SECRET_KEY
         sync: false
       - key: JWT_SECRET
         sync: false
       - key: ENVIRONMENT
         value: production
+      - key: DEBUG
+        value: "false"
       - key: CORS_ORIGINS
-        value: https://ecoloop-backoffice.vercel.app,https://ecoloop-web-alpha.vercel.app
+        value: https://ecoloop-web.onrender.com,https://ecoloop-backoffice.onrender.com
       - key: AI_SERVICE_URL
-        value: https://ecoloop-9zrn.onrender.com
+        value: https://ecoloop-ai.onrender.com
+      - key: ALLOWED_HOSTS
+        value: ecoloop-backend.onrender.com,.onrender.com
+      - key: API_V1_PREFIX
+        value: /api/v1
+      - key: APP_NAME
+        value: EcoLoop API
 
   # ---------------------------------------------------------------------------
   # Service IA (classification, prédiction, détection de fraude)
@@ -42,6 +77,7 @@ services:
     dockerfilePath: ./ecoloop_ai/Dockerfile
     dockerContext: ./ecoloop_ai
     plan: free
+    region: oregon
     healthCheckPath: /api/health
     envVars:
       - key: JWT_SECRET
@@ -51,30 +87,34 @@ services:
       - key: MODEL_PATH
         value: /app/saved_models
       - key: ALLOWED_ORIGINS
-        value: https://ecoloop-backend-5pdb.onrender.com
+        value: https://ecoloop-backend.onrender.com
+      - key: PORT
+        value: "8000"
 
   # ---------------------------------------------------------------------------
-  # Frontend public (React + Vite)
+  # Frontend public (React + Vite) - Servi par Nginx
   # ---------------------------------------------------------------------------
   - type: web
     name: ecoloop-web
     env: docker
     dockerfilePath: ./ecoloop_web/Dockerfile
     dockerContext: ./ecoloop_web
-    plan: starter
+    plan: free
+    region: oregon
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://ecoloop-backend-5pdb.onrender.com/api/v1
+        value: https://ecoloop-backend.onrender.com/api/v1
 
   # ---------------------------------------------------------------------------
-  # Backoffice admin (React + Vite)
+  # Backoffice admin (React + Vite) - Servi par Nginx
   # ---------------------------------------------------------------------------
   - type: web
     name: ecoloop-backoffice
     env: docker
     dockerfilePath: ./ecoloop_backoffice/Dockerfile
     dockerContext: ./ecoloop_backoffice
-    plan: starter
+    plan: free
+    region: oregon
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://ecoloop-backend-5pdb.onrender.com/api/v1
+        value: https://ecoloop-backend.onrender.com/api/v1
