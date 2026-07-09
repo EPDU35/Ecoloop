@@ -16,8 +16,8 @@ export interface KpiData {
   id: string;
   label: string;
   value: string;
-  deltaLabel: string;
-  deltaDirection: "up" | "down";
+  deltaLabel?: string;
+  deltaDirection?: "up" | "down";
 }
 
 export interface Contract {

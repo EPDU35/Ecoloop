@@ -293,9 +293,9 @@ export default function Home() {
             </div>
             <div className="el-foot-col">
               <h5>Entreprise</h5>
-              <a href="#">À propos</a>
-              <a href="#">Partenaires RSE</a>
-              <a href="#">Contact</a>
+              <a href="/about">À propos</a>
+              <a href="/partners">Partenaires RSE</a>
+              <a href="/contact">Contact</a>
             </div>
           </div>
         </div>

@@ -1,21 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
-
-:root {
-  --el-forest: #0d1f16;
-  --el-forest-2: #16281f;
-  --el-forest-3: #1e332a;
-  --el-paper: #f3eee1;
-  --el-paper-2: #e9e0cb;
-  --el-ink: #14251b;
-  --el-ink-soft: #4a5a4f;
-  --el-amber: #d9a441;
-  --el-amber-dark: #b6862f;
-  --el-signal: #3fa34d;
-  --el-rust: #b4522f;
-  --el-line: rgba(243, 238, 225, 0.14);
-  --el-line-dark: rgba(20, 37, 27, 0.16);
-  --radius-card: 4px;
-}
+@import "../styles/tokens.css";
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 .el-root {
   font-family: 'Inter', -apple-system, sans-serif;

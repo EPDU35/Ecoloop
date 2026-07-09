@@ -36,9 +36,11 @@ import CollecteurTournees from "../collecteur/Tournees";
 import CollecteurRevenus from "../collecteur/Revenus";
 
 import Profil from "../pages/shared/Profil";
-import Contact from "../pages/shared/Contact";
 import FAQ from "../pages/FAQ";
 import CGU from "../pages/CGU";
+
+// Pages de pied de page premium créées pour le client
+import { About, Partners, Contact } from "../pages/FooterPages";
 
 function ComingSoon({ title }: { title: string }) {
   return (
@@ -74,26 +76,35 @@ function HomeRedirect() {
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Pages publiques */}
       <Route path="/" element={<HomeRedirect />} />
-      <Route path="/connexion" element={<Login />} />
-      <Route path="/inscription" element={<Register />} />
-      <Route path="/verifier-otp" element={<OtpVerification />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/partners" element={<Partners />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/cgu" element={<CGU />} />
 
+      {/* Auth */}
+      <Route path="/connexion" element={<Login />} />
+      <Route path="/inscription" element={<Register />} />
+      <Route path="/verifier-otp" element={<OtpVerification />} />
+
+      {/* Profil commun */}
       <Route path="/profil" element={<ProtectedRoute><Profil /></ProtectedRoute>} />
 
+      {/* Producteur */}
       <Route path="/producteur" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurDashboard /></ProtectedRoute>} />
       <Route path="/producteur/lots" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurLots /></ProtectedRoute>} />
       <Route path="/producteur/collectes" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurCollectes /></ProtectedRoute>} />
       <Route path="/producteur/revenus" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurRevenus /></ProtectedRoute>} />
 
+      {/* Collecteur */}
       <Route path="/collecteur" element={<ProtectedRoute allowedRoles={['collecteur']}><CollecteurDashboard /></ProtectedRoute>} />
       <Route path="/collecteur/marketplace" element={<ProtectedRoute allowedRoles={['collecteur']}><CollecteurMarketplace /></ProtectedRoute>} />
       <Route path="/collecteur/tournees" element={<ProtectedRoute allowedRoles={['collecteur']}><CollecteurTournees /></ProtectedRoute>} />
       <Route path="/collecteur/revenus" element={<ProtectedRoute allowedRoles={['collecteur']}><CollecteurRevenus /></ProtectedRoute>} />
 
+      {/* Industriel (Refactorisé) */}
       <Route path="/industrial" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialDashboard /></ProtectedRoute>} />
       <Route path="/industrial/marketplace" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialMarketplace /></ProtectedRoute>} />
       <Route path="/industrial/suppliers" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialSuppliers /></ProtectedRoute>} />
@@ -101,20 +112,24 @@ export default function AppRoutes() {
       <Route path="/industrial/orders" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialOrders /></ProtectedRoute>} />
       <Route path="/industrial/reports" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialReports /></ProtectedRoute>} />
 
+      {/* Mairie / RSE (Refactorisé) */}
       <Route path="/mairie" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityDashboard /></ProtectedRoute>} />
       <Route path="/mairie/carte" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityWasteMap /></ProtectedRoute>} />
       <Route path="/mairie/alertes" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityAlerts /></ProtectedRoute>} />
       <Route path="/mairie/impact" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityImpact /></ProtectedRoute>} />
       <Route path="/mairie/rapports" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityReports /></ProtectedRoute>} />
 
+      {/* Compatibilité ancienne route */}
       <Route path="/industriel" element={<Navigate to="/industrial" replace />} />
 
+      {/* Administration / Backoffice (Refactorisé) */}
       <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><AdminUsers /></ProtectedRoute>} />
       <Route path="/admin/transactions" element={<ProtectedRoute allowedRoles={['admin']}><AdminTransactions /></ProtectedRoute>} />
       <Route path="/admin/payments" element={<ProtectedRoute allowedRoles={['admin']}><AdminPayments /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><AdminSettings /></ProtectedRoute>} />
 
+      {/* Page introuvable */}
       <Route path="*" element={<ComingSoon title="Page introuvable" />} />
     </Routes>
   );
