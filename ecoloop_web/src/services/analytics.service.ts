@@ -105,8 +105,21 @@ export async function suspendPlatformUser(id: string): Promise<void> {
   await api.patch(`/admin/users/${id}/suspend`);
 }
 
-export async function rejectPlatformUser(id: string): Promise<void> {
-  await api.patch(`/admin/users/${id}/reject`);
+export async function rejectPlatformUser(id: string, reason?: string): Promise<void> {
+  await api.patch(`/admin/users/${id}/reject`, { reason });
+}
+
+export async function createInvitation(payload: { email: string; role: string }): Promise<void> {
+  await api.post('/admin/invitations', payload);
+}
+
+export async function createBulkInvitations(file: File): Promise<{ success: number; errors: string[] }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await api.post('/admin/invitations/bulk', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data;
 }
 
 export interface PlatformTransaction {

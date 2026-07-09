@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import AuthLayout from './AuthLayout';
 import './auth.css';
@@ -69,6 +69,7 @@ const ArrowIcon = () => (
 
 export default function Register() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { register } = useAuth();
   const [role, setRole] = useState<UserRole>('producteur');
   const [fullName, setFullName] = useState('');
@@ -78,6 +79,24 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Gestion du token d'invitation dans l'URL
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const roleParam = searchParams.get('role');
+    const emailParam = searchParams.get('email');
+
+    if (token) {
+      // Stocker le token pour l'inclusion dans la requête d'inscription
+      localStorage.setItem('invitation_token', token);
+    }
+    if (roleParam && ['producteur', 'collecteur', 'industriel', 'mairie'].includes(roleParam)) {
+      setRole(roleParam as UserRole);
+    }
+    if (emailParam) {
+      setEmail(emailParam);
+    }
+  }, [searchParams]);
 
   const selectedRole = ROLES.find((r) => r.id === role);
 
@@ -127,13 +146,16 @@ export default function Register() {
     }
 
     try {
+      const invitationToken = localStorage.getItem('invitation_token');
       await register({
         full_name: fullName.trim(),
         email: email.trim(),
         phone: cleanedPhone,
         password,
         role: role.toUpperCase(),
+        invitation_token: invitationToken || undefined,
       });
+      localStorage.removeItem('invitation_token');
       navigate('/connexion?registered=true');
     } catch (err: any) {
       const data = err?.response?.data;

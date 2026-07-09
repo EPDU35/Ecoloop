@@ -18,6 +18,7 @@ from redis import asyncio as aioredis
 
 from app.api.routes import (
     admin,
+    admin_invitations,
     ai,
     auth,
     collections,
@@ -141,6 +142,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 # --- Routes ---
 prefix = settings.api_v1_prefix
 app.include_router(admin.router, prefix=prefix)
+app.include_router(admin_invitations.router, prefix=prefix)
 app.include_router(auth.router, prefix=prefix)
 app.include_router(users.router, prefix=prefix)
 app.include_router(wastes.router, prefix=prefix)

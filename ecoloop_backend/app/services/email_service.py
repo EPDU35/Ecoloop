@@ -237,5 +237,44 @@ class EmailService:
         text_content = f"Réinitialisez votre mot de passe EcoLoop : {reset_link} (valable 30 min)."
         return await self.send_email(to_email, subject, html_content, to_name, text_content)
 
+    async def send_invitation_email(
+        self,
+        to_email: str,
+        token: str,
+        role: str,
+        to_name: Optional[str] = None,
+    ) -> bool:
+        """Envoie le lien d'invitation pour compléter l'inscription."""
+        invite_link = f"{settings.frontend_url.rstrip('/')}/inscription?token={token}"
+        role_labels = {
+            "COLLECTEUR": "Collecteur",
+            "INDUSTRIEL": "Industriel",
+            "MAIRIE": "Mairie / RSE",
+        }
+        role_label = role_labels.get(role, role)
+        subject = f"Invitation EcoLoop : rejoignez en tant que {role_label}"
+        html_content = f"""
+        <div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:auto;color:#1a1a1a">
+          <h2 style="color:#159c5b">EcoLoop ♻️</h2>
+          <p>Bonjour{(' ' + to_name) if to_name else ''},</p>
+          <p>Vous avez été invité(e) à rejoindre EcoLoop en tant que <strong>{role_label}</strong>.</p>
+          <p>Cliquez sur le bouton ci-dessous pour compléter votre inscription :</p>
+          <p style="text-align:center">
+            <a href="{invite_link}"
+               style="background:#159c5b;color:#fff;text-decoration:none;
+                      padding:12px 24px;border-radius:8px;display:inline-block">
+              Compléter mon inscription
+            </a>
+          </p>
+          <p style="color:#888;font-size:13px">Ce lien expire dans 7 jours.
+             Si vous n'êtes pas à l'origine de cette invitation, ignorez cet email.</p>
+        </div>
+        """
+        text_content = (
+            f"Vous avez été invité à rejoindre EcoLoop en tant que {role_label}. "
+            f"Complétez votre inscription : {invite_link} (valable 7 jours)."
+        )
+        return await self.send_email(to_email, subject, html_content, to_name, text_content)
+
 
 email_service = EmailService()

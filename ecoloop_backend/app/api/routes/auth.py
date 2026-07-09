@@ -8,7 +8,7 @@ import logging
 from app.config.database import get_db
 from app.config.security import hash_password
 from app.models.reward import Reward
-from app.models.user import User, UserRole
+from app.models.user import User, UserRole, UserInvitation, InvitationStatus
 
 logger = logging.getLogger("ecoloop.auth")
 from app.config.settings import settings
@@ -23,6 +23,7 @@ from app.schemas.user_schema import (
     UserLoginSchema,
     UserOutSchema,
     UserRegisterSchema,
+    InvitationAcceptSchema,
 )
 from app.utils.helpers import limiter
 
@@ -94,6 +95,16 @@ async def password_reset_confirm(request: Request, payload: PasswordResetConfirm
     await auth_controller.confirm_password_reset(db, payload)
     await db.commit()
     return {"message": "Mot de passe réinitialisé avec succès."}
+
+
+@router.post("/accept-invitation", response_model=TokenPairSchema, status_code=status.HTTP_201_CREATED)
+@limiter.limit(settings.rate_limit_auth)
+async def accept_invitation(request: Request, payload: InvitationAcceptSchema, db: AsyncSession = Depends(get_db)):
+    """Accepte une invitation admin et crée le compte utilisateur."""
+    user = await auth_controller.accept_invitation(db, payload.token, payload.full_name, payload.phone, payload.password)
+    await db.commit()
+    access, refresh = auth_controller.issue_token_pair(user)
+    return TokenPairSchema(access_token=access, refresh_token=refresh)
 
 
 class SeedAdminSchema(BaseModel):

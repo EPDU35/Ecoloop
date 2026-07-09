@@ -16,6 +16,7 @@ class UserRegisterSchema(BaseModel):
     phone: str
     password: str
     role: UserRole
+    invitation_token: str | None = None  # Token d'invitation admin (optionnel)
 
     @field_validator("full_name")
     @classmethod

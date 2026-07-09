@@ -18,7 +18,7 @@ from app.config.security import (
 )
 from app.config.settings import settings
 from app.models.reward import Reward
-from app.models.user import User, UserRole
+from app.models.user import User, UserRole, UserInvitation, InvitationStatus
 from app.schemas.user_schema import (
     PasswordResetConfirmSchema,
     PasswordResetRequestSchema,
@@ -36,16 +36,69 @@ async def register_user(db: AsyncSession, payload: UserRegisterSchema) -> tuple[
         select(User).where((User.email == payload.email) | (User.phone == payload.phone))
     )
     if existing.scalar_one_or_none() is not None:
-        # Message générique ici aussi : ne pas confirmer si c'est l'email ou le
-        # téléphone qui est déjà pris (limite l'énumération de comptes).
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Un compte existe déjà avec ces informations.",
+        )
+
+    # Si invitation_token fourni, vérifier l'invitation
+    invitation = None
+    if payload.invitation_token:
+        result = await db.execute(
+            select(UserInvitation).where(
+                UserInvitation.token == payload.invitation_token,
+                UserInvitation.status == InvitationStatus.PENDING,
+            )
+        )
+        invitation = result.scalar_one_or_none()
+
+        if not invitation:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invitation invalide ou déjà utilisée.",
+            )
+
+        if invitation.expires_at < datetime.now(timezone.utc):
+            invitation.status = InvitationStatus.EXPIRED
+            await db.commit()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cette invitation a expiré.",
+            )
+
+        # Vérifier que l'email correspond
+        if invitation.email.lower() != payload.email.lower():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="L'email ne correspond pas à l'invitation.",
+            )
+
+        # Vérifier que le rôle correspond
+        if invitation.role != payload.role:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Le rôle ne correspond pas à l'invitation.",
+            )
+
+    existing = await db.execute(
+        select(User).where((User.email == payload.email) | (User.phone == payload.phone))
+    )
+    if existing.scalar_one_or_none() is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Un compte existe déjà avec ces informations.",
         )
 
     otp_code = generate_otp()
-    # OTP bpassé temporairement : le compte est vérifié d'office
-    auto_active = payload.role == UserRole.PRODUCTEUR
+    # Pour les invitations : compte actif et vérifié directement
+    # Pour les auto-inscriptions : Producteur = actif, autres = en attente
+    if invitation:
+        auto_active = True
+        is_verified = True
+    else:
+        auto_active = payload.role == UserRole.PRODUCTEUR
+        is_verified = True  # Bypass OTP pour l'instant
+
     user = User(
         full_name=payload.full_name,
         email=payload.email,
@@ -53,7 +106,7 @@ async def register_user(db: AsyncSession, payload: UserRegisterSchema) -> tuple[
         hashed_password=hash_password(payload.password),
         role=payload.role,
         is_active=auto_active,
-        is_verified=True,  # Bypass OTP
+        is_verified=is_verified,
         otp_hash=None,
         otp_expires_at=None,
     )
@@ -61,6 +114,11 @@ async def register_user(db: AsyncSession, payload: UserRegisterSchema) -> tuple[
     await db.flush()
 
     db.add(Reward(user_id=user.id))
+
+    # Si invitation, la marquer comme acceptée
+    if invitation:
+        invitation.status = InvitationStatus.ACCEPTED
+        invitation.accepted_at = datetime.now(timezone.utc)
 
     # Le code OTP est renvoyé à la route (et loggé en debug) — il sera transmis
     # au service SMS/email en production.
@@ -177,21 +235,56 @@ async def request_password_reset(db: AsyncSession, payload: PasswordResetRequest
     return token
 
 
-async def confirm_password_reset(db: AsyncSession, payload: PasswordResetConfirmSchema) -> None:
-    token_hash = hash_token(payload.token)
-    result = await db.execute(select(User).where(User.reset_token_hash == token_hash))
-    user = result.scalar_one_or_none()
+async def accept_invitation(db: AsyncSession, token: str, full_name: str, phone: str, password: str) -> User:
+    """Accepte une invitation et crée le compte utilisateur."""
+    result = await db.execute(
+        select(UserInvitation).where(
+            UserInvitation.token == token,
+            UserInvitation.status == InvitationStatus.PENDING,
+        )
+    )
+    invitation = result.scalar_one_or_none()
 
-    if (
-        user is None
-        or user.reset_token_expires_at is None
-        or user.reset_token_expires_at < datetime.now(timezone.utc)
-    ):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Lien de réinitialisation invalide ou expiré.")
+    if not invitation:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invitation invalide ou déjà utilisée.",
+        )
 
-    user.hashed_password = hash_password(payload.new_password)
-    user.reset_token_hash = None
-    user.reset_token_expires_at = None
-    user.failed_login_attempts = 0
-    user.locked_until = None
+    if invitation.expires_at < datetime.now(timezone.utc):
+        invitation.status = InvitationStatus.EXPIRED
+        await db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cette invitation a expiré.",
+        )
+
+    # Vérifier que l'email n'est pas déjà utilisé
+    existing_user = await db.execute(select(User).where(User.email == invitation.email))
+    if existing_user.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Un compte existe déjà avec cet email.",
+        )
+
+    # Créer l'utilisateur
+    user = User(
+        full_name=full_name,
+        email=invitation.email,
+        phone=phone,
+        hashed_password=hash_password(password),
+        role=invitation.role,
+        is_active=True,  # Activé directement car invité par admin
+        is_verified=True,  # Vérifié car email validé via invitation
+    )
+    db.add(user)
     await db.flush()
+
+    # Marquer l'invitation comme acceptée
+    invitation.status = InvitationStatus.ACCEPTED
+    invitation.accepted_at = datetime.now(timezone.utc)
+
+    await db.commit()
+    await db.refresh(user)
+
+    return user
