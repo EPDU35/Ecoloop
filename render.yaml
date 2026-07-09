@@ -47,14 +47,30 @@ services:
           property: connectionString
       - key: SECRET_KEY
         sync: false
+        # IMPORTANT : cette même valeur doit être recopiée dans JWT_SECRET du
+        # service ecoloop-ai ci-dessous. Le backend signe les JWT avec
+        # SECRET_KEY (app/config/security.py) et le service IA les vérifie
+        # avec JWT_SECRET (config/settings.py) : si les deux valeurs diffèrent,
+        # le service IA rejettera tous les tokens émis par le backend.
       - key: JWT_SECRET
         sync: false
       - key: ENVIRONMENT
         value: production
       - key: DEBUG
         value: "false"
+      - key: FRONTEND_URL
+        value: https://ecoloop-web-alpha.vercel.app
+        # Utilisé pour construire les liens dans les emails (reset mot de
+        # passe, invitations, lien de connexion). Absent de la config
+        # précédente => tous les emails envoyés en prod pointaient vers
+        # http://localhost:5000 (valeur par défaut de settings.py).
       - key: CORS_ORIGINS
-        value: https://ecoloop-web-alpha.vercel.app,https://ecoloop-backoffice.vercel.app,https://*.vercel.app
+        value: https://ecoloop-web-alpha.vercel.app,https://ecoloop-backoffice.vercel.app
+        # NB : "https://*.vercel.app" a été retiré. CORSMiddleware (allow_origins)
+        # ne fait que de la correspondance exacte de chaîne : un wildcard ici ne
+        # matche jamais rien et ne servait à rien. Le support des sous-domaines
+        # *.vercel.app (previews) est géré côté code via allow_origin_regex
+        # dans main.py, qui a été complété pour couvrir ce cas.
       - key: AI_SERVICE_URL
         value: https://ecoloop-ai.onrender.com
       - key: ALLOWED_HOSTS
@@ -78,6 +94,8 @@ services:
     envVars:
       - key: JWT_SECRET
         sync: false
+        # Doit être IDENTIQUE à la valeur de SECRET_KEY du service
+        # ecoloop-backend (voir commentaire ci-dessus).
       - key: ENV
         value: production
       - key: MODEL_PATH
