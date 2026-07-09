@@ -1,0 +1,39 @@
+# Dashboard Grafana d'exemple pour EcoLoop
+# À importer via l'UI Grafana (Configuration > Data Sources > Prometheus,
+# puis Dashboards > Import). Ce fichier JSON minimal déclare la source de
+# données Prometheus ; les panneaux sont à construire dans l'UI.
+
+{
+  "title": "EcoLoop - Overview",
+  "uid": "ecoloop-overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "timezone": "Africa/Abidjan",
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "templating": {
+    "list": []
+  },
+  "panels": [],
+  "annotations": {
+    "list": [
+      {
+        "name": "Annotations & Alerts",
+        "type": "dashboard",
+        "enable": true
+      }
+    ]
+  },
+  "inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ]
+}
