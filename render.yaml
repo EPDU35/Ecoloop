@@ -12,8 +12,8 @@ services:
     name: ecoloop-db
     plan: free
     region: oregon
-    ipAllowList:
-      - 0.0.0.0/0
+    ipAllowList: []
+    postgresMajorVersion: 16
 
   # ---------------------------------------------------------------------------
   # Redis (cache + rate limiting)
@@ -22,8 +22,7 @@ services:
     name: ecoloop-redis
     plan: free
     region: oregon
-    ipAllowList:
-      - 0.0.0.0/0
+    ipAllowList: []
 
   # ---------------------------------------------------------------------------
   # Backend API (FastAPI)
