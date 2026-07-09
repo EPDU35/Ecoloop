@@ -36,3 +36,15 @@ export async function getPriceSuggestion(category: string): Promise<{ suggested_
   const res = await api.get(`/price-suggestion?category=${category}`);
   return res.data;
 }
+
+export async function classifyImage(file: File): Promise<any> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await api.post('/ai/classify', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-tdata',
+    },
+  });
+  return res.data;
+}
+

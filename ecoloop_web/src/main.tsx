@@ -13,6 +13,7 @@ import App from "./App";
 import "./styles/tokens.css";
 import "./styles/layout.css";
 import "./styles/widgets.css";
+import "./styles/dark-dashboard.css";
 import "./styles/landing.css";
 
 const rootElement = document.getElementById("root");

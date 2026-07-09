@@ -1,0 +1,372 @@
+/* ============================================================
+   DARK DASHBOARD — Design System EcoLoop (aligné avec mobile)
+   Partagé par tous les rôles : producteur, collecteur,
+   industriel, mairie, admin
+   ============================================================ */
+
+/* ── Root dark ── */
+.dd-root {
+  --dd-bg:      #0A0A0F;
+  --dd-card:    #121219;
+  --dd-card2:   #1A1A24;
+  --dd-border:  rgba(255,255,255,0.07);
+  --dd-text:    #F8FAFC;
+  --dd-soft:    #A1A1AA;
+  --dd-faint:   #52525B;
+  --dd-brand:   #10B981;
+  --dd-warn:    #F59E0B;
+  --dd-blue:    #3B82F6;
+  --dd-purple:  #8B5CF6;
+  --dd-red:     #EF4444;
+
+  background: var(--dd-bg);
+  min-height: calc(100vh - 62px);
+  color: var(--dd-text);
+  font-family: 'Manrope', sans-serif;
+}
+
+/* ── Hero ── */
+.dd-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.dd-hero-text {
+  flex: 1;
+  min-width: 250px;
+}
+
+.dd-hero-text h1 {
+  font-family: 'Outfit', 'Manrope', sans-serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.9rem);
+  font-weight: 700;
+  color: var(--dd-text);
+  line-height: 1.15;
+  margin: 0 0 4px;
+}
+
+.dd-hero-text p {
+  font-size: 0.88rem;
+  color: var(--dd-soft);
+  margin: 0;
+}
+
+.dd-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--dd-brand);
+  color: #000;
+  font-family: 'Outfit', 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border: none;
+  padding: 0.65rem 1.3rem;
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.1s ease;
+  flex-shrink: 0;
+}
+.dd-cta:hover { background: #059669; }
+.dd-cta:active { transform: scale(0.97); }
+
+@media (max-width: 560px) {
+  .dd-hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .dd-cta {
+    width: 100%;
+  }
+}
+
+/* ── Alert banner ── */
+.dd-alert {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.dd-alert-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.dd-alert-text {
+  flex: 1;
+  min-width: 160px;
+}
+.dd-alert-text strong { display: block; font-size: 0.9rem; color: var(--dd-warn); margin-bottom: 2px; }
+.dd-alert-text span { font-size: 0.82rem; color: var(--dd-soft); }
+.dd-alert-btn {
+  margin-left: auto;
+  background: var(--dd-warn);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .dd-alert {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .dd-alert-btn {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ── KPI Grid ── */
+.dd-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 1200px) { .dd-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px)  { .dd-kpi-grid { grid-template-columns: 1fr; } }
+
+.dd-kpi {
+  background: var(--dd-card);
+  border: 1px solid var(--dd-border);
+  border-radius: 18px;
+  padding: 1.25rem;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.dd-kpi:hover {
+  border-color: rgba(16,185,129,0.3);
+  transform: translateY(-2px);
+}
+
+.dd-kpi-icon { font-size: 1.4rem; margin-bottom: 0.8rem; }
+.dd-kpi-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dd-faint);
+  font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 0.35rem;
+}
+.dd-kpi-value {
+  font-family: 'Outfit', serif;
+  font-weight: 700;
+  font-size: clamp(1.05rem, 1.8vw, 1.4rem);
+  color: var(--dd-text);
+  line-height: 1.15;
+  word-break: break-all;
+}
+.dd-kpi-sub { font-size: 0.7rem; color: var(--dd-soft); margin-top: 4px; }
+
+/* ── 2-col grid ── */
+.dd-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.25rem;
+  align-items: start;
+}
+@media (max-width: 1100px) { .dd-grid { grid-template-columns: 1fr; } }
+
+.dd-col { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* ── Section card ── */
+.dd-section {
+  background: var(--dd-card);
+  border: 1px solid var(--dd-border);
+  border-radius: 18px;
+  padding: 1.25rem;
+}
+
+.dd-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.dd-section-title {
+  font-family: 'Outfit', 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--dd-text);
+}
+
+.dd-link-btn {
+  background: none;
+  border: none;
+  color: var(--dd-brand);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+.dd-link-btn:hover { opacity: 0.7; }
+
+/* ── Row items ── */
+.dd-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.dd-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--dd-card2);
+  border: 1px solid var(--dd-border);
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+.dd-row:hover { border-color: rgba(16,185,129,0.2); }
+
+.dd-row-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.dd-row-main { flex: 1; min-width: 0; }
+.dd-row-title { font-size: 0.85rem; font-weight: 600; color: var(--dd-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-row-sub { font-size: 0.72rem; color: var(--dd-faint); margin-top: 2px; }
+
+/* ── Status badges ── */
+.dd-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.dd-badge-green  { background: rgba(16,185,129,0.12);  color: #10B981; }
+.dd-badge-yellow { background: rgba(245,158,11,0.12);  color: #F59E0B; }
+.dd-badge-blue   { background: rgba(59,130,246,0.12);  color: #3B82F6; }
+.dd-badge-purple { background: rgba(139,92,246,0.12);  color: #8B5CF6; }
+.dd-badge-red    { background: rgba(239,68,68,0.12);   color: #EF4444; }
+.dd-badge-gray   { background: rgba(82,82,91,0.2);     color: #A1A1AA; }
+
+/* ── Info card (profil / niveau) ── */
+.dd-info-card {
+  background: var(--dd-card2);
+  border: 1px solid var(--dd-border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  text-align: center;
+}
+.dd-info-card-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.875rem;
+}
+.dd-info-card-value {
+  font-family: 'Outfit', serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--dd-text);
+  line-height: 1.1;
+}
+.dd-info-card-sub { font-size: 0.78rem; color: var(--dd-soft); margin-top: 4px; }
+
+/* ── Empty state ── */
+.dd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--dd-soft);
+  font-size: 0.88rem;
+}
+.dd-empty-icon { font-size: 2.5rem; }
+
+/* ── Skeleton ── */
+.dd-skel {
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  animation: ddPulse 1.4s ease-in-out infinite;
+}
+@keyframes ddPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ── Mini bar chart ── */
+.dd-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 80px;
+  margin-top: 12px;
+}
+.dd-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.dd-bar {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  min-height: 4px;
+  transition: height 0.5s cubic-bezier(.4,0,.2,1);
+}
+.dd-bar-lbl { font-size: 0.58rem; color: var(--dd-faint); font-family: 'IBM Plex Mono', monospace; text-align: center; }
+
+/* ── Legend rows ── */
+.dd-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.dd-legend-row { display: flex; align-items: center; gap: 8px; }
+.dd-legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.dd-legend-name { flex: 1; font-size: 0.78rem; color: var(--dd-soft); }
+.dd-legend-val { font-family: 'IBM Plex Mono', monospace; font-size: 0.76rem; color: var(--dd-text); font-weight: 600; }
+
+/* ── Score ring ── */
+.dd-score {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--dd-card2);
+  border: 1px solid var(--dd-border);
+  border-radius: 14px;
+}
+.dd-score-circle {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 4px solid var(--dd-brand);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.dd-score-num { font-family: 'Outfit', serif; font-weight: 700; font-size: 1.2rem; color: var(--dd-brand); }
+.dd-score-label { font-size: 0.82rem; color: var(--dd-text); font-weight: 600; }
+.dd-score-sub { font-size: 0.72rem; color: var(--dd-soft); margin-top: 2px; }
+
+/* ── Admin stats grid ── */
+.dd-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 900px) { .dd-admin-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .dd-admin-grid { grid-template-columns: 1fr; } }

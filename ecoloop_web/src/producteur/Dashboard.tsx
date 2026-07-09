@@ -6,7 +6,6 @@ import { NAV_ITEMS, NAV_PATHS } from './nav';
 import { getProducerDashboard, getMyWastes } from '../services/producteur.service';
 import { useAuth } from '../auth/AuthContext';
 import type { ProducerDashboard, WasteLotOut } from '../models/Waste';
-import './dashboard.css';
 
 const CATEGORY_COLORS: Record<string, string> = {
   PET: '#10B981', HDPE: '#3B82F6', CARTON: '#F59E0B', VERRE: '#8B5CF6',
