@@ -12,12 +12,12 @@ ENV PYTHONIOENCODING=utf-8
 ENV YOLO_CONFIG_DIR=/tmp/Ultralytics
 ENV MPLCONFIGDIR=/tmp/matplotlib
 
-# Installer les dépendances système nécessaires pour TensorFlow, Prophet et OpenCV/Pillow
-RUN apt-get update && apt-get install -y \
+# Installer les dépendances système nécessaires pour Prophet et OpenCV/Pillow
+# (Debian 13 "trixie" : libgl1-mesa-glx -> libgl1)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
-    software-properties-common \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
