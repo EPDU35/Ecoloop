@@ -24,6 +24,8 @@ import AdminSettings from "../admin/Settings";
 import Login from "../auth/Login";
 import Register from "../auth/Register";
 import OtpVerification from "../auth/OtpVerification";
+import PendingApproval from "../auth/PendingApproval";
+import ForgotPassword from "../auth/ForgotPassword";
 
 import ProducteurDashboard from "../producteur/Dashboard";
 import ProducteurLots from "../producteur/Lots";
@@ -88,6 +90,10 @@ export default function AppRoutes() {
       <Route path="/connexion" element={<Login />} />
       <Route path="/inscription" element={<Register />} />
       <Route path="/verifier-otp" element={<OtpVerification />} />
+      <Route path="/compte-en-attente" element={<PendingApproval />} />
+      <Route path="/mot-de-passe-oublie" element={<ForgotPassword />} />
+      <Route path="/mot-de-passe-oublie" element={<ForgotPassword />} />
+      <Route path="/compte-en-attente" element={<PendingApproval />} />
 
       {/* Profil commun */}
       <Route path="/profil" element={<ProtectedRoute><Profil /></ProtectedRoute>} />

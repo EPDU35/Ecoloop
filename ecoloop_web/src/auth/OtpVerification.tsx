@@ -8,10 +8,13 @@ export default function OtpVerification() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email') || '';
+  const role = searchParams.get('role') || '';
   const { verifyOtp } = useAuth();
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const isProRole = role && role !== 'producteur';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +23,12 @@ export default function OtpVerification() {
     setSubmitting(true);
     try {
       await verifyOtp(email, code);
-      navigate('/connexion?verified=true');
+      // Producteur -> direct login. Pro (collecteur/industriel/mairie) -> écran attente.
+      if (isProRole) {
+        navigate('/compte-en-attente?email=' + encodeURIComponent(email));
+      } else {
+        navigate('/connexion?verified=true');
+      }
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Code invalide ou expiré.');
     } finally {

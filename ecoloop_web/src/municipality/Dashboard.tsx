@@ -46,20 +46,24 @@ export default function MunicipalityDashboard() {
 
   return (
     <AppLayout role="municipality" activeKey="dashboard" title="Dashboard Mairie &amp; RSE">
-      <div className="el-kpi-grid">
+      <div className="el-kpi-grid bo-stagger">
         {kpis.map((kpi) => (
           <KpiCard key={kpi.id} {...kpi} />
         ))}
       </div>
 
-      <div className="el-grid-2">
-        <BarChart
-          title="Volume collecté par commune (7 derniers jours)"
-          data={districtVolume}
-          linkLabel="Voir la carte"
-          onLinkClick={() => navigate(NAV_PATHS.carte)}
-        />
-        <DonutChart title="Typologie des déchets recyclés" data={materialShares} />
+      <div className="el-grid-2 bo-stagger" style={{ marginTop: '1.5rem' }}>
+        <div className="bo-card"><div className="bo-card-core">
+          <BarChart
+            title="Volume collecté par commune (7 derniers jours)"
+            data={districtVolume}
+            linkLabel="Voir la carte"
+            onLinkClick={() => navigate(NAV_PATHS.carte)}
+          />
+        </div></div>
+        <div className="bo-card"><div className="bo-card-core">
+          <DonutChart title="Typologie des déchets recyclés" data={materialShares} />
+        </div></div>
       </div>
     </AppLayout>
   );

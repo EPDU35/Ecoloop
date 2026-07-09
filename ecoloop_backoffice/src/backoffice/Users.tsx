@@ -39,6 +39,26 @@ export default function Users() {
     load();
   };
 
+  const handleValidate = async (id: string) => {
+    if (!window.confirm("Valider ce compte professionnel ?")) return;
+    try {
+      await api.patch(`/admin/users/${id}/validate`);
+      load();
+    } catch (e) {
+      alert("Erreur lors de la validation");
+    }
+  };
+
+  const handleSuspend = async (id: string) => {
+    if (!window.confirm("Suspendre ce compte ? L'utilisateur ne pourra plus se connecter.")) return;
+    try {
+      await api.patch(`/admin/users/${id}/suspend`);
+      load();
+    } catch (e) {
+      alert("Erreur lors de la suspension");
+    }
+  };
+
   return (
     <div className="bo-page">
       <div className="bo-page-header">
@@ -75,6 +95,7 @@ export default function Users() {
               <th>Rôle</th>
               <th>Statut</th>
               <th>Inscription</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -85,11 +106,32 @@ export default function Users() {
                 <td>{u.phone}</td>
                 <td><span className={`bo-role-badge ${u.role.toLowerCase()}`}>{u.role}</span></td>
                 <td>
-                  {u.is_locked ? <span className="bo-status-badge danger">Verrouillé</span>
+                  {!u.is_active ? <span className="bo-status-badge danger">Inactif</span>
+                    : u.is_locked ? <span className="bo-status-badge danger">Verrouillé</span>
                     : u.is_verified ? <span className="bo-status-badge success">Vérifié</span>
                     : <span className="bo-status-badge warning">En attente</span>}
                 </td>
                 <td className="bo-cell-date">{u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : '-'}</td>
+                <td>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {!u.is_active && u.role !== 'ADMIN' && (
+                      <button 
+                        onClick={() => handleValidate(u.id)}
+                        style={{ padding: '4px 8px', background: 'var(--accent)', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}
+                      >
+                        Valider
+                      </button>
+                    )}
+                    {u.is_active && u.role !== 'ADMIN' && (
+                      <button 
+                        onClick={() => handleSuspend(u.id)}
+                        style={{ padding: '4px 8px', background: 'transparent', color: 'var(--danger)', border: '1px solid var(--danger)', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}
+                      >
+                        Suspendre
+                      </button>
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

@@ -134,7 +134,7 @@ export default function Register() {
         password,
         role: role.toUpperCase(),
       });
-      navigate(`/verifier-otp?email=${encodeURIComponent(email)}&role=${role}`);
+      navigate('/connexion?registered=true');
     } catch (err: any) {
       const data = err?.response?.data;
       const detail = data?.detail || data;

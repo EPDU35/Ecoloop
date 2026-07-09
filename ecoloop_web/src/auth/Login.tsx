@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import AuthLayout from './AuthLayout';
 import './auth.css';
@@ -19,6 +19,9 @@ const ArrowIcon = () => (
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const verified = searchParams.get('verified') === 'true';
+  const pending = searchParams.get('pending') === 'true';
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -51,6 +54,12 @@ export default function Login() {
     }
   };
 
+  const registered = searchParams.get('registered') === 'true';
+
+  // On affiche les bannières séparément des erreurs
+  const showSuccessBanner = (verified || registered) && !error;
+  const showPendingBanner = pending && !error;
+
   return (
     <AuthLayout>
       <div className="el-tabs">
@@ -67,7 +76,29 @@ export default function Login() {
         <div className="el-ticket-heading">Bon retour</div>
         <p className="el-ticket-sub">Accédez à votre espace pour suivre vos lots et vos collectes.</p>
 
-        {error && <div className="el-error-msg">{error}</div>}
+        {showSuccessBanner && (
+          <div className="el-banner el-banner-success" style={{ marginBottom: 16 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: 8, flexShrink: 0 }}>
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <path d="M22 4L12 14.01l-3-3" />
+            </svg>
+            <span>Email vérifié avec succès ! Vous pouvez maintenant vous connecter.</span>
+          </div>
+        )}
+
+        {showPendingBanner && (
+          <div className="el-banner el-banner-warning" style={{ marginBottom: 16 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: 8, flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <path d="M12 9v4M12 17h.01" />
+            </svg>
+            <span>Compte en attente de validation par un administrateur. Vérifiez votre email.</span>
+          </div>
+        )}
+
+        {error && !showSuccessBanner && !showPendingBanner && (
+          <div className="el-error-msg">{error}</div>
+        )}
 
         <div className="el-field">
           <label htmlFor="email">Email</label>
@@ -110,7 +141,7 @@ export default function Login() {
             <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
             Rester connecté
           </label>
-          <a href="#" className="el-link-muted">
+          <a href="/mot-de-passe-oublie" className="el-link-muted">
             Mot de passe oublié
           </a>
         </div>

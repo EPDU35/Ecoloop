@@ -56,20 +56,24 @@ export default function IndustrialDashboard() {
 
   return (
     <AppLayout role="industrial" activeKey="dashboard" title="Dashboard">
-      <div className="el-kpi-grid">
+      <div className="el-kpi-grid bo-stagger">
         {kpis.map((kpi) => (
           <KpiCard key={kpi.id} {...kpi} />
         ))}
       </div>
 
-      <div className="el-grid-2">
-        <BarChart
-          title="Volume collecté — 7 derniers jours"
-          data={weeklyVolume}
-          linkLabel="Voir les rapports"
-          onLinkClick={() => navigate(NAV_PATHS.reports)}
-        />
-        <DonutChart title="Répartition par matériau" data={materialShares} />
+      <div className="el-grid-2 bo-stagger" style={{ marginTop: '1.5rem' }}>
+        <div className="bo-card"><div className="bo-card-core">
+          <BarChart
+            title="Volume collecté — 7 derniers jours"
+            data={weeklyVolume}
+            linkLabel="Voir les rapports"
+            onLinkClick={() => navigate(NAV_PATHS.reports)}
+          />
+        </div></div>
+        <div className="bo-card"><div className="bo-card-core">
+          <DonutChart title="Répartition par matériau" data={materialShares} />
+        </div></div>
       </div>
 
       <OrdersTable

@@ -9,14 +9,16 @@ import type { CollectorDashboard } from '../models/Waste';
 
 function KpiCard({ label, value, deltaLabel, deltaDirection }: { label: string; value: string; deltaLabel?: string; deltaDirection?: 'up' | 'down' }) {
   return (
-    <div className="el-card">
-      <div className="el-kpi-label">{label}</div>
-      <div className="el-kpi-value">{value}</div>
-      {deltaLabel && (
-        <div className={`el-kpi-delta ${deltaDirection}`}>
-          {deltaDirection === 'up' ? '↑' : '↓'} {deltaLabel}
-        </div>
-      )}
+    <div className="bo-card">
+      <div className="bo-card-core">
+        <div className="el-kpi-label">{label}</div>
+        <div className="el-kpi-value">{value}</div>
+        {deltaLabel && (
+          <div className={`el-kpi-delta ${deltaDirection}`}>
+            {deltaDirection === 'up' ? '↑' : '↓'} {deltaLabel}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -100,18 +102,22 @@ export default function CollecteurDashboard() {
           onToggleSearch={() => setSearchOpen((v) => !v)}
           onOpenSidebar={() => setSidebarOpen(true)} />
         <div className="el-content">
-          <div className="el-kpi-grid">
+          <div className="el-kpi-grid bo-stagger">
             <KpiCard label="Collectes effectuées" value={`${data.completed_collections}`} />
             <KpiCard label="Total collecté" value={`${data.available_lots.reduce((s, l) => s + l.weight_kg, 0).toLocaleString('fr-FR')} kg`} />
             <KpiCard label="Revenus totaux" value={`${data.total_earnings_fcfa.toLocaleString('fr-FR')} FCFA`} />
             <KpiCard label="Réputation" value={`${data.reputation_score.toFixed(1)} ⭐`} />
           </div>
-          <div className="el-grid-2">
-            <BarChart title="Lots disponibles" data={data.available_lots.slice(0, 7).map((l) => ({
-              day: l.category,
-              percent: l.weight_kg,
-            }))} linkLabel="Voir la marketplace" onLinkClick={() => navigate(NAV_PATHS.marketplace)} />
-            <DonutChart title="Répartition par type" data={materialData.length ? materialData : [{ name: 'Aucun', percent: 100, color: '#e0e0e0' }]} />
+          <div className="el-grid-2 bo-stagger" style={{ marginTop: '1.5rem' }}>
+            <div className="bo-card"><div className="bo-card-core">
+              <BarChart title="Lots disponibles" data={data.available_lots.slice(0, 7).map((l) => ({
+                day: l.category,
+                percent: l.weight_kg,
+              }))} linkLabel="Voir la marketplace" onLinkClick={() => navigate(NAV_PATHS.marketplace)} />
+            </div></div>
+            <div className="bo-card"><div className="bo-card-core">
+              <DonutChart title="Répartition par type" data={materialData.length ? materialData : [{ name: 'Aucun', percent: 100, color: '#e0e0e0' }]} />
+            </div></div>
           </div>
         </div>
       </div>

@@ -44,10 +44,7 @@ async def register_user(db: AsyncSession, payload: UserRegisterSchema) -> tuple[
         )
 
     otp_code = generate_otp()
-    # Règle métier : le Producteur a un accès en libre-service (compte actif
-    # dès la vérification OTP). Les comptes professionnels (Collecteur,
-    # Industriel, Mairie/RSE) doivent être validés manuellement par un
-    # administrateur avant de pouvoir se connecter -> is_active=False.
+    # OTP bpassé temporairement : le compte est vérifié d'office
     auto_active = payload.role == UserRole.PRODUCTEUR
     user = User(
         full_name=payload.full_name,
@@ -56,9 +53,9 @@ async def register_user(db: AsyncSession, payload: UserRegisterSchema) -> tuple[
         hashed_password=hash_password(payload.password),
         role=payload.role,
         is_active=auto_active,
-        is_verified=False,
-        otp_hash=hash_otp(otp_code),
-        otp_expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
+        is_verified=True,  # Bypass OTP
+        otp_hash=None,
+        otp_expires_at=None,
     )
     db.add(user)
     await db.flush()

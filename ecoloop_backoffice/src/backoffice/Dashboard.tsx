@@ -80,12 +80,14 @@ export default function Dashboard() {
           const Icon = card.icon;
           return (
             <div key={i} className="bo-card" style={{ borderTopColor: card.color }}>
-              <div className="bo-card-header">
-                <Icon size={20} color={card.color} />
-                <span>{card.label}</span>
+              <div className="bo-card-core">
+                <div className="bo-card-header">
+                  <Icon size={20} color={card.color} />
+                  <span>{card.label}</span>
+                </div>
+                <div className="bo-card-value">{card.value}</div>
+                <div className="bo-card-sub">{card.sub}</div>
               </div>
-              <div className="bo-card-value">{card.value}</div>
-              <div className="bo-card-sub">{card.sub}</div>
             </div>
           );
         })}
