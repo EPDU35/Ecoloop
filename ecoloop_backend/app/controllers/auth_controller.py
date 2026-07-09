@@ -59,8 +59,8 @@ async def register_user(db: AsyncSession, payload: UserRegisterSchema) -> tuple[
 
     db.add(Reward(user_id=user.id))
 
-    # Le code OTP est renvoyé à l'appelant (route) uniquement pour être transmis
-    # au service SMS/email — il n'est jamais renvoyé dans la réponse HTTP ni loggé.
+    # Le code OTP est renvoyé à la route (et loggé en debug) — il sera transmis
+    # au service SMS/email en production.
     return user, otp_code
 
 
