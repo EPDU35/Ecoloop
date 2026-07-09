@@ -75,7 +75,7 @@ export default function Register() {
   return (
     <AuthLayout>
       <div className="el-tabs">
-        <button className="el-tab" type="button" onClick={() => navigate('/login')}>
+        <button className="el-tab" type="button" onClick={() => navigate('/connexion')}>
           Connexion
         </button>
         <button className="el-tab active" type="button">
@@ -157,7 +157,7 @@ export default function Register() {
 
         <div className="el-switch-line" style={{ marginTop: 18 }}>
           Déjà inscrit ?{' '}
-          <button type="button" onClick={() => navigate('/login')}>
+          <button type="button" onClick={() => navigate('/connexion')}>
             Se connecter
           </button>
         </div>
