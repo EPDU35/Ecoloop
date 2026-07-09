@@ -15,6 +15,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+COPY scripts/start.sh /app/scripts/start.sh
+RUN chmod +x /app/scripts/start.sh
 
 # RÈGLE DE SÉCURITÉ : ne jamais exécuter l'application en root dans le conteneur.
 RUN useradd --create-home --shell /bin/bash ecoloop \
@@ -26,7 +28,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-COPY scripts/start.sh /app/scripts/start.sh
-RUN chmod +x /app/scripts/start.sh
-
-CMD ["/app/scripts/start.sh"]
+CMD ["sh", "/app/scripts/start.sh"]
