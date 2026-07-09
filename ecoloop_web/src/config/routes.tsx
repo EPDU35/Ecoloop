@@ -18,6 +18,7 @@ import AdminPayments from "../admin/Payments";
 import AdminSettings from "../admin/Settings";
 import Login from "../auth/Login";
 import Register from "../auth/Register";
+import { About, Partners, Contact } from "../pages/FooterPages";
 
 /* ------------------------------------------------------------------
    ComingSoon — remplace temporairement une page qui n'existe pas
@@ -39,6 +40,9 @@ export default function AppRoutes() {
     <Routes>
       {/* Page publique */}
       <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/partners" element={<Partners />} />
+      <Route path="/contact" element={<Contact />} />
 
       {/* Auth */}
       <Route path="/connexion" element={<Login />} />
