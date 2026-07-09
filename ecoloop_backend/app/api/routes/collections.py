@@ -27,10 +27,8 @@ async def reserve(
         db, collector, payload.waste_lot_id
     )
     await db.commit()
-    # Le code n'est jamais renvoyé dans cette réponse HTTP : il est transmis au
-    # producteur via notification_service (SMS/push en prod, log dev-only sinon).
-    await notify_collection_reserved(collector.id)
-    await notify_validation_code(producer_id, validation_code)
+    await notify_collection_reserved(db, producer_id, collection.id)
+    await notify_validation_code(db, producer_id, validation_code)
     return collection
 
 
@@ -43,5 +41,5 @@ async def validate_collection(
 ):
     collection = await collection_controller.validate_collection(db, collector, collection_id, payload)
     await db.commit()
-    await notify_collection_validated(collector.id)
+    await notify_collection_validated(db, collector.id, collection_id)
     return collection

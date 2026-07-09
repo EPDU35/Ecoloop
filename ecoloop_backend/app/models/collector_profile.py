@@ -10,16 +10,16 @@ from app.config.database import Base
 
 
 class CollectorStatus(str, enum.Enum):
-    AVAILABLE = "available"
-    BUSY = "busy"
-    OFFLINE = "offline"
-    SUSPENDED = "suspended"
+    AVAILABLE = "AVAILABLE"
+    BUSY = "BUSY"
+    OFFLINE = "OFFLINE"
+    SUSPENDED = "SUSPENDED"
 
 
 class VerificationStatus(str, enum.Enum):
-    PENDING = "pending"
-    VERIFIED = "verified"
-    REJECTED = "rejected"
+    PENDING = "PENDING"
+    VERIFIED = "VERIFIED"
+    REJECTED = "REJECTED"
 
 
 class CollectorProfile(Base):

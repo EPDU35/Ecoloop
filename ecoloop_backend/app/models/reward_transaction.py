@@ -10,11 +10,11 @@ from app.config.database import Base
 
 
 class RewardAction(str, enum.Enum):
-    COLLECTION_COMPLETED = "collection_completed"
-    SIGNUP_BONUS = "signup_bonus"
-    REFERRAL = "referral"
-    PENALTY = "penalty"
-    ADMIN_ADJUSTMENT = "admin_adjustment"
+    COLLECTION_COMPLETED = "COLLECTION_COMPLETED"
+    SIGNUP_BONUS = "SIGNUP_BONUS"
+    REFERRAL = "REFERRAL"
+    PENALTY = "PENALTY"
+    ADMIN_ADJUSTMENT = "ADMIN_ADJUSTMENT"
 
 
 class RewardTransaction(Base):

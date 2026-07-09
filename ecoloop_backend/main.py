@@ -13,13 +13,13 @@ from app.api.routes import (
     collections,
     industrial,
     municipality,
+    notifications,
     payments,
+    reviews,
+    rewards,
     transactions,
     users,
     wastes,
-    rewards,
-    reviews,
-    notifications,
 )
 from app.config.settings import settings
 from app.utils.helpers import limiter
@@ -44,16 +44,20 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# --- Hôtes de confiance : rejette toute requête avec un en-tête Host inattendu ---
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts_list or ["*"])
-
-# --- CORS strict : uniquement les origines explicitement listées ---
+# --- CORS : doit être le premier middleware (outermost) pour gérer les preflight ---
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
+
+# --- Hôtes de confiance ---
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=settings.allowed_hosts_list if settings.is_production else ["*"],
 )
 
 
@@ -106,9 +110,9 @@ app.include_router(transactions.router, prefix=prefix)
 app.include_router(payments.router, prefix=prefix)
 app.include_router(industrial.router, prefix=prefix)
 app.include_router(municipality.router, prefix=prefix)
-app.include_router(rewards.router, prefix=prefix)
-app.include_router(reviews.router, prefix=prefix)
 app.include_router(notifications.router, prefix=prefix)
+app.include_router(reviews.router, prefix=prefix)
+app.include_router(rewards.router, prefix=prefix)
 
 
 @app.get("/health", tags=["Système"])

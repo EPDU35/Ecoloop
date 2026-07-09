@@ -10,16 +10,16 @@ from app.config.database import Base
 
 
 class TransactionStatus(str, enum.Enum):
-    EN_ATTENTE = "en_attente"
-    PAYEE = "payee"
-    ECHOUEE = "echouee"
-    REMBOURSEE = "remboursee"
+    EN_ATTENTE = "EN_ATTENTE"
+    PAYEE = "PAYEE"
+    ECHOUEE = "ECHOUEE"
+    REMBOURSEE = "REMBOURSEE"
 
 
 class PaymentMethod(str, enum.Enum):
-    MOBILE_MONEY = "mobile_money"
-    ESPECES = "especes"
-    VIREMENT = "virement"
+    MOBILE_MONEY = "MOBILE_MONEY"
+    ESPECES = "ESPECES"
+    VIREMENT = "VIREMENT"
 
 
 class Transaction(Base):

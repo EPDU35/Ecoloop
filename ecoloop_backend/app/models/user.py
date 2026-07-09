@@ -10,11 +10,11 @@ from app.config.database import Base
 
 
 class UserRole(str, enum.Enum):
-    PRODUCTEUR = "producteur"
-    COLLECTEUR = "collecteur"
-    INDUSTRIEL = "industriel"
-    MAIRIE = "mairie"
-    ADMIN = "admin"
+    PRODUCTEUR = "PRODUCTEUR"
+    COLLECTEUR = "COLLECTEUR"
+    INDUSTRIEL = "INDUSTRIEL"
+    MAIRIE = "MAIRIE"
+    ADMIN = "ADMIN"
 
 
 class User(Base):

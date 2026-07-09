@@ -101,6 +101,29 @@ class UserOutSchema(BaseModel):
     created_at: datetime
 
 
+class UserUpdateSchema(BaseModel):
+    full_name: str | None = None
+    phone: str | None = None
+
+    @field_validator("full_name")
+    @classmethod
+    def full_name_valid(cls, v: str | None) -> str | None:
+        if v is not None:
+            v = v.strip()
+            if len(v) < 2 or len(v) > 150:
+                raise ValueError("Le nom complet doit contenir entre 2 et 150 caractères.")
+        return v
+
+    @field_validator("phone")
+    @classmethod
+    def phone_valid(cls, v: str | None) -> str | None:
+        if v is not None:
+            v = v.strip()
+            if not PHONE_REGEX.match(v):
+                raise ValueError("Numéro de téléphone invalide.")
+        return v
+
+
 class TokenPairSchema(BaseModel):
     access_token: str
     refresh_token: str

@@ -10,20 +10,20 @@ from app.config.database import Base
 
 
 class WasteCategory(str, enum.Enum):
-    PLASTIQUE = "plastique"
-    CARTON = "carton"
-    METAL = "metal"
-    VERRE = "verre"
-    ORGANIQUE = "organique"
-    ELECTRONIQUE = "electronique"
-    AUTRE = "autre"
+    PLASTIQUE = "PLASTIQUE"
+    CARTON = "CARTON"
+    METAL = "METAL"
+    VERRE = "VERRE"
+    ORGANIQUE = "ORGANIQUE"
+    ELECTRONIQUE = "ELECTRONIQUE"
+    AUTRE = "AUTRE"
 
 
 class LotStatus(str, enum.Enum):
-    DISPONIBLE = "disponible"
-    RESERVE = "reserve"
-    COLLECTE = "collecte"
-    ANNULE = "annule"
+    DISPONIBLE = "DISPONIBLE"
+    RESERVE = "RESERVE"
+    COLLECTE = "COLLECTE"
+    ANNULE = "ANNULE"
 
 
 class WasteLot(Base):

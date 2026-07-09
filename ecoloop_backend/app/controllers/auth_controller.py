@@ -18,8 +18,7 @@ from app.config.security import (
 )
 from app.config.settings import settings
 from app.models.reward import Reward
-from app.models.user import User, UserRole
-from app.models.collector_profile import CollectorProfile, CollectorStatus, VerificationStatus
+from app.models.user import User
 from app.schemas.user_schema import (
     PasswordResetConfirmSchema,
     PasswordResetRequestSchema,
@@ -59,17 +58,6 @@ async def register_user(db: AsyncSession, payload: UserRegisterSchema) -> tuple[
     await db.flush()
 
     db.add(Reward(user_id=user.id))
-
-    if user.role == UserRole.COLLECTEUR:
-        db.add(
-            CollectorProfile(
-                id=user.id,
-                status=CollectorStatus.AVAILABLE,
-                verification_status=VerificationStatus.PENDING,
-                vehicle_capacity_kg=100.0,
-                service_radius_km=15.0,
-            )
-        )
 
     # Le code OTP est renvoyé à l'appelant (route) uniquement pour être transmis
     # au service SMS/email — il n'est jamais renvoyé dans la réponse HTTP ni loggé.

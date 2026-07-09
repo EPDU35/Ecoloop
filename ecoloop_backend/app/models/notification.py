@@ -10,11 +10,11 @@ from app.config.database import Base
 
 
 class NotificationType(str, enum.Enum):
-    COLLECTION_REQUEST = "collection_request"
-    COLLECTION_ACCEPTED = "collection_accepted"
-    PAYMENT_RECEIVED = "payment_received"
-    REWARD_GAINED = "reward_gained"
-    SYSTEM = "system"
+    COLLECTION_REQUEST = "COLLECTION_REQUEST"
+    COLLECTION_ACCEPTED = "COLLECTION_ACCEPTED"
+    PAYMENT_RECEIVED = "PAYMENT_RECEIVED"
+    REWARD_GAINED = "REWARD_GAINED"
+    SYSTEM = "SYSTEM"
 
 
 class Notification(Base):

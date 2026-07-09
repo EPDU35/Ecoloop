@@ -7,14 +7,13 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
 from app.config.database import Base
-from app.models.user import UserRole
 
 
 class CollectionStatus(str, enum.Enum):
-    RESERVEE = "reservee"
-    EN_ROUTE = "en_route"
-    VALIDEE = "validee"
-    ANNULEE = "annulee"
+    RESERVEE = "RESERVEE"
+    EN_ROUTE = "EN_ROUTE"
+    VALIDEE = "VALIDEE"
+    ANNULEE = "ANNULEE"
 
 
 class Collection(Base):
@@ -29,10 +28,7 @@ class Collection(Base):
 
     # Preuve de collecte : code QR scanné + poids réel mesuré (peut différer de l'annonce).
     validation_code_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    estimated_weight_kg: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
     actual_weight_kg: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
-    weight_verified_by: Mapped[UserRole | None] = mapped_column(Enum(UserRole), nullable=True)
-    weight_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     reserved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     validated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
