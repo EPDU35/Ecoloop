@@ -1,45 +1,23 @@
-import type { IndustrialUser, Supplier } from "../models/User";
+import api from './api';
+import type { Supplier } from '../models/User';
 
-// Complète ce fichier avec vos fonctions user.service existantes si vous
-// en avez déjà — cet export s'ajoute, il ne remplace rien.
-//
-// Donnée statique pour l'instant, à remplacer par un fetch() vers
-// /users/me côté backend FastAPI (probablement en réutilisant le token
-// déjà géré par auth.service.ts).
+export interface CurrentUser {
+  initials: string;
+  name: string;
+  company: string;
+}
 
-export async function getCurrentUser(): Promise<IndustrialUser> {
-  return { initials: "FD", name: "Fatou Diabaté", company: "Industriel — SIVOP" };
+export async function getCurrentUser(): Promise<CurrentUser> {
+  const res = await api.get('/users/me');
+  const u = res.data;
+  return {
+    initials: (u.full_name as string).split(' ').map((s: string) => s[0]).join('').substring(0, 2).toUpperCase(),
+    name: u.full_name,
+    company: u.company || u.role || 'Utilisateur',
+  };
 }
 
 export async function getSuppliers(): Promise<Supplier[]> {
-  return [
-    {
-      id: "SUP-001",
-      name: "Collecte Koumassi",
-      zone: "Koumassi, Abidjan",
-      mainMaterials: ["PET", "Carton"],
-      totalSuppliedKg: 12500,
-      rating: 4.8,
-      status: "active",
-    },
-    {
-      id: "SUP-002",
-      name: "EcoTri Yopougon",
-      zone: "Yopougon, Abidjan",
-      mainMaterials: ["PET", "HDPE"],
-      totalSuppliedKg: 8400,
-      rating: 4.5,
-      status: "active",
-    },
-    {
-      id: "SUP-003",
-      name: "Bassam Recyclage",
-      zone: "Grand-Bassam",
-      mainMaterials: ["Verre"],
-      totalSuppliedKg: 4200,
-      rating: 4.2,
-      status: "active",
-    },
-  ];
+  const res = await api.get('/suppliers');
+  return res.data;
 }
-

@@ -53,7 +53,7 @@ api.interceptors.response.use(
           // Refresh token is also expired or invalid, clear keys and logout
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
-          window.location.href = '/login?expired=true';
+          window.location.href = '/connexion?expired=true';
         }
       }
     }
