@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: ecoloop-backend
+    env: docker
+    repo: https://github.com/EPDU35/Ecoloop
+    dockerfilePath: ./ecoloop_backend/Dockerfile
+    dockerContext: ./ecoloop_backend
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        value: kqtgcqr5
+      - key: CLOUDINARY_API_KEY
+        value: "938672558499711"
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://ecoloop-web.vercel.app,https://ecoloop-admin.vercel.app
+      - key: ALLOWED_HOSTS
+        value: localhost,127.0.0.1,api.ecoloop.onrender.com
+      - key: REDIS_URL
+        sync: false

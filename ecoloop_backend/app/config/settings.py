@@ -49,6 +49,13 @@ class Settings(BaseSettings):
     # --- Webhook prestataire de paiement (mobile money) ---
     payment_webhook_secret: str = ""
 
+    # --- AI Service ---
+    ai_service_url: str = "http://localhost:8001"
+
+    # --- Firebase / Push notifications ---
+    firebase_credentials_path: str = ""
+    firebase_database_url: str = ""
+
     # --- Rate limiting ---
     rate_limit_default: str = "100/minute"
     rate_limit_auth: str = "5/minute"

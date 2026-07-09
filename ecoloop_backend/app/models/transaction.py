@@ -1,25 +1,24 @@
 import enum
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
 
 from app.config.database import Base
 
 
 class TransactionStatus(str, enum.Enum):
-    EN_ATTENTE = "en_attente"
-    PAYEE = "payee"
-    ECHOUEE = "echouee"
-    REMBOURSEE = "remboursee"
+    EN_ATTENTE = "EN_ATTENTE"
+    PAYEE = "PAYEE"
+    ECHOUEE = "ECHOUEE"
+    REMBOURSEE = "REMBOURSEE"
 
 
 class PaymentMethod(str, enum.Enum):
-    MOBILE_MONEY = "mobile_money"
-    ESPECES = "especes"
-    VIREMENT = "virement"
+    MOBILE_MONEY = "MOBILE_MONEY"
+    ESPECES = "ESPECES"
+    VIREMENT = "VIREMENT"
 
 
 class Transaction(Base):
@@ -41,5 +40,5 @@ class Transaction(Base):
     # Référence de l'opérateur de paiement (jamais de données de carte/compte en clair).
     external_reference: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

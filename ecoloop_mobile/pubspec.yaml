@@ -1,0 +1,51 @@
+name: ecoloop_mobile
+description: EcoLoop mobile application for Producers and Collectors.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Navigation & State Management
+  provider: ^6.1.2
+
+  # HTTP Client
+  http: ^1.2.1
+
+  # Local secure storage (Tokens, Preferences)
+  flutter_secure_storage: ^9.0.0
+
+  # UI / Icons / Animations
+  cupertino_icons: ^1.0.6
+  google_fonts: ^6.1.0
+  lottie: ^3.1.0
+  shimmer: ^3.0.0
+  cached_network_image: ^3.3.1
+
+  # Camera & Image
+  image_picker: ^1.0.7
+  path_provider: ^2.1.2
+
+  # Maps & Location
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+  geolocator: ^11.0.0
+  geocoding: ^2.2.0
+
+  # Utils
+  http_parser: ^4.0.2
+  intl: ^0.19.0
+  url_launcher: ^6.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/animations/

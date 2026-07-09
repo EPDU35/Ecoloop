@@ -39,12 +39,13 @@ async def find_nearby_collectors(
 ) -> list[tuple[User, float]]:
     """
     Retourne les collecteurs actifs les plus proches du lot, triés par distance.
+    Utilise la table collector_locations pour les positions GPS.
 
     NOTE SÉCURITÉ : ce service ne fait que lire des positions déclaratives de
-    collecteurs actifs ; il ne renvoie jamais de données de compte sensibles
-    (mot de passe, tokens) car il travaille sur l'entité ORM User complète —
-    c'est au schéma de sortie (UserOutSchema) de filtrer les champs exposés.
+    collecteurs actifs ; il ne renvoie jamais de données de compte sensibles.
     """
+    from app.models.collector_location import CollectorLocation
+
     result = await db.execute(
         select(User).where(User.role == UserRole.COLLECTEUR, User.is_active.is_(True))
     )
@@ -52,12 +53,21 @@ async def find_nearby_collectors(
 
     candidates: list[tuple[User, float]] = []
     for collector in collectors:
-        # Le MVP suppose que la dernière position connue du collecteur est stockée
-        # ailleurs (table gps_positions, hors scope de ce service). Ici on illustre
-        # le calcul de distance ; le point d'intégration réel se fait via
-        # gps_positions.latest_for(collector.id).
-        pass
+        loc_result = await db.execute(
+            select(CollectorLocation).where(CollectorLocation.collector_id == collector.id)
+        )
+        loc = loc_result.scalar_one_or_none()
+        if loc is None:
+            continue
 
+        distance = haversine_distance_km(
+            float(lot.latitude), float(lot.longitude),
+            float(loc.latitude), float(loc.longitude),
+        )
+        if distance <= radius_km:
+            candidates.append((collector, distance))
+
+    candidates.sort(key=lambda x: x[1])
     return candidates[:limit]
 
 

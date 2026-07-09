@@ -6,6 +6,9 @@ __pycache__/
 .venv/
 venv/
 *.log
+stdout*.txt
+stderr*.txt
+test*.txt
 .DS_Store
 /dist
 /build

@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # 1. Base de données PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: ecoloop_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ecoloop_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecoloop_pass}
+      POSTGRES_DB: ecoloop_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecoloop_user -d ecoloop_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Serveur Backend FastAPI
+  backend:
+    build:
+      context: ./ecoloop_backend
+      dockerfile: Dockerfile
+    container_name: ecoloop_backend_server
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://ecoloop_user:${POSTGRES_PASSWORD:-ecoloop_pass}@db:5432/ecoloop_db
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - CORS_ORIGINS=http://localhost:5000,http://localhost:3000,http://localhost:3001,http://localhost:4000
+      - ALLOWED_HOSTS=localhost,127.0.0.1,10.0.2.2,api.ecoloop.ci
+      - AI_SERVICE_URL=http://ai:8001
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head && gunicorn main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --workers 4"
+
+  # 3. Application Web React/Vite
+  web:
+    build:
+      context: ./ecoloop_web
+      dockerfile: Dockerfile
+    container_name: ecoloop_web_app
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  # 4. Backoffice (administration)
+  backoffice:
+    build:
+      context: ./ecoloop_backoffice
+      dockerfile: Dockerfile
+    container_name: ecoloop_backoffice_app
+    restart: always
+    ports:
+      - "4000:4000"
+    depends_on:
+      - backend
+
+  # 5. Service IA (classification, prédiction, détection de fraude)
+  ai:
+    build:
+      context: ./ecoloop_ai
+      dockerfile: Dockerfile
+    container_name: ecoloop_ai_service
+    restart: always
+    ports:
+      - "8001:8000"
+    environment:
+      - API_PORT=8000
+      - MODEL_PATH=saved_models
+      - ENV=development
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4000,http://localhost:8000
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
+    volumes:
+      - model_data:/app/saved_models
+
+volumes:
+  postgres_data:
+  model_data:

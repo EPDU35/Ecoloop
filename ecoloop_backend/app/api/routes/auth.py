@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+import logging
 
 from app.config.database import get_db
+
+logger = logging.getLogger("ecoloop.auth")
 from app.config.settings import settings
 from app.controllers import auth_controller
 from app.schemas.user_schema import (
@@ -19,14 +23,24 @@ from app.utils.helpers import limiter
 router = APIRouter(prefix="/auth", tags=["Authentification"])
 
 
-@router.post("/register", response_model=UserOutSchema, status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 @limiter.limit(settings.rate_limit_auth)
 async def register(request: Request, payload: UserRegisterSchema, db: AsyncSession = Depends(get_db)):
     user, otp_code = await auth_controller.register_user(db, payload)
     await db.commit()
-    # TODO intégration réelle : envoyer otp_code par SMS/email via notification_service.
-    # Il n'est jamais renvoyé dans la réponse HTTP.
-    return user
+    # En développement : le code OTP est renvoyé dans la réponse pour permettre
+    # le test manuel (aucun SMS/email réel n'est envoyé). En production il reste
+    # strictement confidentiel et n'est jamais renvoyé au client.
+    if settings.debug and not settings.is_production:
+        logger.warning("DEV OTP pour %s : %s - NE JAMAIS EXPOSER EN PRODUCTION", payload.email, otp_code)
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content=UserOutSchema.model_validate(user).model_dump(mode="json"),
+        )
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content=UserOutSchema.model_validate(user).model_dump(mode="json"),
+    )
 
 
 @router.post("/verify-otp", response_model=UserOutSchema)

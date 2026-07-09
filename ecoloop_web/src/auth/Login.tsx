@@ -26,7 +26,7 @@ export default function Login() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: wire up to auth.service.ts once the backend contract is ready
-    console.log({ identifier, password, remember });
+    // TODO: wire up to auth.service.ts once the backend contract is ready
   };
 
   return (
