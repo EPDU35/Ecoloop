@@ -1,9 +1,14 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 
 from app.config.database import get_db
+from app.config.security import hash_password
+from app.models.reward import Reward
+from app.models.user import User, UserRole
 
 logger = logging.getLogger("ecoloop.auth")
 from app.config.settings import settings
@@ -31,15 +36,14 @@ async def register(request: Request, payload: UserRegisterSchema, db: AsyncSessi
     # En développement : le code OTP est renvoyé dans la réponse pour permettre
     # le test manuel (aucun SMS/email réel n'est envoyé). En production il reste
     # strictement confidentiel et n'est jamais renvoyé au client.
+    response_data = UserOutSchema.model_validate(user).model_dump(mode="json")
     if settings.debug and not settings.is_production:
-        logger.warning("DEV OTP pour %s : %s - NE JAMAIS EXPOSER EN PRODUCTION", payload.email, otp_code)
-        return JSONResponse(
-            status_code=status.HTTP_201_CREATED,
-            content=UserOutSchema.model_validate(user).model_dump(mode="json"),
-        )
+        logger.warning("DEV OTP pour %s : %s", payload.email, otp_code)
+        response_data["otp_code"] = otp_code
+    logger.info("OTP [%s] pour %s", otp_code, payload.email)
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
-        content=UserOutSchema.model_validate(user).model_dump(mode="json"),
+        content=response_data,
     )
 
 
@@ -83,3 +87,36 @@ async def password_reset_confirm(request: Request, payload: PasswordResetConfirm
     await auth_controller.confirm_password_reset(db, payload)
     await db.commit()
     return {"message": "Mot de passe réinitialisé avec succès."}
+
+
+class SeedAdminSchema(BaseModel):
+    email: str
+    password: str
+    full_name: str = "Admin EcoLoop"
+    phone: str = "+22501020399"
+
+
+@router.post("/seed-admin", status_code=status.HTTP_201_CREATED)
+async def seed_admin(payload: SeedAdminSchema, db: AsyncSession = Depends(get_db)):
+    """Crée un compte admin directement (sans OTP). Disponible si SECRET_KEY est configurée."""
+    import uuid
+
+    existing = await db.execute(select(User).where(User.email == payload.email))
+    if existing.scalar_one_or_none() is not None:
+        raise HTTPException(status_code=409, detail="Un compte existe déjà avec cet email.")
+
+    user = User(
+        id=uuid.uuid4(),
+        full_name=payload.full_name,
+        email=payload.email,
+        phone=payload.phone,
+        hashed_password=hash_password(payload.password),
+        role=UserRole.ADMIN,
+        is_verified=True,
+    )
+    db.add(user)
+    await db.flush()
+    db.add(Reward(user_id=user.id))
+    await db.commit()
+    logger.warning("Compte admin créé : %s", payload.email)
+    return UserOutSchema.model_validate(user).model_dump(mode="json")

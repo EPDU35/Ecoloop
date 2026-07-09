@@ -44,8 +44,9 @@ class UserRegisterSchema(BaseModel):
     @field_validator("role")
     @classmethod
     def role_cannot_be_admin_at_registration(cls, v: UserRole) -> UserRole:
-        # Un compte admin ne se crée jamais via l'endpoint public d'inscription.
-        if v == UserRole.ADMIN:
+        # Un compte admin ne se crée jamais via l'endpoint public d'inscription (sauf en dev).
+        from app.config.settings import settings
+        if v == UserRole.ADMIN and settings.is_production:
             raise ValueError("Ce rôle ne peut pas être choisi à l'inscription.")
         return v
 

@@ -39,7 +39,7 @@ class Settings(BaseSettings):
 
     # --- CORS / hosts ---
     cors_origins: str = ""
-    allowed_hosts: str = "localhost,127.0.0.1"
+    allowed_hosts: str = "localhost,127.0.0.1,*.onrender.com,*.vercel.app"
 
     # --- Cloudinary ---
     cloudinary_cloud_name: str = ""
