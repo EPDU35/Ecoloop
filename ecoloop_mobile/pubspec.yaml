@@ -15,11 +15,12 @@ dependencies:
   # HTTP Client
   http: ^1.2.1
 
-  # Local storage (Tokens, Preferences)
-  shared_preferences: ^2.2.3
+  # Local secure storage (Tokens, Preferences)
+  flutter_secure_storage: ^9.0.0
 
   # UI / Icons / Animations
   cupertino_icons: ^1.0.6
+  google_fonts: ^6.1.0
 
 dev_dependencies:
   flutter_test:
