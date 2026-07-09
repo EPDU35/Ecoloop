@@ -207,9 +207,6 @@
   transition: color 0.15s ease, background 0.15s ease;
 }
 
-.el-tab:first-child { border-top-left-radius: var(--radius-card); }
-.el-tab:last-child { border-top-right-radius: var(--radius-card); }
-
 .el-tab.active {
   background: var(--el-paper);
   color: var(--el-ink);
@@ -437,3 +434,28 @@
   margin-bottom: 16px;
   text-align: center;
 }
+
+/* ---------- RESPONSIVE MOBILE ADJUSTMENTS ---------- */
+@media (max-width: 480px) {
+  .el-form-side {
+    padding: 24px 12px;
+  }
+  .el-ticket-body {
+    padding: 24px 16px 24px;
+  }
+  .el-side {
+    padding: 32px 24px;
+  }
+  .el-stamp-wrap {
+    padding: 16px;
+    margin-top: 24px;
+  }
+  .el-submit {
+    padding: 12px 14px;
+  }
+  .el-role-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
+

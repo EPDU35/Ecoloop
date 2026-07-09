@@ -91,16 +91,40 @@ export default function AuthLayout({ ticketCode, children }: AuthLayoutProps) {
 
       {/* Right: ticket card */}
       <div className="el-form-side">
-        <div style={{ position: 'relative' }}>
-          <div style={{ position: 'absolute', top: '-34px', left: '0' }}>
-            <a href="/" style={{ color: 'var(--el-paper-2)', textDecoration: 'none', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.8 }}>
-              ← Retour à l'accueil
+        <div className="el-ticket">
+          {/* Barre supérieure avec retour à l'accueil hautement visible */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            borderBottom: '1px solid var(--el-line-dark)', 
+            padding: '14px 24px', 
+            background: 'var(--el-paper-2)', 
+            borderTopLeftRadius: 'var(--radius-card)', 
+            borderTopRightRadius: 'var(--radius-card)' 
+          }}>
+            <a href="/" style={{ 
+              color: 'var(--el-ink)', 
+              textDecoration: 'none', 
+              fontSize: '0.82rem', 
+              fontWeight: 600, 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '6px' 
+            }}>
+              <span style={{ fontSize: '1rem', lineHeight: 1 }}>←</span> Retour à l'accueil
             </a>
+            <span style={{ 
+              fontFamily: "'IBM Plex Mono', monospace", 
+              fontSize: '10.5px', 
+              fontWeight: 600,
+              color: 'var(--el-ink-soft)',
+              letterSpacing: '0.05em'
+            }}>
+              TICKET N° {code}
+            </span>
           </div>
-          <div className="el-ticket">
-            <div className="el-ticket-code">TICKET N° {code}</div>
-            {children}
-          </div>
+          {children}
         </div>
       </div>
     </div>
