@@ -13,7 +13,6 @@ import logging
 
 import numpy as np
 from PIL import Image
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
@@ -56,6 +55,10 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
         (1, 224, 224, 3)
     """
     try:
+        # Import paresseux : TensorFlow n'est requis que pour ce prétraitement
+        # MobileNetV2 (V1). Le runtime YOLO (V2) ne l'utilise pas.
+        from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+
         # Décoder les bytes en image PIL
         image = Image.open(io.BytesIO(image_bytes))
 

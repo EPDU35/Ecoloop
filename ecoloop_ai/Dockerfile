@@ -8,6 +8,9 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONIOENCODING=utf-8
+# Dossiers de config inscriptibles (YOLO/Ultralytics et Matplotlib)
+ENV YOLO_CONFIG_DIR=/tmp/Ultralytics
+ENV MPLCONFIGDIR=/tmp/matplotlib
 
 # Installer les dépendances système nécessaires pour TensorFlow, Prophet et OpenCV/Pillow
 RUN apt-get update && apt-get install -y \
@@ -21,9 +24,14 @@ RUN apt-get update && apt-get install -y \
 # Copier le fichier des dépendances
 COPY requirements.txt .
 
-# Installer les dépendances Python
+# Installer PyTorch en version CPU uniquement (évite les lourds wheels CUDA)
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir \
+        torch==2.2.2 torchvision==0.17.2 \
+        --index-url https://download.pytorch.org/whl/cpu
+
+# Installer les autres dépendances Python
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier le reste du code source
 COPY . .

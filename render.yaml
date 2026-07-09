@@ -17,7 +17,7 @@ services:
     env: docker
     dockerfilePath: ./ecoloop_ai/Dockerfile
     dockerContext: ./ecoloop_ai
-    plan: starter
+    plan: free
     healthCheckPath: /api/health
     envVars:
       - key: JWT_SECRET
