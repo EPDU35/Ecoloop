@@ -1,14 +1,10 @@
-// Types liés aux transactions et aux indicateurs financiers.
-// Complète ce fichier avec vos types Transaction existants si vous en avez déjà —
-// ces exports s'ajoutent, ils ne remplacent rien.
-
 export type OrderStatus = "delivered" | "in_transit" | "late";
 
 export interface Order {
-  reference: string;   // ex: "CMD-2214"
+  reference: string;
   supplier: string;
   material: string;
-  weight: string;      // déjà formaté, ex: "820 kg" ou "1.2 t"
+  weight: string;
   status: OrderStatus;
 }
 
@@ -21,7 +17,7 @@ export interface KpiData {
 }
 
 export interface Contract {
-  id: string;          // ex: "CTR-4412"
+  id: string;
   supplier: string;
   material: string;
   monthlyTargetKg: number;
@@ -32,3 +28,16 @@ export interface Contract {
   status: "active" | "suspended" | "expired";
 }
 
+export interface TransactionOut {
+  id: string;
+  collection_id: string;
+  producer_id: string;
+  collector_id: string;
+  gross_amount: number;
+  commission_amount: number;
+  net_amount: number;
+  payment_method: string;
+  status: string;
+  created_at: string;
+  paid_at: string | null;
+}

@@ -4,6 +4,8 @@ import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { BarChart, DonutChart } from '../components/Charts';
 import { NAV_ITEMS, NAV_PATHS } from './nav';
+import { getCollectorDashboard } from '../services/collecteur.service';
+import type { CollectorDashboard } from '../models/Waste';
 
 function KpiCard({ label, value, deltaLabel, deltaDirection }: { label: string; value: string; deltaLabel?: string; deltaDirection?: 'up' | 'down' }) {
   return (
@@ -23,26 +25,75 @@ export default function CollecteurDashboard() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [data, setData] = useState<CollectorDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [sidebarOpen]);
 
+  useEffect(() => {
+    getCollectorDashboard()
+      .then(setData)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
+
   const handleSelect = (key: string) => {
     const path = NAV_PATHS[key];
     if (path) navigate(path);
   };
 
-  const weeklyData = [
-    { day: 'Lun', percent: 70 }, { day: 'Mar', percent: 85 }, { day: 'Mer', percent: 50 },
-    { day: 'Jeu', percent: 75 }, { day: 'Ven', percent: 90 }, { day: 'Sam', percent: 60 }, { day: 'Dim', percent: 10 },
-  ];
+  if (loading) {
+    return (
+      <div className="el-shell">
+        <Sidebar items={NAV_ITEMS} activeKey="dashboard" onSelect={handleSelect}
+          user={{ name: "Collecteur", role: "Collecteur" }}
+          open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="el-main">
+          <Navbar title="Mon Espace Collecteur" searchOpen={searchOpen}
+            onToggleSearch={() => setSearchOpen((v) => !v)}
+            onOpenSidebar={() => setSidebarOpen(true)} />
+          <div className="el-content"><p className="el-empty">Chargement...</p></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="el-shell">
+        <Sidebar items={NAV_ITEMS} activeKey="dashboard" onSelect={handleSelect}
+          user={{ name: "Collecteur", role: "Collecteur" }}
+          open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="el-main">
+          <Navbar title="Mon Espace Collecteur" searchOpen={searchOpen}
+            onToggleSearch={() => setSearchOpen((v) => !v)}
+            onOpenSidebar={() => setSidebarOpen(true)} />
+          <div className="el-content"><p className="el-empty">Erreur : {error || "Impossible de charger les données"}</p></div>
+        </div>
+      </div>
+    );
+  }
+
+  const catCounts = data.available_lots.reduce<Record<string, number>>((acc, l) => {
+    acc[l.category] = (acc[l.category] || 0) + 1;
+    return acc;
+  }, {});
+
+  const totalCat = Object.values(catCounts).reduce((s, v) => s + v, 0) || 1;
+  const materialData = Object.entries(catCounts).map(([name, count], i) => ({
+    name,
+    percent: Math.round((count / totalCat) * 100),
+    color: ['#3fa34d', '#d9a441', '#b4522f', '#6b8f79', '#4a7c8c'][i % 5],
+  }));
 
   return (
     <div className="el-shell">
       <Sidebar items={NAV_ITEMS} activeKey="dashboard" onSelect={handleSelect}
-        user={{ name: "Kouamé Jean", role: "Collecteur" }}
+        user={{ name: "Collecteur", role: "Collecteur" }}
         open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="el-main">
         <Navbar title="Mon Espace Collecteur" searchOpen={searchOpen}
@@ -50,20 +101,17 @@ export default function CollecteurDashboard() {
           onOpenSidebar={() => setSidebarOpen(true)} />
         <div className="el-content">
           <div className="el-kpi-grid">
-            <KpiCard label="Collectes effectuées" value="24" deltaLabel="+4 cette semaine" deltaDirection="up" />
-            <KpiCard label="Déchets collectés" value="1.2 t" deltaLabel="+18% vs mois dernier" deltaDirection="up" />
-            <KpiCard label="Revenus du mois" value="85 500 FCFA" deltaLabel="+12% vs mois dernier" deltaDirection="up" />
-            <KpiCard label="Réputation" value="4.8 ⭐" deltaLabel="Stable" deltaDirection="up" />
+            <KpiCard label="Collectes effectuées" value={`${data.completed_collections}`} />
+            <KpiCard label="Total collecté" value={`${data.available_lots.reduce((s, l) => s + l.weight_kg, 0).toLocaleString('fr-FR')} kg`} />
+            <KpiCard label="Revenus totaux" value={`${data.total_earnings_fcfa.toLocaleString('fr-FR')} FCFA`} />
+            <KpiCard label="Réputation" value={`${data.reputation_score.toFixed(1)} ⭐`} />
           </div>
           <div className="el-grid-2">
-            <BarChart title="Collectes — 7 derniers jours" data={weeklyData}
-              linkLabel="Voir la marketplace" onLinkClick={() => navigate(NAV_PATHS.marketplace)} />
-            <DonutChart title="Répartition par type" data={[
-              { name: 'PET', percent: 40, color: '#3fa34d' },
-              { name: 'Carton', percent: 30, color: '#d9a441' },
-              { name: 'Verre', percent: 20, color: '#b4522f' },
-              { name: 'HDPE', percent: 10, color: '#6b8f79' },
-            ]} />
+            <BarChart title="Lots disponibles" data={data.available_lots.slice(0, 7).map((l) => ({
+              day: l.category,
+              percent: l.weight_kg,
+            }))} linkLabel="Voir la marketplace" onLinkClick={() => navigate(NAV_PATHS.marketplace)} />
+            <DonutChart title="Répartition par type" data={materialData.length ? materialData : [{ name: 'Aucun', percent: 100, color: '#e0e0e0' }]} />
           </div>
         </div>
       </div>

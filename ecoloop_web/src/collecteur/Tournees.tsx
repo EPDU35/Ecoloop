@@ -3,32 +3,35 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { NAV_ITEMS, NAV_PATHS } from './nav';
+import { getCollectorDashboard } from '../services/collecteur.service';
+import type { CollectorCollection } from '../models/Waste';
 
-interface Tournee {
-  id: string;
-  zone: string;
-  lots: number;
-  distance: string;
-  duree: string;
-  date: string;
-  status: 'planifiee' | 'en_cours' | 'terminee';
-}
-
-const MOCK_TOURNEES: Tournee[] = [
-  { id: 'T-001', zone: 'Yopougon', lots: 3, distance: '12 km', duree: '2h30', date: '10/07/2026', status: 'planifiee' },
-  { id: 'T-002', zone: 'Marcory — Koumassi', lots: 2, distance: '8 km', duree: '1h45', date: '11/07/2026', status: 'planifiee' },
-  { id: 'T-003', zone: 'Cocody', lots: 1, distance: '5 km', duree: '1h', date: '09/07/2026', status: 'terminee' },
-];
+const STATUS_LABELS: Record<string, string> = {
+  RESERVEE: 'Réservée',
+  VALIDEE: 'Terminée',
+  EN_COURS: 'En cours',
+  ANNULEE: 'Annulée',
+};
 
 export default function Tournees() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [collections, setCollections] = useState<CollectorCollection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [sidebarOpen]);
+
+  useEffect(() => {
+    getCollectorDashboard()
+      .then((data) => setCollections(data.my_collections))
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleSelect = (key: string) => {
     const path = NAV_PATHS[key];
@@ -38,10 +41,10 @@ export default function Tournees() {
   return (
     <div className="el-shell">
       <Sidebar items={NAV_ITEMS} activeKey="tournees" onSelect={handleSelect}
-        user={{ name: "Kouamé Jean", role: "Collecteur" }}
+        user={{ name: "Collecteur", role: "Collecteur" }}
         open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="el-main">
-        <Navbar title="Mes tournées optimisées" searchOpen={searchOpen}
+        <Navbar title="Mes collectes" searchOpen={searchOpen}
           onToggleSearch={() => setSearchOpen((v) => !v)}
           onOpenSidebar={() => setSidebarOpen(true)} />
         <div className="el-content">
@@ -53,35 +56,46 @@ export default function Tournees() {
               Les tournées sont automatiquement calculées pour minimiser la distance parcourue et maximiser le volume collecté.
             </p>
           </div>
-          <div className="el-results-count"><strong>{MOCK_TOURNEES.length}</strong> tournée{MOCK_TOURNEES.length > 1 ? 's' : ''}</div>
-          <div className="el-card" style={{ marginTop: '0.5rem' }}>
-            <div className="el-table-wrap">
-              <table className="el-table">
-                <thead>
-                  <tr>
-                    <th>Réf.</th><th>Zone</th><th>Lots</th><th>Distance</th><th>Durée estimée</th><th>Date</th><th>Statut</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {MOCK_TOURNEES.map((t) => (
-                    <tr key={t.id}>
-                      <td className="el-mono" style={{ fontWeight: 600 }}>{t.id}</td>
-                      <td>{t.zone}</td>
-                      <td className="el-mono">{t.lots}</td>
-                      <td className="el-mono">{t.distance}</td>
-                      <td className="el-mono">{t.duree}</td>
-                      <td className="el-mono">{t.date}</td>
-                      <td>
-                        <span className={`el-pill ${t.status === 'planifiee' ? 'in_transit' : t.status === 'en_cours' ? 'late' : 'success'}`}>
-                          {t.status === 'planifiee' ? 'Planifiée' : t.status === 'en_cours' ? 'En cours' : 'Terminée'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+
+          {loading ? (
+            <p className="el-empty">Chargement...</p>
+          ) : error ? (
+            <p className="el-empty">Erreur : {error}</p>
+          ) : (
+            <>
+              <div className="el-results-count"><strong>{collections.length}</strong> collecte{collections.length > 1 ? 's' : ''}</div>
+              <div className="el-card" style={{ marginTop: '0.5rem' }}>
+                <div className="el-table-wrap">
+                  <table className="el-table">
+                    <thead>
+                      <tr>
+                        <th>Réf.</th><th>Lot</th><th>Poids réel</th><th>Réservée le</th><th>Validée le</th><th>Statut</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {collections.map((c) => (
+                        <tr key={c.id}>
+                          <td className="el-mono" style={{ fontWeight: 600 }}>{c.id.slice(0, 8)}</td>
+                          <td className="el-mono">{c.waste_lot_id.slice(0, 8)}</td>
+                          <td className="el-mono">{c.actual_weight_kg ? `${c.actual_weight_kg} kg` : '-'}</td>
+                          <td className="el-mono">{c.reserved_at ? new Date(c.reserved_at).toLocaleDateString('fr-FR') : '-'}</td>
+                          <td className="el-mono">{c.validated_at ? new Date(c.validated_at).toLocaleDateString('fr-FR') : '-'}</td>
+                          <td>
+                            <span className={`el-pill ${c.status === 'RESERVEE' ? 'in_transit' : c.status === 'EN_COURS' ? 'late' : c.status === 'VALIDEE' ? 'success' : ''}`}>
+                              {STATUS_LABELS[c.status] || c.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                      {collections.length === 0 && (
+                        <tr><td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: 'var(--el-ink-soft)' }}>Aucune collecte pour le moment</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

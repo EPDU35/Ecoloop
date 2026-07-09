@@ -71,21 +71,67 @@ export default function Register() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value;
+    let raw = val.replace(/\D/g, '');
+    
+    if (raw.length === 0) {
+      setPhone('');
+      return;
+    }
+
+    if (raw.startsWith('225')) {
+      raw = raw.substring(3);
+    }
+
+    let formatted = '+225';
+    for (let i = 0; i < raw.length && i < 10; i++) {
+      if (i % 2 === 0) formatted += ' ';
+      formatted += raw[i];
+    }
+    
+    setPhone(formatted);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSubmitting(true);
+    if (fullName.trim().length < 2) {
+      setError('Le nom complet doit contenir au moins 2 caractères.');
+      setSubmitting(false);
+      return;
+    }
+
+    const cleanedPhone = phone.replace(/\s+/g, '');
+    if (!/^\+?[0-9]{8,15}$/.test(cleanedPhone)) {
+      setError('Numéro de téléphone invalide (8 à 15 chiffres requis).');
+      setSubmitting(false);
+      return;
+    }
+
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      setError('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.');
+      setSubmitting(false);
+      return;
+    }
+
     try {
       await register({
-        full_name: fullName,
-        email,
-        phone,
+        full_name: fullName.trim(),
+        email: email.trim(),
+        phone: cleanedPhone,
         password,
-        role,
+        role: role.toUpperCase(),
       });
       navigate(`/verifier-otp?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
-      setError(err?.response?.data?.detail || 'Erreur lors de l\'inscription.');
+      const detail = err?.response?.data?.detail;
+      if (Array.isArray(detail)) {
+        setError(detail.map((d: any) => d.msg).join('. '));
+      } else {
+        setError(detail || 'Erreur lors de l\'inscription.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -161,7 +207,7 @@ export default function Register() {
               type="text"
               placeholder="+225 07 00 00 00 00"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={handlePhoneChange}
               disabled={submitting}
             />
           </div>

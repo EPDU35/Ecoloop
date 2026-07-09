@@ -8,7 +8,7 @@ export async function getRecentOrders(): Promise<Order[]> {
 }
 
 export async function getLots(): Promise<Lot[]> {
-  const res = await api.get('/wastes');
+  const res = await api.get('/available-wastes');
   return (res.data || []).map((w: any) => ({
     id: w.id,
     material: w.category,

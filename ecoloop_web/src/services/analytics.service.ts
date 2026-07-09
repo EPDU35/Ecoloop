@@ -42,12 +42,12 @@ export interface MairieAlert {
 }
 
 export async function getMairieAlerts(): Promise<MairieAlert[]> {
-  const res = await api.get('/alerts');
+  const res = await api.get('/notifications');
   return res.data;
 }
 
 export async function getAdminKpis(): Promise<KpiData[]> {
-  const res = await api.get('/admin/kpis');
+  const res = await api.get('/admin/stats');
   return res.data;
 }
 
