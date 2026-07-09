@@ -8,7 +8,7 @@ services:
   # ---------------------------------------------------------------------------
   # Base de données PostgreSQL
   # ---------------------------------------------------------------------------
-  - type: postgresql
+  - type: pserv
     name: ecoloop-db
     plan: free
     region: oregon
