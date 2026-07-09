@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 import AuthLayout from './AuthLayout';
 import './auth.css';
 
@@ -18,15 +19,26 @@ const ArrowIcon = () => (
 
 export default function Login() {
   const navigate = useNavigate();
-  const [identifier, setIdentifier] = useState('');
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up to auth.service.ts once the backend contract is ready
-    // TODO: wire up to auth.service.ts once the backend contract is ready
+    setError('');
+    setSubmitting(true);
+    try {
+      await login(email, password);
+      navigate('/');
+    } catch (err: any) {
+      setError(err?.response?.data?.detail || 'Identifiants incorrects. Veuillez réessayer.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -45,15 +57,18 @@ export default function Login() {
         <div className="el-ticket-heading">Bon retour</div>
         <p className="el-ticket-sub">Accédez à votre espace pour suivre vos lots et vos collectes.</p>
 
+        {error && <div className="el-error-msg">{error}</div>}
+
         <div className="el-field">
-          <label htmlFor="identifier">Téléphone ou e-mail</label>
+          <label htmlFor="email">Email</label>
           <div className="el-input-row">
             <input
-              id="identifier"
-              type="text"
-              placeholder="+225 07 00 00 00 00"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
+              id="email"
+              type="email"
+              placeholder="exemple@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={submitting}
             />
           </div>
         </div>
@@ -67,6 +82,7 @@ export default function Login() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={submitting}
             />
             <button
               type="button"
@@ -89,8 +105,8 @@ export default function Login() {
           </a>
         </div>
 
-        <button className="el-submit" type="submit">
-          Se connecter
+        <button className="el-submit" type="submit" disabled={submitting}>
+          {submitting ? 'Connexion...' : 'Se connecter'}
           <ArrowIcon />
         </button>
 

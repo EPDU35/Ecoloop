@@ -75,7 +75,7 @@ services:
     env_file:
       - ../ecoloop_backend/.env
     environment:
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ecoloop_user}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@db:5432/${POSTGRES_DB:-ecoloop_db}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-ecoloop_user}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@db:5432/${POSTGRES_DB:-ecoloop_db}
       REDIS_URL: redis://redis:6379/0
       AI_SERVICE_URL: http://ai:8001
     ports:

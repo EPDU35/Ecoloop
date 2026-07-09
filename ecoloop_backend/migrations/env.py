@@ -1,4 +1,5 @@
 import asyncio
+import json
 from logging.config import fileConfig
 
 from alembic import context
@@ -41,7 +42,13 @@ def do_run_migrations(connection) -> None:
 
 
 async def run_migrations_online() -> None:
-    connectable: AsyncEngine = create_async_engine(settings.database_url, poolclass=None)
+    database_url = settings.database_url.replace("+asyncpg", "+psycopg")
+    connectable: AsyncEngine = create_async_engine(
+        database_url,
+        poolclass=None,
+        json_serializer=lambda o: json.dumps(o, ensure_ascii=False, default=str),
+        json_deserializer=json.loads,
+    )
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
     await connectable.dispose()

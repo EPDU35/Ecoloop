@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 import AuthLayout from './AuthLayout';
 import './auth.css';
 
-export type UserRole = 'producer' | 'collector' | 'industrial' | 'municipality';
+export type UserRole = 'producteur' | 'collecteur' | 'industriel' | 'mairie';
 
 const ROLES: { id: UserRole; label: string; icon: React.ReactNode }[] = [
   {
-    id: 'producer',
+    id: 'producteur',
     label: 'Producteur',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -17,7 +18,7 @@ const ROLES: { id: UserRole; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
-    id: 'collector',
+    id: 'collecteur',
     label: 'Collecteur',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -26,7 +27,7 @@ const ROLES: { id: UserRole; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
-    id: 'industrial',
+    id: 'industriel',
     label: 'Industriel',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -35,7 +36,7 @@ const ROLES: { id: UserRole; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
-    id: 'municipality',
+    id: 'mairie',
     label: 'Mairie / RSE',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -60,16 +61,34 @@ const ArrowIcon = () => (
 
 export default function Register() {
   const navigate = useNavigate();
-  const [role, setRole] = useState<UserRole>('producer');
+  const { register } = useAuth();
+  const [role, setRole] = useState<UserRole>('producteur');
   const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up to auth.service.ts once the backend contract is ready
-    // TODO: wire up to auth.service.ts once the backend contract is ready
+    setError('');
+    setSubmitting(true);
+    try {
+      await register({
+        full_name: fullName,
+        email,
+        phone,
+        password,
+        role,
+      });
+      navigate(`/verifier-otp?email=${encodeURIComponent(email)}`);
+    } catch (err: any) {
+      setError(err?.response?.data?.detail || 'Erreur lors de l\'inscription.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -88,6 +107,8 @@ export default function Register() {
         <div className="el-ticket-heading">Rejoindre EcoLoop</div>
         <p className="el-ticket-sub">Choisissez votre profil pour démarrer.</p>
 
+        {error && <div className="el-error-msg">{error}</div>}
+
         <span className="el-role-label">Je suis...</span>
         <div className="el-role-grid">
           {ROLES.map((r) => (
@@ -96,6 +117,7 @@ export default function Register() {
               type="button"
               className={`el-role-chip${role === r.id ? ' active' : ''}`}
               onClick={() => setRole(r.id)}
+              disabled={submitting}
             >
               {r.icon}
               {r.label}
@@ -112,6 +134,21 @@ export default function Register() {
               placeholder="Ex. Aïcha Koné"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              disabled={submitting}
+            />
+          </div>
+        </div>
+
+        <div className="el-field">
+          <label htmlFor="email">Email</label>
+          <div className="el-input-row">
+            <input
+              id="email"
+              type="email"
+              placeholder="exemple@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={submitting}
             />
           </div>
         </div>
@@ -125,6 +162,7 @@ export default function Register() {
               placeholder="+225 07 00 00 00 00"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              disabled={submitting}
             />
           </div>
         </div>
@@ -138,6 +176,7 @@ export default function Register() {
               placeholder="8 caractères minimum"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={submitting}
             />
             <button
               type="button"
@@ -150,8 +189,8 @@ export default function Register() {
           </div>
         </div>
 
-        <button className="el-submit" type="submit" style={{ marginTop: 6 }}>
-          Créer mon compte
+        <button className="el-submit" type="submit" disabled={submitting} style={{ marginTop: 6 }}>
+          {submitting ? 'Inscription...' : 'Créer mon compte'}
           <ArrowIcon />
         </button>
 

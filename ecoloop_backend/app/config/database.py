@@ -1,3 +1,4 @@
+import json
 from typing import AsyncGenerator
 
 from sqlalchemy import event
@@ -6,14 +7,20 @@ from sqlalchemy.orm import DeclarativeBase
 
 from app.config.settings import settings
 
-is_sqlite = settings.database_url.startswith("sqlite")
+# psycopg (v3) est utilisé à la place d'asyncpg car PgBouncer (transaction/statement mode)
+# ne supporte pas les requêtes préparées d'asyncpg. psycopg n'utilise pas de PREPARE
+# par défaut et est totalement compatible avec PgBouncer.
+database_url = settings.database_url.replace("+asyncpg", "+psycopg")
+is_sqlite = database_url.startswith("sqlite")
 
 engine = create_async_engine(
-    settings.database_url,
-    **(dict(connect_args={"check_same_thread": False}) if is_sqlite else dict(
+    database_url,
+    **({} if is_sqlite else dict(
         pool_size=settings.db_pool_size,
         max_overflow=settings.db_max_overflow,
         pool_pre_ping=True,
+        json_serializer=lambda o: json.dumps(o, ensure_ascii=False, default=str),
+        json_deserializer=json.loads,
     )),
     echo=settings.debug and not settings.is_production,
 )
