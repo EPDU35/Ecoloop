@@ -105,6 +105,10 @@ export async function suspendPlatformUser(id: string): Promise<void> {
   await api.patch(`/admin/users/${id}/suspend`);
 }
 
+export async function rejectPlatformUser(id: string): Promise<void> {
+  await api.patch(`/admin/users/${id}/reject`);
+}
+
 export interface PlatformTransaction {
   id: string;
   date: string;

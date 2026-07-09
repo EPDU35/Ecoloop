@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import AppLayout from '../components/AppLayout';
-import { getAdminUsers, validatePlatformUser, suspendPlatformUser, type PlatformUser } from '../services/analytics.service';
+import { getAdminUsers, validatePlatformUser, suspendPlatformUser, rejectPlatformUser, type PlatformUser } from '../services/analytics.service';
 
 export default function Users() {
   const [users, setUsers] = useState<PlatformUser[]>([]);
@@ -23,6 +23,12 @@ export default function Users() {
 
   const handleValidate = async (id: string) => {
     await validatePlatformUser(id);
+    loadData();
+  };
+
+  const handleReject = async (id: string) => {
+    if (!window.confirm('Confirmer le rejet de ce compte ? L\'utilisateur sera notifié par email et son inscription sera supprimée.')) return;
+    await rejectPlatformUser(id);
     loadData();
   };
 
@@ -123,14 +129,24 @@ export default function Users() {
                   </td>
                   <td>
                     {u.status === 'pending' && (
-                      <button
-                        type="button"
-                        className="el-card-link"
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}
-                        onClick={() => handleValidate(u.id)}
-                      >
-                        Valider le compte
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          className="el-card-link"
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}
+                          onClick={() => handleValidate(u.id)}
+                        >
+                          Valider
+                        </button>
+                        <button
+                          type="button"
+                          className="el-card-link"
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--el-signal)', fontWeight: 600, padding: 0 }}
+                          onClick={() => handleReject(u.id)}
+                        >
+                          Rejeter
+                        </button>
+                      </div>
                     )}
                     {u.status === 'active' && (
                       <button

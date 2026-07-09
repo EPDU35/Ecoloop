@@ -192,6 +192,27 @@ async def admin_validate_user(
     return {"status": "validated", "id": str(user.id), "is_active": user.is_active}
 
 
+@router.patch("/users/{user_id}/reject")
+async def admin_reject_user(
+    user_id: str,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(require_roles(UserRole.ADMIN)),
+):
+    """Rejette (supprime) un compte professionnel en attente et notifie par email."""
+    user = await _get_user_or_404(db, user_id)
+    if user.is_active:
+        raise HTTPException(status_code=400, detail="Ce compte est déjà actif. Utilisez 'suspend' pour le désactiver.")
+    if user.role == UserRole.ADMIN:
+        raise HTTPException(status_code=400, detail="Impossible de rejeter un compte administrateur.")
+    email = user.email
+    name = user.full_name
+    await db.delete(user)
+    await db.commit()
+    await email_service.send_account_rejected_email(email, name)
+    logger.info("Compte rejeté par admin : %s (%s)", email, user.role.value)
+    return {"status": "rejected", "id": user_id}
+
+
 @router.patch("/users/{user_id}/suspend")
 async def admin_suspend_user(
     user_id: str,

@@ -188,6 +188,29 @@ class EmailService:
         )
         return await self.send_email(to_email, subject, html_content, to_name, text_content)
 
+    async def send_account_rejected_email(self, to_email: str, to_name: Optional[str] = None, reason: Optional[str] = None) -> bool:
+        """Prévient un professionnel que son compte a été refusé par un admin."""
+        subject = "Votre inscription EcoLoop n'a pas été retenue"
+        html_content = f"""
+        <div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:auto;color:#1a1a1a">
+          <h2 style="color:#159c5b">EcoLoop ♻️</h2>
+          <p>Bonjour{(' ' + to_name) if to_name else ''},</p>
+          <p>Nous vous remercions de votre intérêt pour EcoLoop. Après examen, nous ne
+             sommes pas en mesure de valider votre inscription en tant que professionnel
+             pour le moment.</p>
+          {f'<p style="background:#fff3f3;border-left:4px solid #e53e3e;padding:12px;border-radius:4px"><strong>Raison :</strong> {reason}</p>' if reason else ''}
+          <p>Vous pouvez tenter une nouvelle inscription ultérieurement ou nous contacter
+             pour plus d'informations.</p>
+          <p style="color:#888;font-size:13px">Cordialement,<br>L'équipe EcoLoop</p>
+        </div>
+        """
+        text_content = (
+            "Votre inscription EcoLoop n'a pas été retenue. "
+            + (f"Raison : {reason}" if reason else "")
+            + ". Contactez-nous pour plus d'informations."
+        )
+        return await self.send_email(to_email, subject, html_content, to_name, text_content)
+
     async def send_password_reset_email(
         self, to_email: str, token: str, to_name: Optional[str] = None
     ) -> bool:
