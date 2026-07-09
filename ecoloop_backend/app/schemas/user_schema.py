@@ -129,3 +129,93 @@ class TokenPairSchema(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
+
+
+# --- Admin schemas ---
+class AdminUserOutSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    full_name: str
+    email: EmailStr
+    phone: str
+    role: UserRole
+    is_active: bool
+    is_verified: bool
+    created_at: datetime
+
+
+class AdminUserListResponse(BaseModel):
+    total: int
+    limit: int
+    offset: int
+    users: list[AdminUserOutSchema]
+
+
+class AdminUserValidateSchema(BaseModel):
+    """Valider (activer) un compte en attente"""
+    pass
+
+
+class AdminUserRejectSchema(BaseModel):
+    """Rejeter (supprimer) un compte en attente"""
+    reason: str | None = None
+
+
+# --- Invitation schemas ---
+class InvitationCreateSchema(BaseModel):
+    email: EmailStr
+    role: UserRole
+
+    @field_validator("role")
+    @classmethod
+    def role_not_admin(cls, v: UserRole) -> UserRole:
+        if v == UserRole.ADMIN:
+            raise ValueError("Impossible d'inviter un administrateur.")
+        return v
+
+
+class InvitationBulkCreateSchema(BaseModel):
+    invitations: list[InvitationCreateSchema]
+
+
+class InvitationOutSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    email: EmailStr
+    role: UserRole
+    status: str
+    expires_at: datetime
+    created_at: datetime
+
+
+class InvitationAcceptSchema(BaseModel):
+    token: str
+    full_name: str
+    phone: str
+    password: str
+
+    @field_validator("full_name")
+    @classmethod
+    def full_name_valid(cls, v: str) -> str:
+        v = v.strip()
+        if len(v) < 2 or len(v) > 150:
+            raise ValueError("Le nom complet doit contenir entre 2 et 150 caractères.")
+        return v
+
+    @field_validator("phone")
+    @classmethod
+    def phone_valid(cls, v: str) -> str:
+        v = v.strip()
+        if not PHONE_REGEX.match(v):
+            raise ValueError("Numéro de téléphone invalide.")
+        return v
+
+    @field_validator("password")
+    @classmethod
+    def password_valid(cls, v: str) -> str:
+        ok, message = password_meets_policy(v)
+        if not ok:
+            raise ValueError(message)
+        return v

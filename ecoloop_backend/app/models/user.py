@@ -52,3 +52,28 @@ class User(Base):
 
     def is_locked(self) -> bool:
         return self.locked_until is not None and self.locked_until > datetime.now(self.locked_until.tzinfo)
+
+
+class InvitationStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    ACCEPTED = "ACCEPTED"
+    EXPIRED = "EXPIRED"
+    CANCELLED = "CANCELLED"
+
+
+class UserInvitation(Base):
+    __tablename__ = "user_invitations"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+
+    email: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False)
+    invited_by_id: Mapped[uuid.UUID] = mapped_column(nullable=False)  # admin qui invite
+
+    token: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    status: Mapped[InvitationStatus] = mapped_column(Enum(InvitationStatus), default=InvitationStatus.PENDING, nullable=False)
+
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
