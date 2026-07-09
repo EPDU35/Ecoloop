@@ -1,62 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
-
-/* ============================================================
-   DESIGN TOKENS
-   Base 16px → tout est en rem pour respecter les préférences
-   d'accessibilité du navigateur (zoom texte).
-   Breakpoints : 480 / 640 / 900 / 1100 / 1300
-   Ces tokens (:root) sont globaux : une fois ce fichier importé
-   une fois dans l'app, ils sont dispos partout (Mairie, Admin...).
-   ============================================================ */
-:root {
-  --el-forest: #0d1f16;
-  --el-forest-2: #16281f;
-  --el-forest-3: #1e332a;
-  --el-paper: #f3eee1;
-  --el-paper-2: #e9e0cb;
-  --el-ink: #14251b;
-  --el-ink-soft: #4a5a4f;
-  --el-amber: #d9a441;
-  --el-amber-dark: #b6862f;
-  --el-signal: #3fa34d;
-  --el-rust: #b4522f;
-  --el-line: rgba(243, 238, 225, 0.14);
-  --el-line-dark: rgba(20, 37, 27, 0.12);
-  --el-white: #ffffff;
-
-  --radius-sm: 4px;
-  --radius-card: 6px;
-  --radius-pill: 20px;
-
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-7: 2rem;
-  --space-8: 2.75rem;
-
-  --fs-display: clamp(1.35rem, 1.1rem + 1vw, 1.75rem);
-  --fs-title: clamp(0.95rem, 0.88rem + 0.3vw, 1.05rem);
-  --fs-body: clamp(0.8rem, 0.78rem + 0.15vw, 0.875rem);
-  --fs-label: 0.65rem;
-
-  --content-max: 1440px;
-  --sidebar-w: 240px;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { font-size: 100%; -webkit-text-size-adjust: 100%; }
-
-body {
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
-}
+@import "./styles/tokens.css";
 
 /* ---------- SHELL ---------- */
 .el-shell {
@@ -561,3 +503,42 @@ body {
 }
 .el-lot-btn:hover { background: var(--el-forest-3); }
 .el-lot-btn.added { background: var(--el-signal); color: var(--el-ink); }
+
+/* ---------- ANIMATIONS & TRANSITIONS ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.el-fade-in {
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Transitions globales sur les boutons, onglets et liens */
+.el-btn, 
+.el-nav-item, 
+.el-card-link, 
+.el-lot-btn, 
+.el-filter-apply,
+.el-tab,
+.el-role-chip {
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.el-btn:hover,
+.el-lot-btn:hover,
+.el-filter-apply:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(20, 37, 27, 0.15);
+}
+
+.el-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s;
+}
+
+.el-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(20, 37, 27, 0.08);
+  border-color: rgba(20, 37, 27, 0.2);
+}
+

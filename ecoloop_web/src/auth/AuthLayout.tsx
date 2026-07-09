@@ -91,9 +91,16 @@ export default function AuthLayout({ ticketCode, children }: AuthLayoutProps) {
 
       {/* Right: ticket card */}
       <div className="el-form-side">
-        <div className="el-ticket">
-          <div className="el-ticket-code">TICKET N° {code}</div>
-          {children}
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', top: '-34px', left: '0' }}>
+            <a href="/" style={{ color: 'var(--el-paper-2)', textDecoration: 'none', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.8 }}>
+              ← Retour à l'accueil
+            </a>
+          </div>
+          <div className="el-ticket">
+            <div className="el-ticket-code">TICKET N° {code}</div>
+            {children}
+          </div>
         </div>
       </div>
     </div>

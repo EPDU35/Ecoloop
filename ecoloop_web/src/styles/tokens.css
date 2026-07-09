@@ -14,7 +14,7 @@
   --el-paper: #f3eee1;
   --el-paper-2: #e9e0cb;
   --el-ink: #14251b;
-  --el-ink-soft: #4a5a4f;
+  --el-ink-soft: #2c3b31;
   --el-amber: #d9a441;
   --el-amber-dark: #b6862f;
   --el-signal: #3fa34d;
@@ -46,7 +46,7 @@
   --fs-body: clamp(0.8rem, 0.78rem + 0.15vw, 0.875rem);
   --fs-label: 0.65rem;
 
-  --content-max: 1440px;
+  --content-max: 1200px;
   --sidebar-w: 240px;
 }
 

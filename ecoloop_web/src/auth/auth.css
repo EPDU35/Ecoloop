@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /* Les fonts (Fraunces, Manrope, IBM Plex Mono) sont déjà chargées via tokens.css / index.css.
    Ce fichier ne redéfinit que les styles spécifiques à l'auth. */
+=======
+@import "../styles/tokens.css";
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+>>>>>>> 2e2f1102a8505867a706261ea7506b5a97258bcd
 
 /* ---------- LAYOUT ---------- */
 .el-root {
