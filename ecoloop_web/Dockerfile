@@ -9,6 +9,7 @@ RUN npm ci
 
 # Copy the rest of the application files
 COPY tsconfig.json vite.config.ts index.html ./
+COPY .env.production ./
 COPY src/ ./src/
 COPY public/ ./public/
 

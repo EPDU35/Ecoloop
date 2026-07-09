@@ -93,9 +93,14 @@ app = FastAPI(
     openapi_url="/openapi.json" if settings.ENV != "production" else None,
 )
 
+if settings.ALLOWED_ORIGINS in ("*", ""):
+    allow_origins = ["*"]
+else:
+    allow_origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS.split(",") if settings.ALLOWED_ORIGINS and settings.ALLOWED_ORIGINS != "*" else [],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -15,6 +15,12 @@
   border: 1px solid var(--el-line-dark);
   padding: var(--space-5);
   min-width: 0;
+  box-shadow: 0 1px 3px rgba(20, 37, 27, 0.04), 0 4px 12px rgba(20, 37, 27, 0.04);
+  transition: box-shadow 0.2s cubic-bezier(.4,0,.2,1), border-color 0.2s ease;
+}
+.el-card:hover {
+  box-shadow: 0 2px 6px rgba(20, 37, 27, 0.06), 0 8px 24px rgba(20, 37, 27, 0.06);
+  border-color: rgba(20, 37, 27, 0.18);
 }
 
 .el-kpi-label {
@@ -63,12 +69,26 @@
   text-decoration: none;
   border-bottom: 1px dashed var(--el-ink-soft);
   white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
+.el-card-link:hover { color: var(--el-ink); border-bottom-color: var(--el-ink); }
 
 /* Bar chart */
-.el-bars { display: flex; align-items: flex-end; gap: clamp(0.4rem, 1.5vw, 0.625rem); height: clamp(110px, 20vw, 150px); padding-top: var(--space-3); }
+.el-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(0.4rem, 1.5vw, 0.625rem);
+  height: clamp(110px, 20vw, 150px);
+  padding-top: var(--space-3);
+}
 .el-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: var(--space-2); min-width: 0; }
-.el-bar { width: 100%; border-radius: 4px 4px 0 0; background: var(--el-signal); transition: height 0.4s ease; }
+.el-bar {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, var(--el-signal) 0%, rgba(63, 163, 77, 0.7) 100%);
+  transition: height 0.5s cubic-bezier(.4,0,.2,1);
+  min-height: 4px;
+}
 .el-bar-label { font-size: 0.66rem; color: var(--el-ink-soft); font-family: 'IBM Plex Mono', monospace; }
 
 /* Donut legend */
@@ -101,16 +121,20 @@
   text-transform: uppercase;
   color: var(--el-ink-soft);
   padding: 0 0.625rem 0.625rem;
-  border-bottom: 1px solid var(--el-line-dark);
+  border-bottom: 1px dashed var(--el-line-dark);
   white-space: nowrap;
 }
 .el-table td {
   padding: 0.75rem 0.625rem;
   font-size: var(--fs-body);
-  border-bottom: 1px solid var(--el-line-dark);
+  border-bottom: 1px dashed var(--el-line-dark);
   white-space: nowrap;
 }
 .el-table tr:last-child td { border-bottom: none; }
+.el-table tbody tr {
+  transition: background 0.15s ease;
+}
+.el-table tbody tr:hover { background: rgba(20, 37, 27, 0.02); }
 
 .el-pill {
   display: inline-block;
@@ -118,14 +142,16 @@
   border-radius: var(--radius-pill);
   font-size: 0.69rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
 }
 .el-pill.success { background: rgba(63, 163, 77, 0.12); color: var(--el-signal); }
+.el-pill.in_transit { background: rgba(217, 164, 65, 0.15); color: var(--el-amber-dark); }
 .el-pill.pending { background: rgba(217, 164, 65, 0.15); color: var(--el-amber-dark); }
 .el-pill.late    { background: rgba(180, 82, 47, 0.12); color: var(--el-rust); }
 
 .el-mono { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--el-ink-soft); }
 
-/* ---------- MARKETPLACE (réutilisable sur d'autres écrans) ---------- */
+/* ---------- MARKETPLACE ---------- */
 .el-filter-bar {
   display: flex;
   align-items: flex-end;
@@ -158,9 +184,13 @@
   color: var(--el-ink);
   min-width: 140px;
   outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .el-filter-field select:focus,
-.el-filter-field input:focus { border-color: var(--el-signal); }
+.el-filter-field input:focus {
+  border-color: var(--el-signal);
+  box-shadow: 0 0 0 3px rgba(63, 163, 77, 0.1);
+}
 
 .el-filter-apply {
   background: var(--el-ink);
@@ -173,8 +203,10 @@
   font-family: inherit;
   cursor: pointer;
   height: 2.3rem;
+  transition: background 0.2s cubic-bezier(.4,0,.2,1);
 }
 .el-filter-apply:hover { background: #1f3a29; }
+.el-filter-apply:active { transform: scale(0.98); }
 
 .el-results-count { font-size: 0.78rem; color: var(--el-ink-soft); margin-bottom: var(--space-4); }
 .el-results-count strong { color: var(--el-ink); }
@@ -194,6 +226,12 @@
   flex-direction: column;
   gap: var(--space-3);
   min-width: 0;
+  box-shadow: 0 1px 3px rgba(20, 37, 27, 0.04), 0 4px 12px rgba(20, 37, 27, 0.04);
+  transition: box-shadow 0.2s cubic-bezier(.4,0,.2,1), border-color 0.2s ease;
+}
+.el-lot-card:hover {
+  box-shadow: 0 2px 6px rgba(20, 37, 27, 0.06), 0 8px 24px rgba(20, 37, 27, 0.06);
+  border-color: rgba(20, 37, 27, 0.18);
 }
 
 .el-lot-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
@@ -235,6 +273,33 @@
   cursor: pointer;
   font-family: inherit;
   flex-shrink: 0;
+  transition: background 0.2s cubic-bezier(.4,0,.2,1), transform 0.1s ease;
 }
 .el-lot-btn:hover { background: var(--el-forest-3); }
+.el-lot-btn:active { transform: scale(0.97); }
 .el-lot-btn.added { background: var(--el-signal); color: var(--el-ink); }
+
+/* ---------- BOUTONS DE L'APP (complément landing.css) ---------- */
+.el-btn-el-emerald,
+.el-btn-emerald {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.56rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.84rem;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  background: var(--el-signal);
+  color: var(--el-ink);
+  transition: background 0.2s cubic-bezier(.4,0,.2,1), transform 0.1s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.el-btn-el-emerald:hover,
+.el-btn-emerald:hover { background: #2d8a3a; }
+.el-btn-el-emerald:active,
+.el-btn-emerald:active { transform: scale(0.98); }

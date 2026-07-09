@@ -1,0 +1,56 @@
+# =============================================================================
+# EcoLoop - Render Blueprint
+# =============================================================================
+# Déploiement de tous les services sur Render.
+# 
+# 1. Connecter ce repo à Render en tant que Blueprint
+# 2. Définir les secrets manquants (marqués sync: false)
+# 3. Activer le déploiement automatique sur push
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Service IA (classification, prédiction, détection de fraude)
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: ecoloop-ai
+    env: docker
+    dockerfilePath: ./ecoloop_ai/Dockerfile
+    dockerContext: ./ecoloop_ai
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: JWT_SECRET
+        sync: false
+      - key: ENV
+        value: production
+      - key: MODEL_PATH
+        value: /app/saved_models
+      - key: ALLOWED_ORIGINS
+        value: https://ecoloop-backend-5pdb.onrender.com
+
+  # ---------------------------------------------------------------------------
+  # Frontend public (React + Vite)
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: ecoloop-web
+    env: docker
+    dockerfilePath: ./ecoloop_web/Dockerfile
+    dockerContext: ./ecoloop_web
+    plan: starter
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://ecoloop-backend-5pdb.onrender.com/api/v1
+
+  # ---------------------------------------------------------------------------
+  # Backoffice admin (React + Vite)
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: ecoloop-backoffice
+    env: docker
+    dockerfilePath: ./ecoloop_backoffice/Dockerfile
+    dockerContext: ./ecoloop_backoffice
+    plan: starter
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://ecoloop-backend-5pdb.onrender.com/api/v1

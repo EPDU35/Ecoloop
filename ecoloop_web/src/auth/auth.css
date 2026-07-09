@@ -1,24 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+/* Les fonts (Fraunces, Manrope, IBM Plex Mono) sont déjà chargées via tokens.css / index.css.
+   Ce fichier ne redéfinit que les styles spécifiques à l'auth. */
 
-:root {
-  --el-forest: #0d1f16;
-  --el-forest-2: #16281f;
-  --el-forest-3: #1e332a;
-  --el-paper: #f3eee1;
-  --el-paper-2: #e9e0cb;
-  --el-ink: #14251b;
-  --el-ink-soft: #4a5a4f;
-  --el-amber: #d9a441;
-  --el-amber-dark: #b6862f;
-  --el-signal: #3fa34d;
-  --el-rust: #b4522f;
-  --el-line: rgba(243, 238, 225, 0.14);
-  --el-line-dark: rgba(20, 37, 27, 0.16);
-  --radius-card: 4px;
-}
-
+/* ---------- LAYOUT ---------- */
 .el-root {
-  font-family: 'Inter', -apple-system, sans-serif;
+  font-family: 'Manrope', -apple-system, sans-serif;
   color: var(--el-ink);
   min-height: 100vh;
   display: grid;
@@ -79,12 +64,11 @@
 }
 
 .el-wordmark {
-  font-family: 'Big Shoulders Display', sans-serif;
-  font-weight: 800;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
   font-size: clamp(52px, 8vw, 84px);
   line-height: 0.86;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
   margin: 22px 0 10px;
   z-index: 1;
 }
@@ -131,7 +115,7 @@
 }
 
 .el-stamp-material {
-  font-family: 'Big Shoulders Display', sans-serif;
+  font-family: 'Fraunces', serif;
   font-weight: 700;
   font-size: 30px;
   text-transform: uppercase;
@@ -211,9 +195,9 @@
   flex: 1;
   text-align: center;
   padding: 20px 0 14px;
-  font-family: 'Big Shoulders Display', sans-serif;
+  font-family: 'Fraunces', serif;
   font-weight: 700;
-  font-size: 17px;
+  font-size: 15px;
   text-transform: uppercase;
   letter-spacing: 0.02em;
   color: var(--el-ink-soft);
@@ -257,10 +241,9 @@
 }
 
 .el-ticket-heading {
-  font-family: 'Big Shoulders Display', sans-serif;
+  font-family: 'Fraunces', serif;
   font-weight: 700;
-  font-size: 24px;
-  text-transform: uppercase;
+  font-size: 22px;
   margin-bottom: 4px;
 }
 
@@ -300,7 +283,7 @@
   border-radius: 3px;
   background: transparent;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', sans-serif;
   font-size: 12.5px;
   font-weight: 600;
   color: var(--el-ink-soft);
@@ -347,7 +330,7 @@
   border: none;
   background: transparent;
   outline: none;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', sans-serif;
   font-size: 14.5px;
   color: var(--el-ink);
   padding: 8px 2px;
@@ -389,10 +372,9 @@
   color: var(--el-paper);
   border: none;
   padding: 14px 18px;
-  font-family: 'Big Shoulders Display', sans-serif;
+  font-family: 'Fraunces', serif;
   font-weight: 700;
   font-size: 16px;
-  text-transform: uppercase;
   letter-spacing: 0.02em;
   border-radius: 3px;
   cursor: pointer;
@@ -442,7 +424,7 @@
   border-bottom: 1.5px solid var(--el-amber);
   padding: 0;
   font-size: 13px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', sans-serif;
 }
 
 .el-error-msg {

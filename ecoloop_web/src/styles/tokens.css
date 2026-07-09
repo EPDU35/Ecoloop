@@ -22,6 +22,8 @@
   --el-line: rgba(243, 238, 225, 0.14);
   --el-line-dark: rgba(20, 37, 27, 0.12);
   --el-white: #ffffff;
+  --el-emerald: #3fa34d;   /* alias — same as --el-signal */
+  --el-border: rgba(20, 37, 27, 0.12); /* alias — same as --el-line-dark */
 
   /* Rayons */
   --radius-sm: 4px;
