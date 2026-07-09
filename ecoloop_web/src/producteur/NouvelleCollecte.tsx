@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
@@ -42,7 +42,7 @@ function CategoryCard({ category, selected, onClick }: { category: typeof WASTE_
 
 function PhotoDropzone({ photos, onAdd, onRemove }: { photos: File[]; onAdd: (files: File[]) => void; onRemove: (index: number) => void }) {
   const [dragActive, setDragActive] = useState(false);
-  const inputRef = useState<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -194,7 +194,7 @@ export default function NouvelleCollecte() {
   if (success) {
     return (
       <div className="el-shell">
-        <Sidebar items={NAV_ITEMS} activeKey="lots" onSelect={handleSelect} user={{ name: user?.name || "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar items={NAV_ITEMS} activeKey="lots" onSelect={handleSelect} user={{ name: user?.full_name || "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="el-main">
           <Navbar title="Nouvelle collecte" searchOpen={searchOpen} onToggleSearch={() => setSearchOpen(v => !v)} onOpenSidebar={() => setSidebarOpen(true)} />
           <div className="el-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
@@ -212,7 +212,7 @@ export default function NouvelleCollecte() {
 
   return (
     <div className="el-shell">
-      <Sidebar items={NAV_ITEMS} activeKey="lots" onSelect={handleSelect} user={{ name: user?.name || "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar items={NAV_ITEMS} activeKey="lots" onSelect={handleSelect} user={{ name: user?.full_name || "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="el-main">
         <Navbar title="Nouvelle collecte" searchOpen={searchOpen} onToggleSearch={() => setSearchOpen(v => !v)} onOpenSidebar={() => setSidebarOpen(true)} />
         <div className="el-content" style={{ maxWidth: 720, margin: '0 auto' }}>

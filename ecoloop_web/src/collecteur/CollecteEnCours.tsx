@@ -215,7 +215,7 @@ export default function CollecteEnCours() {
 
   return (
     <div className="el-shell">
-      <Sidebar items={NAV_ITEMS} activeKey="tournees" onSelect={handleSelect} user={{ name: user?.name || "Collecteur", role: "Collecteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar items={NAV_ITEMS} activeKey="tournees" onSelect={handleSelect} user={{ name: user?.full_name || "Collecteur", role: "Collecteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="el-main">
         <Navbar title={`Collecte #${collection.id.slice(0, 8)}`} searchOpen={searchOpen} onToggleSearch={() => setSearchOpen(v => !v)} onOpenSidebar={() => setSidebarOpen(true)} />
         <div className="el-content" style={{ maxWidth: 720, margin: '0 auto' }}>
@@ -366,7 +366,7 @@ export default function CollecteEnCours() {
             <h3 style={{ fontFamily: 'Fraunces, serif', marginBottom: '1rem' }}>Scanner le QR code</h3>
             <p style={{ color: 'var(--el-ink-soft)', marginBottom: '1.5rem' }}>Pointez la caméra vers le code QR du producteur</p>
             <div style={{ width: '100%', maxWidth: 320, aspectRatio: '1 / 1', borderRadius: 'var(--radius-card)', overflow: 'hidden', background: '#000' }}>
-              <QRScanner onResult={handleQrResult} />
+              <QRScanner onScan={handleQrResult} />
             </div>
             <button className="el-btn el-btn-ghost" style={{ marginTop: '1rem', width: '100%' }} onClick={() => setShowScanner(false)}>Annuler</button>
           </div>

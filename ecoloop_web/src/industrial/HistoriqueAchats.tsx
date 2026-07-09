@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
-import { useAuth } from '../auth/AuthContext';
-import { NAV_PATHS } from './nav';
 import api from '../services/api';
 
 interface PurchaseRecord {
@@ -20,7 +17,7 @@ interface PurchaseRecord {
   co2_avoided_kg: number;
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
+export const CATEGORY_COLORS: Record<string, string> = {
   PET: '#10B981', HDPE: '#3B82F6', CARTON: '#F59E0B', VERRE: '#8B5CF6',
   PLASTIQUE: '#10B981', METAL: '#6B7280', PAPIER: '#F59E0B',
   ORGANIQUE: '#EC4899', BOIS: '#D97706',
@@ -50,8 +47,6 @@ function SkeletonRow() {
 }
 
 export default function HistoriqueAchats() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const [purchases, setPurchases] = useState<PurchaseRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +69,8 @@ export default function HistoriqueAchats() {
   const sorted = [...filtered].sort((a, b) => {
     const aVal = a[sortConfig.key as keyof PurchaseRecord];
     const bVal = b[sortConfig.key as keyof PurchaseRecord];
+    if (aVal === null || aVal === undefined) return 1;
+    if (bVal === null || bVal === undefined) return -1;
     if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
     if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
     return 0;

@@ -139,7 +139,7 @@ export default function Recompenses() {
 
   return (
     <div className="el-shell">
-      <Sidebar items={NAV_ITEMS} activeKey="revenus" onSelect={handleSelect} user={{ name: user?.name || "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar items={NAV_ITEMS} activeKey="revenus" onSelect={handleSelect} user={{ name: user?.full_name || "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="el-main">
         <Navbar title="Mes Récompenses" searchOpen={searchOpen} onToggleSearch={() => setSearchOpen(v => !v)} onOpenSidebar={() => setSidebarOpen(true)} />
         <div className="el-content pd-root">
@@ -149,7 +149,7 @@ export default function Recompenses() {
             <div className="pd-points-main">
               <div className="pd-points-label">Vos points EcoLoop</div>
               <div className="pd-points-value">{points.toLocaleString('fr-FR')}</div>
-              <div className="pd-points-sub">⭐ {points >= nextLevel?.minPoints ? 'Niveau max atteint !' : `${(nextLevel?.minPoints - points || 0).toLocaleString('fr-FR')} pts pour le niveau ${nextLevel?.name}`}</div>
+              <div className="pd-points-sub">⭐ {!nextLevel ? 'Niveau max atteint !' : `${((nextLevel.minPoints || 0) - points || 0).toLocaleString('fr-FR')} pts pour le niveau ${nextLevel.name}`}</div>
             </div>
             <div className="pd-level-progress" style={{ minWidth: 200 }}>
               <div className="pd-level-badge" style={{ background: `${currentLevelData.color}18`, color: currentLevelData.color, borderColor: currentLevelData.color }}>
@@ -160,10 +160,10 @@ export default function Recompenses() {
                 <div className="pd-next-level">
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--el-ink-soft)', marginBottom: '0.5rem' }}>
                     <span>Progression vers {nextLevel.name}</span>
-                    <span>{Math.min(100, Math.round((points / nextLevel.minPoints) * 100))}%</span>
+                    <span>{Math.min(100, Math.round((points / (nextLevel.minPoints || 1)) * 100))}%</span>
                   </div>
                   <div className="pd-progress-bar">
-                    <div className="pd-progress-fill" style={{ width: `${Math.min(100, (points / nextLevel.minPoints) * 100)}%`, background: nextLevel.color }} />
+                    <div className="pd-progress-fill" style={{ width: `${Math.min(100, (points / (nextLevel.minPoints || 1)) * 100)}%`, background: nextLevel.color }} />
                   </div>
                 </div>
               )}

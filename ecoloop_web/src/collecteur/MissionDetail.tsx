@@ -125,11 +125,12 @@ export default function MissionDetail() {
 
   const color = MATERIAL_COLORS[lot.category] || '#6b8f79';
   const icon = MATERIAL_ICONS[lot.category] || '♻️';
-  const estValue = (lot.weight_kg * lot.price_per_kg).toLocaleString('fr-FR');
+  const rawValue = lot.weight_kg * lot.price_per_kg;
+  const estValue = rawValue.toLocaleString('fr-FR');
 
   return (
     <div className="el-shell">
-      <Sidebar items={NAV_ITEMS} activeKey="marketplace" onSelect={handleSelect} user={{ name: user?.name || "Collecteur", role: "Collecteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar items={NAV_ITEMS} activeKey="marketplace" onSelect={handleSelect} user={{ name: user?.full_name || "Collecteur", role: "Collecteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="el-main">
         <Navbar title={`Mission #${lot.id.slice(0, 8)}`} searchOpen={searchOpen} onToggleSearch={() => setSearchOpen(v => !v)} onOpenSidebar={() => setSidebarOpen(true)} />
         <div className="el-content" style={{ maxWidth: 800, margin: '0 auto' }}>
@@ -184,8 +185,8 @@ export default function MissionDetail() {
               <InfoRow label="Prix au kg" value={`${lot.price_per_kg.toLocaleString('fr-FR')} FCFA`} icon="🏷️ " />
               <InfoRow label="Poids déclaré" value={`${lot.weight_kg} kg`} icon="⚖️ " />
               <InfoRow label="Valeur brute" value={`${estValue} FCFA`} icon="💵 " />
-              <InfoRow label="Votre part (estimée)" value={`${Math.round(estValue.replace(/\s/g, '') * 0.27).toLocaleString('fr-FR')} FCFA`} icon="💰 " />
-              <InfoRow label="Commission EcoLoop" value={`${Math.round(estValue.replace(/\s/g, '') * 0.1).toLocaleString('fr-FR')} FCFA`} icon="📊 " />
+              <InfoRow label="Votre part (estimée)" value={`${Math.round(rawValue * 0.27).toLocaleString('fr-FR')} FCFA`} icon="💰 " />
+              <InfoRow label="Commission EcoLoop" value={`${Math.round(rawValue * 0.1).toLocaleString('fr-FR')} FCFA`} icon="📊 " />
             </div>
 
             <div className="el-card cd-card">

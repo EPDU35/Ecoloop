@@ -119,7 +119,7 @@ export default function SuiviCollecte() {
 
   return (
     <div className="el-shell">
-      <Sidebar items={NAV_ITEMS} activeKey="collectes" onSelect={handleSelect} user={{ name: user?.name || "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar items={NAV_ITEMS} activeKey="collectes" onSelect={handleSelect} user={{ name: user?.full_name || "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="el-main">
         <Navbar title={`Collecte #${transaction.id.slice(0, 8)}`} searchOpen={searchOpen} onToggleSearch={() => setSearchOpen(v => !v)} onOpenSidebar={() => setSidebarOpen(true)} />
         <div className="el-content" style={{ maxWidth: 900, margin: '0 auto' }}>

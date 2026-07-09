@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import AppLayout from '../components/AppLayout';
-import { useAuth } from '../auth/AuthContext';
-import { NAV_PATHS } from './nav';
 import api from '../services/api';
 
 interface AlertZone {
@@ -35,10 +33,10 @@ function RiskBadge({ level }: { level: AlertZone['risk_level'] }) {
   );
 }
 
-function SaturationBar({ pct }: { pct: number }) {
+function SaturationBar({ pct, style }: { pct: number; style?: React.CSSProperties }) {
   const color = pct >= 90 ? '#EF4444' : pct >= 70 ? '#F59E0B' : pct >= 50 ? '#3B82F6' : '#10B981';
   return (
-    <div style={{ height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 4, overflow: 'hidden', position: 'relative' }}>
+    <div style={{ height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 4, overflow: 'hidden', position: 'relative', ...style }}>
       <div style={{ height: '100%', width: `${Math.min(100, pct)}%`, background: color, borderRadius: 4, transition: 'width 0.6s ease' }} />
       <span style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', fontSize: '0.6rem', fontFamily: 'IBM Plex Mono, monospace', fontWeight: 700, color: 'var(--el-paper)' }}>{pct}%</span>
     </div>
@@ -59,7 +57,7 @@ function SkeletonCard() {
   );
 }
 
-function ActionButton({ label, onClick, variant = 'primary', disabled, loading }: { label: string; onClick: () => void; variant?: 'primary' | 'secondary' | 'danger'; disabled?: boolean; loading?: boolean }) {
+function ActionButton({ label, onClick, variant = 'primary', disabled, loading, style }: { label: string; onClick: () => void; variant?: 'primary' | 'secondary' | 'danger'; disabled?: boolean; loading?: boolean; style?: React.CSSProperties }) {
   const colors: Record<string, { bg: string; color: string; border: string }> = {
     primary: { bg: 'var(--el-amber)', color: 'var(--el-ink)', border: 'var(--el-amber)' },
     secondary: { bg: 'transparent', color: 'var(--el-ink)', border: 'var(--el-line-dark)' },
@@ -76,6 +74,7 @@ function ActionButton({ label, onClick, variant = 'primary', disabled, loading }
         borderRadius: 'var(--radius-sm)', padding: '0.5rem 1rem', fontSize: '0.8rem',
         fontWeight: 600, fontFamily: 'inherit', cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.5 : 1, transition: 'all 0.15s ease',
+        ...style,
       }}
     >
       {loading ? '⏳' : ''} {label}
@@ -84,7 +83,6 @@ function ActionButton({ label, onClick, variant = 'primary', disabled, loading }
 }
 
 export default function MairiePreventif() {
-  const { user } = useAuth();
   const [zones, setZones] = useState<AlertZone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -131,7 +129,7 @@ export default function MairiePreventif() {
   const totalPopulation = zones.reduce((a, b) => a + b.population_served, 0);
 
   return (
-    <AppLayout role="mairie" activeKey="preventif" title="Système préventif">
+    <AppLayout role="municipality" activeKey="preventif" title="Système préventif">
       <div className="mp-root">
 
         {/* KPIs */}
@@ -286,29 +284,29 @@ export default function MairiePreventif() {
                 </div>
                 <div className="mp-detail-item">
                   <label>Remplissage complet prévu</label>
-                  <value>Dans {selectedZone.estimated_days_to_full} jour{selectedZone.estimated_days_to_full > 1 ? 's' : ''}</value>
+                  <div>Dans {selectedZone.estimated_days_to_full} jour{selectedZone.estimated_days_to_full > 1 ? 's' : ''}</div>
                 </div>
                 <div className="mp-detail-item">
                   <label>Dernière collecte</label>
-                  <value>{selectedZone.last_collection ? new Date(selectedZone.last_collection).toLocaleDateString('fr-FR') : 'Jamais'}</value>
+                  <div>{selectedZone.last_collection ? new Date(selectedZone.last_collection).toLocaleDateString('fr-FR') : 'Jamais'}</div>
                 </div>
                 <div className="mp-detail-item">
                   <label>Prochaine prévue</label>
-                  <value>{selectedZone.next_planned_collection ? new Date(selectedZone.next_planned_collection).toLocaleDateString('fr-FR') : 'Non programmée'}</value>
+                  <div>{selectedZone.next_planned_collection ? new Date(selectedZone.next_planned_collection).toLocaleDateString('fr-FR') : 'Non programmée'}</div>
                 </div>
                 <div className="mp-detail-item">
                   <label>Collecteurs assignés</label>
-                  <value>{selectedZone.collector_count}</value>
+                  <div>{selectedZone.collector_count}</div>
                 </div>
                 <div className="mp-detail-item">
                   <label>Population desservie</label>
-                  <value>{selectedZone.population_served.toLocaleString('fr-FR')} hab.</value>
+                  <div>{selectedZone.population_served.toLocaleString('fr-FR')} hab.</div>
                 </div>
                 <div className="mp-detail-item">
                   <label>Coordonnées</label>
-                  <value style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '0.75rem' }}>
+                  <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '0.75rem' }}>
                     {selectedZone.latitude.toFixed(5)}, {selectedZone.longitude.toFixed(5)}
-                  </value>
+                  </div>
                 </div>
               </div>
 
