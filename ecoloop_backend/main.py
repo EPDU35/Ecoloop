@@ -12,6 +12,7 @@ from slowapi.errors import RateLimitExceeded
 from app.api.routes import (
     auth,
     collections,
+    dashboard,
     industrial,
     municipality,
     notifications,
@@ -115,6 +116,7 @@ app.include_router(auth.router, prefix=prefix)
 app.include_router(users.router, prefix=prefix)
 app.include_router(wastes.router, prefix=prefix)
 app.include_router(collections.router, prefix=prefix)
+app.include_router(dashboard.router, prefix=prefix)
 app.include_router(transactions.router, prefix=prefix)
 app.include_router(payments.router, prefix=prefix)
 app.include_router(industrial.router, prefix=prefix)

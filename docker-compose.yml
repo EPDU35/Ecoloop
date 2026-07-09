@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: ecoloop_pass
       POSTGRES_DB: ecoloop_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -32,9 +32,14 @@ services:
     environment:
       - DATABASE_URL=postgresql+asyncpg://ecoloop_user:ecoloop_pass@db:5432/ecoloop_db
       - ENVIRONMENT=development
+      - DEBUG=true
+      - CORS_ORIGINS=http://localhost:5000,http://localhost:3000,http://localhost:3001
+      - ALLOWED_HOSTS=localhost,127.0.0.1,10.0.2.2,api.ecoloop.ci
     depends_on:
       db:
         condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head && gunicorn main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --workers 4"
 
   # 3. Application Web React/Vite
   web:
