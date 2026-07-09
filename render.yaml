@@ -30,6 +30,8 @@ services:
         value: production
       - key: CORS_ORIGINS
         value: https://ecoloop-backoffice.vercel.app,https://ecoloop-web-alpha.vercel.app
+      - key: AI_SERVICE_URL
+        value: https://ecoloop-9zrn.onrender.com
 
   # ---------------------------------------------------------------------------
   # Service IA (classification, prédiction, détection de fraude)
