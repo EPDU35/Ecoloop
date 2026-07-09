@@ -34,7 +34,7 @@ services:
     dockerContext: ./ecoloop_backend
     plan: free
     region: oregon
-    healthCheckPath: /api/v1/health
+    healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
         fromDatabase:
