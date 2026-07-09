@@ -10,6 +10,28 @@
 
 services:
   # ---------------------------------------------------------------------------
+  # Backend API (Node/Express ou FastAPI) — DOIT ÊTRE EN PREMIER pour CORS
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: ecoloop-backend
+    env: docker
+    dockerfilePath: ./ecoloop_backend/Dockerfile
+    dockerContext: ./ecoloop_backend
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ENVIRONMENT
+        value: production
+      - key: CORS_ORIGINS
+        value: https://ecoloop-backoffice.vercel.app,https://ecoloop-web-alpha.vercel.app
+
+  # ---------------------------------------------------------------------------
   # Service IA (classification, prédiction, détection de fraude)
   # ---------------------------------------------------------------------------
   - type: web
