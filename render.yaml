@@ -1,11 +1,7 @@
 # =============================================================================
-# EcoLoop - Render Blueprint
+# EcoLoop - Render Blueprint (Backend + AI + DB + Redis only)
 # =============================================================================
-# Déploiement de tous les services sur Render.
-# 
-# 1. Connecter ce repo à Render en tant que Blueprint
-# 2. Définir les secrets manquants (marqués sync: false)
-# 3. Activer le déploiement automatique sur push
+# Frontend & Backoffice are deployed on Vercel
 # =============================================================================
 
 services:
@@ -58,7 +54,7 @@ services:
       - key: DEBUG
         value: "false"
       - key: CORS_ORIGINS
-        value: https://ecoloop-web.onrender.com,https://ecoloop-backoffice.onrender.com
+        value: https://ecoloop-web-alpha.vercel.app,https://ecoloop-backoffice.vercel.app
       - key: AI_SERVICE_URL
         value: https://ecoloop-ai.onrender.com
       - key: ALLOWED_HOSTS
@@ -90,31 +86,3 @@ services:
         value: https://ecoloop-backend.onrender.com
       - key: PORT
         value: "8000"
-
-  # ---------------------------------------------------------------------------
-  # Frontend public (React + Vite) - Servi par Nginx
-  # ---------------------------------------------------------------------------
-  - type: web
-    name: ecoloop-web
-    env: docker
-    dockerfilePath: ./ecoloop_web/Dockerfile
-    dockerContext: ./ecoloop_web
-    plan: free
-    region: oregon
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://ecoloop-backend.onrender.com/api/v1
-
-  # ---------------------------------------------------------------------------
-  # Backoffice admin (React + Vite) - Servi par Nginx
-  # ---------------------------------------------------------------------------
-  - type: web
-    name: ecoloop-backoffice
-    env: docker
-    dockerfilePath: ./ecoloop_backoffice/Dockerfile
-    dockerContext: ./ecoloop_backoffice
-    plan: free
-    region: oregon
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://ecoloop-backend.onrender.com/api/v1
