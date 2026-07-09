@@ -12,6 +12,8 @@ services:
     name: ecoloop-db
     plan: free
     region: oregon
+    ipAllowList:
+      - 0.0.0.0/0
 
   # ---------------------------------------------------------------------------
   # Redis (cache + rate limiting)
@@ -20,6 +22,8 @@ services:
     name: ecoloop-redis
     plan: free
     region: oregon
+    ipAllowList:
+      - 0.0.0.0/0
 
   # ---------------------------------------------------------------------------
   # Backend API (FastAPI)
