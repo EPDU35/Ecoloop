@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { API_BASE_URL } from '../config';
 
 type EventCallback = (event: any) => void;
 
@@ -16,7 +17,8 @@ export function useSSE(
     const token = localStorage.getItem('access_token');
     if (!token) return;
 
-    const fullUrl = `${url}${url.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`;
+    const fullPath = `${API_BASE_URL}${url}`;
+    const fullUrl = `${fullPath}${fullPath.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`;
     const es = new EventSource(fullUrl);
     eventSourceRef.current = es;
 
