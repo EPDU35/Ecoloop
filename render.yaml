@@ -8,12 +8,10 @@ services:
   # ---------------------------------------------------------------------------
   # Base de données PostgreSQL
   # ---------------------------------------------------------------------------
-  - type: pserv
+  - type: postgresql
     name: ecoloop-db
     plan: free
     region: oregon
-    ipAllowList: []
-    postgresMajorVersion: 16
 
   # ---------------------------------------------------------------------------
   # Redis (cache + rate limiting)
@@ -22,7 +20,6 @@ services:
     name: ecoloop-redis
     plan: free
     region: oregon
-    ipAllowList: []
 
   # ---------------------------------------------------------------------------
   # Backend API (FastAPI)
