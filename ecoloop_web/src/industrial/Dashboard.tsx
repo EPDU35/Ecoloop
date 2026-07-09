@@ -94,7 +94,7 @@ export default function IndustrialDashboard() {
         items={NAV_ITEMS}
         activeKey="dashboard"
         onSelect={handleSelect}
-        user={user}
+        user={{ name: user.name, role: user.company }}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />

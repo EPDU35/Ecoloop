@@ -19,3 +19,16 @@ export interface KpiData {
   deltaLabel: string;
   deltaDirection: "up" | "down";
 }
+
+export interface Contract {
+  id: string;          // ex: "CTR-4412"
+  supplier: string;
+  material: string;
+  monthlyTargetKg: number;
+  suppliedThisMonthKg: number;
+  pricePerKg: number;
+  durationMonths: number;
+  startDate: string;
+  status: "active" | "suspended" | "expired";
+}
+

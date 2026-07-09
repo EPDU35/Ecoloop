@@ -1,5 +1,4 @@
 import React from 'react';
-import './dashboard.css';
 
 export type NavItem = {
   key: string;

@@ -7,3 +7,14 @@ export interface IndustrialUser {
   name: string;
   company: string;
 }
+
+export interface Supplier {
+  id: string;
+  name: string;
+  zone: string;
+  mainMaterials: string[];
+  totalSuppliedKg: number;
+  rating: number;
+  status: "active" | "inactive";
+}
+

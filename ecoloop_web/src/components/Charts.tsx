@@ -1,6 +1,4 @@
-import React from 'react';
 import type { DailyVolume, MaterialShare } from '../models/Waste';
-import './dashboard.css';
 
 type BarChartProps = {
   title: string;
@@ -10,7 +8,7 @@ type BarChartProps = {
 };
 
 export function BarChart({ title, data, linkLabel, onLinkClick }: BarChartProps) {
-  const max = Math.max(...data.map((d) => d.value), 1);
+  const max = Math.max(...data.map((d) => d.percent), 1);
 
   return (
     <div className="el-card">
@@ -31,9 +29,9 @@ export function BarChart({ title, data, linkLabel, onLinkClick }: BarChartProps)
       </div>
       <div className="el-bars">
         {data.map((d) => (
-          <div className="el-bar-col" key={d.label}>
-            <div className="el-bar" style={{ height: `${(d.value / max) * 100}%` }} />
-            <div className="el-bar-label">{d.label}</div>
+          <div className="el-bar-col" key={d.day}>
+            <div className="el-bar" style={{ height: `${(d.percent / max) * 100}%` }} />
+            <div className="el-bar-label">{d.day}</div>
           </div>
         ))}
       </div>
@@ -47,7 +45,7 @@ type DonutChartProps = {
 };
 
 export function DonutChart({ title, data }: DonutChartProps) {
-  const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
+  const total = data.reduce((sum, d) => sum + d.percent, 0) || 1;
   let cumulative = 0;
   const radius = 46;
   const circumference = 2 * Math.PI * radius;
@@ -61,7 +59,7 @@ export function DonutChart({ title, data }: DonutChartProps) {
       <svg width="140" height="140" viewBox="0 0 120 120" style={{ display: 'block', margin: '0 auto' }}>
         <g transform="rotate(-90 60 60)">
           {data.map((d) => {
-            const fraction = d.value / total;
+            const fraction = d.percent / total;
             const dash = fraction * circumference;
             const offset = -cumulative * circumference;
             cumulative += fraction;
@@ -87,7 +85,7 @@ export function DonutChart({ title, data }: DonutChartProps) {
           <div className="el-legend-row" key={d.name}>
             <span className="el-legend-dot" style={{ background: d.color }} />
             <span className="el-legend-name">{d.name}</span>
-            <span className="el-legend-value">{d.value}%</span>
+            <span className="el-legend-value">{d.percent}%</span>
           </div>
         ))}
       </div>

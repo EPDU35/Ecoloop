@@ -68,7 +68,7 @@ export default function Suppliers() {
         items={NAV_ITEMS}
         activeKey="suppliers"
         onSelect={handleSelect}
-        user={user}
+        user={{ name: user.name, role: user.company }}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />

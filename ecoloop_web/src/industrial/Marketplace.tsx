@@ -90,7 +90,7 @@ export default function Marketplace() {
         items={NAV_ITEMS}
         activeKey="marketplace"
         onSelect={handleSelect}
-        user={user}
+        user={{ name: user.name, role: user.company }}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />

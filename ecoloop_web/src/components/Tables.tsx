@@ -1,6 +1,10 @@
-import React from 'react';
 import type { Order } from '../models/Transaction';
-import './dashboard.css';
+
+const STATUS_LABELS: Record<string, string> = {
+  delivered: 'Livré',
+  in_transit: 'En transit',
+  late: 'En retard',
+};
 
 type OrdersTableProps = {
   title: string;
@@ -41,13 +45,15 @@ export default function OrdersTable({ title, orders, linkLabel, onLinkClick }: O
           </thead>
           <tbody>
             {orders.map((o) => (
-              <tr key={o.id}>
-                <td className="el-mono">{o.id}</td>
+              <tr key={o.reference}>
+                <td className="el-mono">{o.reference}</td>
                 <td>{o.supplier}</td>
                 <td>{o.material}</td>
                 <td className="el-mono">{o.weight}</td>
                 <td>
-                  <span className={`el-pill ${o.status}`}>{o.label}</span>
+                  <span className={`el-pill ${o.status}`}>
+                    {STATUS_LABELS[o.status] || o.status}
+                  </span>
                 </td>
               </tr>
             ))}

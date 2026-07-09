@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from './AuthLayout';
 import './auth.css';
@@ -35,7 +35,7 @@ export default function Login() {
         <button className="el-tab active" type="button">
           Connexion
         </button>
-        <button className="el-tab" type="button" onClick={() => navigate('/register')}>
+        <button className="el-tab" type="button" onClick={() => navigate('/inscription')}>
           Inscription
         </button>
       </div>
@@ -97,7 +97,7 @@ export default function Login() {
         <div className="el-divider">ou</div>
         <div className="el-switch-line">
           Pas encore de compte ?{' '}
-          <button type="button" onClick={() => navigate('/register')}>
+          <button type="button" onClick={() => navigate('/inscription')}>
             Créer un compte
           </button>
         </div>

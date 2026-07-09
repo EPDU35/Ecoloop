@@ -12,3 +12,14 @@ export interface DailyVolume {
   day: string;        // ex: "Lun"
   percent: number;    // hauteur relative de la barre, 0-100
 }
+
+export interface Lot {
+  id: string;
+  material: string;
+  distanceKm: number;
+  weightKg: number;
+  location: string;
+  collector: string;
+  pricePerKg: number;
+}
+
