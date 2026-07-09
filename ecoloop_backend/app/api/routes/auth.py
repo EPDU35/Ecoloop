@@ -13,6 +13,7 @@ from app.models.user import User, UserRole
 logger = logging.getLogger("ecoloop.auth")
 from app.config.settings import settings
 from app.controllers import auth_controller
+from app.services.email_service import email_service
 from app.schemas.user_schema import (
     OTPVerifySchema,
     PasswordResetConfirmSchema,
@@ -33,14 +34,18 @@ router = APIRouter(prefix="/auth", tags=["Authentification"])
 async def register(request: Request, payload: UserRegisterSchema, db: AsyncSession = Depends(get_db)):
     user, otp_code = await auth_controller.register_user(db, payload)
     await db.commit()
+    # Envoi du code OTP par email via Brevo. L'échec d'envoi ne bloque pas la
+    # création du compte (loggé dans email_service), mais on le signale.
+    sent = await email_service.send_otp_email(payload.email, otp_code, user.full_name)
+    if not sent:
+        logger.warning("OTP non envoyé par email à %s (Brevo indisponible/non configuré)", payload.email)
     # En développement : le code OTP est renvoyé dans la réponse pour permettre
-    # le test manuel (aucun SMS/email réel n'est envoyé). En production il reste
-    # strictement confidentiel et n'est jamais renvoyé au client.
+    # le test manuel. En production il reste strictement confidentiel.
     response_data = UserOutSchema.model_validate(user).model_dump(mode="json")
     if settings.debug and not settings.is_production:
         logger.warning("DEV OTP pour %s : %s", payload.email, otp_code)
         response_data["otp_code"] = otp_code
-    logger.info("OTP [%s] pour %s", otp_code, payload.email)
+    logger.info("OTP généré pour %s (email envoyé: %s)", payload.email, sent)
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
         content=response_data,
@@ -76,8 +81,10 @@ async def refresh(request: Request, payload: RefreshTokenSchema, db: AsyncSessio
 async def password_reset_request(request: Request, payload: PasswordResetRequestSchema, db: AsyncSession = Depends(get_db)):
     token = await auth_controller.request_password_reset(db, payload)
     await db.commit()
-    # TODO intégration réelle : envoyer `token` par email si non None.
+    # Envoi du lien de réinitialisation par email (seulement si le compte existe).
     # Réponse toujours identique, que le compte existe ou non (anti-énumération).
+    if token is not None:
+        await email_service.send_password_reset_email(payload.email, token)
     return {"message": "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé."}
 
 

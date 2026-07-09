@@ -35,7 +35,17 @@ export default function Login() {
       await login(email, password);
       navigate('/');
     } catch (err: any) {
-      setError(err?.response?.data?.detail || 'Identifiants incorrects. Veuillez réessayer.');
+      const data = err?.response?.data;
+      const detail = data?.detail || data;
+      if (Array.isArray(detail)) {
+        setError(detail.map((d: any) => d.msg || JSON.stringify(d)).join('. '));
+      } else if (typeof detail === 'object' && detail !== null) {
+        setError(detail.msg || JSON.stringify(detail));
+      } else if (typeof detail === 'string') {
+        setError(detail);
+      } else {
+        setError('Identifiants incorrects. Veuillez réessayer.');
+      }
     } finally {
       setSubmitting(false);
     }

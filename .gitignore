@@ -47,3 +47,7 @@ pnpm-debug.log*
 # Database temporary files
 pgdata/
 docker-volumes/
+*.db
+*.sqlite
+*.sqlite3
+ecoloop_dev.db

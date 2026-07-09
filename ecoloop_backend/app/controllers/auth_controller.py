@@ -71,7 +71,11 @@ async def verify_registration_otp(db: AsyncSession, email: str, code: str) -> Us
     if user is None or user.otp_hash is None or user.otp_expires_at is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code invalide.")
 
-    if user.otp_expires_at < datetime.now(timezone.utc):
+    otp_expires_at = user.otp_expires_at
+    if otp_expires_at.tzinfo is None:
+        otp_expires_at = otp_expires_at.replace(tzinfo=timezone.utc)
+
+    if otp_expires_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expiré, demandez-en un nouveau.")
 
     if not verify_otp(code, user.otp_hash):

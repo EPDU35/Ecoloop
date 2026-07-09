@@ -23,6 +23,42 @@
   border-color: rgba(20, 37, 27, 0.18);
 }
 
+/* ---------- DOUBLE BEZEL ---------- */
+.bo-card {
+  background: var(--el-paper);
+  border: 1px solid var(--el-line-dark);
+  border-radius: var(--radius-card);
+  padding: 4px;
+  box-shadow: 0 1px 3px rgba(20, 37, 27, 0.04), 0 4px 12px rgba(20, 37, 27, 0.04);
+  transition: box-shadow 0.2s cubic-bezier(.4,0,.2,1), border-color 0.2s ease;
+  min-width: 0;
+}
+
+.bo-card:hover {
+  box-shadow: 0 2px 6px rgba(20, 37, 27, 0.06), 0 8px 24px rgba(20, 37, 27, 0.06);
+  border-color: rgba(20, 37, 27, 0.18);
+}
+
+.bo-card-core {
+  background: var(--el-paper-2);
+  border-radius: calc(var(--radius-card) - 4px);
+  padding: var(--space-5);
+  border: 1px solid rgba(20, 37, 27, 0.05);
+  height: 100%;
+}
+
+.bo-stagger > * {
+  opacity: 0;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.bo-stagger > *:nth-child(1) { animation-delay: 0.1s; }
+.bo-stagger > *:nth-child(2) { animation-delay: 0.2s; }
+.bo-stagger > *:nth-child(3) { animation-delay: 0.3s; }
+.bo-stagger > *:nth-child(4) { animation-delay: 0.4s; }
+.bo-stagger > *:nth-child(5) { animation-delay: 0.5s; }
+.bo-stagger > *:nth-child(n+6) { animation-delay: 0.6s; }
+
 .el-kpi-label {
   font-family: 'IBM Plex Mono', monospace;
   font-size: var(--fs-label);

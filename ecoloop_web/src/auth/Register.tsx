@@ -110,8 +110,8 @@ export default function Register() {
       return;
     }
 
-    if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
-      setError('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.');
+    if (password.length < 10 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      setError('Le mot de passe doit contenir au moins 10 caractères, une majuscule, une minuscule et un chiffre.');
       setSubmitting(false);
       return;
     }
@@ -126,11 +126,16 @@ export default function Register() {
       });
       navigate(`/verifier-otp?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
-      const detail = err?.response?.data?.detail;
+      const data = err?.response?.data;
+      const detail = data?.detail || data;
       if (Array.isArray(detail)) {
-        setError(detail.map((d: any) => d.msg).join('. '));
+        setError(detail.map((d: any) => d.msg || JSON.stringify(d)).join('. '));
+      } else if (typeof detail === 'object' && detail !== null) {
+        setError(detail.msg || JSON.stringify(detail));
+      } else if (typeof detail === 'string') {
+        setError(detail);
       } else {
-        setError(detail || 'Erreur lors de l\'inscription.');
+        setError('Erreur lors de l\'inscription.');
       }
     } finally {
       setSubmitting(false);

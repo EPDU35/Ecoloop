@@ -31,16 +31,17 @@ export default function AdminDashboard() {
 
   return (
     <AppLayout role="admin" activeKey="dashboard" title="Backoffice - Administration Globale">
-      <div className="el-kpi-grid">
+      <div className="el-kpi-grid bo-stagger">
         {kpis.map((kpi) => (
           <KpiCard key={kpi.id} {...kpi} />
         ))}
       </div>
 
-      <div className="el-grid-2" style={{ gridTemplateColumns: '3fr 2fr', gap: '1.5rem', marginTop: '1rem' }}>
+      <div className="el-grid-2 bo-stagger" style={{ gridTemplateColumns: '3fr 2fr', gap: '1.5rem', marginTop: '1rem' }}>
         {/* Statistiques globales */}
-        <div className="el-card">
-          <div className="el-card-heading">
+        <div className="bo-card">
+          <div className="bo-card-core">
+            <div className="el-card-heading">
             <div className="el-card-title">Commissions &amp; Volumes (Derniers 30 jours)</div>
           </div>
           
@@ -70,15 +71,18 @@ export default function AdminDashboard() {
             <span>📈 Taux de commission moyen : <strong>6.5%</strong></span>
             <span>📅 Dernière mise à jour : il y a 5 min</span>
           </div>
+            </div>
+          </div>
         </div>
 
         {/* Activités récentes */}
-        <div className="el-card">
-          <div className="el-card-heading">
-            <div className="el-card-title">Activités de la plateforme</div>
-          </div>
+        <div className="bo-card">
+          <div className="bo-card-core">
+            <div className="el-card-heading">
+              <div className="el-card-title">Activités de la plateforme</div>
+            </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem', fontSize: '0.85rem' }}>
+            <div className="bo-stagger" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem', fontSize: '0.85rem' }}>
             {activities.map((a) => (
               <div key={a.id} style={{ display: 'flex', gap: 12, borderBottom: '1px solid var(--el-line-dark)', paddingBottom: 10 }}>
                 <div style={{ fontSize: '1.25rem' }}>
@@ -93,6 +97,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </div>
       </div>

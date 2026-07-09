@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
 
     # --- CORS / hosts ---
-    cors_origins: str = "http://localhost:5000,http://localhost:3000,http://localhost:3001,https://ecoloop-backoffice.vercel.app,https://ecoloop-web-alpha.vercel.app"
+    cors_origins: str = "http://localhost:5000,http://localhost:3000,http://localhost:3001,https://ecoloop-backoffice.vercel.app,https://ecoloop-web-alpha.vercel.app,https://ecoloop-web.vercel.app,https://ecoloop-web.onrender.com,https://ecoloop-web-5pdb.onrender.com"
     allowed_hosts: str = "localhost,127.0.0.1,*.onrender.com,*.vercel.app"
 
     # --- Cloudinary ---
@@ -51,6 +51,20 @@ class Settings(BaseSettings):
 
     # --- AI Service ---
     ai_service_url: str = "http://localhost:8001"
+
+    # --- Email (Brevo / ex-Sendinblue) ---
+    # Deux modes possibles :
+    #   1) API HTTP  -> renseigner BREVO_API_KEY (clé xkeysib-...)
+    #   2) SMTP relay -> renseigner SMTP_LOGIN + SMTP_PASSWORD (clé xsmtpsib-...)
+    # Si SMTP_LOGIN/SMTP_PASSWORD sont définis, le mode SMTP est utilisé en priorité.
+    brevo_api_key: str = ""
+    smtp_host: str = "smtp-relay.brevo.com"
+    smtp_port: int = 587
+    smtp_login: str = ""
+    smtp_password: str = ""
+    email_sender_name: str = "EcoLoop"
+    email_sender_email: str = ""  # doit être un expéditeur vérifié dans Brevo
+    frontend_url: str = "http://localhost:5000"  # base des liens (reset mot de passe)
 
     # --- Firebase / Push notifications ---
     firebase_credentials_path: str = ""
