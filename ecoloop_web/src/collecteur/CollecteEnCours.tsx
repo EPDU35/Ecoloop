@@ -110,7 +110,6 @@ export default function CollecteEnCours() {
           const info = STATUS_MAP[found.status?.toLowerCase()] || { step: 0, label: found.status, next: '' };
           setCurrentStep(info.step);
           setCompletedSteps(Math.max(0, info.step - 1));
-          if (found.actual_weight_kg) setActualWeight(String(found.actual_weight_kg));
         } else setError('Collecte introuvable');
       })
       .catch(() => setError('Erreur de chargement'))

@@ -166,18 +166,10 @@ export default function MissionDetail() {
             <div className="el-card cd-card">
               <h3 style={{ fontFamily: 'Fraunces, serif', marginBottom: '1rem' }}>📍 Localisation</h3>
               <InfoRow label="Coordonnées" value={`${lot.latitude?.toFixed(6) || '—'}, ${lot.longitude?.toFixed(6) || '—'}`} icon="📌 " />
-              <InfoRow label="Adresse approximative" value={lot.address || 'Non renseignée'} icon="🏠 " />
               <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
                 <ActionButton label="Ouvrir dans Maps" variant="secondary" onClick={() => window.open(`https://maps.google.com/?q=${lot.latitude},${lot.longitude}`, '_blank')} />
                 <ActionButton label="Itinéraire" variant="secondary" onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${lot.latitude},${lot.longitude}`, '_blank')} />
               </div>
-            </div>
-
-            <div className="el-card cd-card">
-              <h3 style={{ fontFamily: 'Fraunces, serif', marginBottom: '1rem' }}>👤 Producteur</h3>
-              <InfoRow label="Nom" value={lot.producer_name || 'Anonyme'} icon="👤 " />
-              <InfoRow label="Téléphone" value={lot.producer_phone || 'Non communiqué'} icon="📞 " />
-              <InfoRow label="Note moyenne" value={lot.producer_rating ? `${lot.producer_rating}/5 ⭐` : '—'} icon="⭐ " />
             </div>
 
             <div className="el-card cd-card">
@@ -192,8 +184,6 @@ export default function MissionDetail() {
             <div className="el-card cd-card">
               <h3 style={{ fontFamily: 'Fraunces, serif', marginBottom: '1rem' }}>📋 Infos collecte</h3>
               <InfoRow label="Type de déchet" value={`${icon} ${lot.category}`} />
-              <InfoRow label="Qualité attendue" value={lot.quality || 'Standard'} icon="🏷️ " />
-              <InfoRow label="Créneaux dispo." value={lot.availability || 'À convenir'} icon="🕐 " />
               <InfoRow label="Publié le" value={lot.created_at ? new Date(lot.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : '—'} icon="📅 " />
             </div>
           </div>

@@ -32,12 +32,6 @@ export interface WasteLotOut {
   longitude: number;
   status: string;
   created_at: string;
-  address?: string;
-  producer_name?: string;
-  producer_phone?: string;
-  producer_rating?: number;
-  quality?: string;
-  availability?: string;
 }
 
 export interface ProducerDashboard {

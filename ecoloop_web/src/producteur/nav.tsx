@@ -28,7 +28,6 @@ export const NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
   { key: 'lots', label: 'Mes lots', icon: <LotsIcon /> },
   { key: 'nouvelle-collecte', label: 'Nouvelle collecte', icon: <OrdersIcon /> },
-  { key: 'collectes', label: 'Collectes', icon: <OrdersIcon /> },
   { key: 'revenus', label: 'Revenus', icon: <RevenueIcon /> },
   { key: 'recompenses', label: 'Récompenses', icon: <RewardsIcon /> },
 ];
@@ -37,7 +36,6 @@ export const NAV_PATHS: Record<string, string> = {
   dashboard: '/producteur',
   lots: '/producteur/lots',
   'nouvelle-collecte': '/producteur/nouvelle-collecte',
-  collectes: '/producteur/collectes',
   revenus: '/producteur/revenus',
   recompenses: '/producteur/recompenses',
 };

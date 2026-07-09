@@ -1367,6 +1367,6 @@
 .mp-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 .mp-detail-item { display: flex; flex-direction: column; gap: 0.25rem; }
 .mp-detail-item label { font-size: 0.7rem; color: var(--el-ink-soft); text-transform: uppercase; letter-spacing: 0.05em; font-family: 'IBM Plex Mono', monospace; }
-.mp-detail-item value { font-family: 'Fraunces', serif; font-size: 0.9rem; font-weight: 600; }
+.mp-detail-item .mp-detail-value { font-family: 'Fraunces', serif; font-size: 0.9rem; font-weight: 600; }
 .mp-detail-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--el-line-dark); }
 .mp-detail-actions .mp-btn { flex: 1; justify-content: center; }

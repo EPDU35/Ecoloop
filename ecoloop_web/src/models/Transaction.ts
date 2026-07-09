@@ -40,9 +40,4 @@ export interface TransactionOut {
   status: string;
   created_at: string;
   paid_at: string | null;
-  waste_type?: string;
-  actual_weight_kg?: number;
-  price_per_kg?: number;
-  collector_name?: string;
-  collected_at?: string;
 }

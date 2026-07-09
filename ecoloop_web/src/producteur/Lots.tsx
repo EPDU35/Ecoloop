@@ -78,7 +78,7 @@ export default function Lots() {
                   <table className="el-table">
                     <thead>
                       <tr>
-                        <th>Réf.</th><th>Matériau</th><th>Poids</th><th>Prix/kg</th><th>Statut</th><th>Date</th>
+                        <th>Réf.</th><th>Matériau</th><th>Poids</th><th>Prix/kg</th><th>Statut</th><th>Date</th><th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -98,10 +98,18 @@ export default function Lots() {
                             </span>
                           </td>
                           <td className="el-mono">{lot.created_at ? new Date(lot.created_at).toLocaleDateString('fr-FR') : '-'}</td>
+                          <td>
+                            {lot.status !== 'DISPONIBLE' && (
+                              <button type="button" className="el-link-muted" style={{ border: 'none', background: 'none', cursor: 'pointer' }}
+                                onClick={() => navigate(`/producteur/suivi/${lot.id}`)}>
+                                Suivre →
+                              </button>
+                            )}
+                          </td>
                         </tr>
                       ))}
                       {lots.length === 0 && (
-                        <tr><td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: 'var(--el-ink-soft)' }}>Aucun lot publié</td></tr>
+                        <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: 'var(--el-ink-soft)' }}>Aucun lot publié</td></tr>
                       )}
                     </tbody>
                   </table>

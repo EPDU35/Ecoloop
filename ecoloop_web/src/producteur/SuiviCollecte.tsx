@@ -85,7 +85,7 @@ export default function SuiviCollecte() {
   if (loading) {
     return (
       <div className="el-shell">
-        <Sidebar items={NAV_ITEMS} activeKey="collectes" onSelect={handleSelect} user={{ name: "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar items={NAV_ITEMS} activeKey="lots" onSelect={handleSelect} user={{ name: "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="el-main">
           <Navbar title="Suivi collecte" searchOpen={searchOpen} onToggleSearch={() => setSearchOpen(v => !v)} onOpenSidebar={() => setSidebarOpen(true)} />
           <div className="el-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
@@ -99,7 +99,7 @@ export default function SuiviCollecte() {
   if (error || !transaction) {
     return (
       <div className="el-shell">
-        <Sidebar items={NAV_ITEMS} activeKey="collectes" onSelect={handleSelect} user={{ name: "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar items={NAV_ITEMS} activeKey="lots" onSelect={handleSelect} user={{ name: "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="el-main">
           <Navbar title="Suivi collecte" searchOpen={searchOpen} onToggleSearch={() => setSearchOpen(v => !v)} onOpenSidebar={() => setSidebarOpen(true)} />
           <div className="el-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
@@ -107,7 +107,7 @@ export default function SuiviCollecte() {
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
               <h2 style={{ fontFamily: 'Fraunces, serif', marginBottom: '0.5rem' }}>Collecte introuvable</h2>
               <p style={{ color: 'var(--el-ink-soft)', marginBottom: '1.5rem' }}>{error || 'Cette collecte n\'existe pas ou vous n\'y avez pas accès.'}</p>
-              <a className="el-btn el-btn-amber" href="/producteur/collectes" onClick={(e) => { e.preventDefault(); navigate('/producteur/collectes'); }}>Retour aux collectes</a>
+              <a className="el-btn el-btn-amber" href="/producteur/lots" onClick={(e) => { e.preventDefault(); navigate('/producteur/lots'); }}>Retour à mes lots</a>
             </div>
           </div>
         </div>
@@ -119,7 +119,7 @@ export default function SuiviCollecte() {
 
   return (
     <div className="el-shell">
-      <Sidebar items={NAV_ITEMS} activeKey="collectes" onSelect={handleSelect} user={{ name: user?.full_name || "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar items={NAV_ITEMS} activeKey="lots" onSelect={handleSelect} user={{ name: user?.full_name || "Producteur", role: "Producteur" }} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="el-main">
         <Navbar title={`Collecte #${transaction.id.slice(0, 8)}`} searchOpen={searchOpen} onToggleSearch={() => setSearchOpen(v => !v)} onOpenSidebar={() => setSidebarOpen(true)} />
         <div className="el-content" style={{ maxWidth: 900, margin: '0 auto' }}>
@@ -147,11 +147,10 @@ export default function SuiviCollecte() {
           <div className="el-card" style={{ marginTop: '2rem' }}>
             <h3 style={{ fontFamily: 'Fraunces, serif', marginBottom: '1rem' }}>Détails de la transaction</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-              <div><span className="el-label">Type</span><div className="el-value">{transaction.waste_type || '—'}</div></div>
-              <div><span className="el-label">Poids collecté</span><div className="el-value">{transaction.actual_weight_kg?.toLocaleString('fr-FR') || '—'} kg</div></div>
-              <div><span className="el-label">Prix/kg</span><div className="el-value">{transaction.price_per_kg?.toLocaleString('fr-FR') || '—'} FCFA</div></div>
-              <div><span className="el-label">Collecteur</span><div className="el-value">{transaction.collector_name || '—'}</div></div>
-              <div><span className="el-label">Date collecte</span><div className="el-value">{transaction.collected_at ? new Date(transaction.collected_at).toLocaleDateString('fr-FR') : '—'}</div></div>
+              <div><span className="el-label">Moyen de paiement</span><div className="el-value">{transaction.payment_method || '—'}</div></div>
+              <div><span className="el-label">Statut</span><div className="el-value">{statusInfo.label}</div></div>
+              <div><span className="el-label">Référence collecte</span><div className="el-value">{transaction.collection_id.slice(0, 8)}</div></div>
+              <div><span className="el-label">Date de création</span><div className="el-value">{transaction.created_at ? new Date(transaction.created_at).toLocaleDateString('fr-FR') : '—'}</div></div>
               <div><span className="el-label">Date paiement</span><div className="el-value">{transaction.paid_at ? new Date(transaction.paid_at).toLocaleDateString('fr-FR') : '—'}</div></div>
             </div>
           </div>
@@ -171,7 +170,7 @@ export default function SuiviCollecte() {
           )}
 
           <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem' }}>
-            <a className="el-btn el-btn-ghost" href="/producteur/collectes" onClick={(e) => { e.preventDefault(); navigate('/producteur/collectes'); }}>← Toutes les collectes</a>
+            <a className="el-btn el-btn-ghost" href="/producteur/lots" onClick={(e) => { e.preventDefault(); navigate('/producteur/lots'); }}>← Tous mes lots</a>
             {transaction.status !== 'PAYEE' && (
               <button className="el-btn el-btn-solid" style={{ flex: 1 }} disabled>
                 🔔 Suivre cette collecte

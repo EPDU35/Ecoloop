@@ -194,7 +194,7 @@ export default function IndustrialDashboard() {
             <div className="dd-section">
               <div className="dd-section-head">
                 <span className="dd-section-title">🌱 Impact environnemental</span>
-                <button className="dd-link-btn" onClick={() => navigate(NAV_PATHS.reports)}>Rapports →</button>
+                <button className="dd-link-btn" onClick={() => navigate(NAV_PATHS.historique)}>Historique →</button>
               </div>
               <div className="dd-info-card" style={{ borderColor: 'rgba(16,185,129,0.3)' }}>
                 <div className="dd-info-card-badge" style={{ background: 'rgba(16,185,129,0.12)', color: '#10B981' }}>
@@ -215,9 +215,8 @@ export default function IndustrialDashboard() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
                   { label: '🏭 Marketplace', path: NAV_PATHS.marketplace },
-                  { label: '🤝 Fournisseurs', path: NAV_PATHS.suppliers },
-                  { label: '📄 Contrats', path: NAV_PATHS.contracts },
-                  { label: '📋 Rapports RSE', path: NAV_PATHS.reports },
+                  { label: '📦 Commandes', path: NAV_PATHS.orders },
+                  { label: '🕐 Historique achats', path: NAV_PATHS.historique },
                 ].map(item => (
                   <button
                     key={item.path}

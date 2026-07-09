@@ -1,15 +1,11 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import Home from "../pages/Home";
-
 import Pricing from "../pages/Pricing";
 
 import IndustrialDashboard from "../industrial/Dashboard";
 import IndustrialMarketplace from "../industrial/Marketplace";
-import IndustrialSuppliers from "../industrial/Suppliers";
-import IndustrialContracts from "../industrial/Contracts";
 import IndustrialOrders from "../industrial/Orders";
-import IndustrialReports from "../industrial/Reports";
 import HistoriqueAchats from "../industrial/HistoriqueAchats";
 
 import MunicipalityDashboard from "../municipality/Dashboard";
@@ -33,7 +29,6 @@ import ForgotPassword from "../auth/ForgotPassword";
 
 import ProducteurDashboard from "../producteur/Dashboard";
 import ProducteurLots from "../producteur/Lots";
-import ProducteurCollectes from "../producteur/Collectes";
 import ProducteurRevenus from "../producteur/Revenus";
 import NouvelleCollecte from "../producteur/NouvelleCollecte";
 import SuiviCollecte from "../producteur/SuiviCollecte";
@@ -89,7 +84,6 @@ export default function AppRoutes() {
     <Routes>
       {/* Pages publiques */}
       <Route path="/" element={<HomeRedirect />} />
-
       <Route path="/about" element={<About />} />
       <Route path="/partners" element={<Partners />} />
       <Route path="/pricing" element={<Pricing />} />
@@ -103,8 +97,6 @@ export default function AppRoutes() {
       <Route path="/verifier-otp" element={<OtpVerification />} />
       <Route path="/compte-en-attente" element={<PendingApproval />} />
       <Route path="/mot-de-passe-oublie" element={<ForgotPassword />} />
-      <Route path="/mot-de-passe-oublie" element={<ForgotPassword />} />
-      <Route path="/compte-en-attente" element={<PendingApproval />} />
 
       {/* Profil commun */}
       <Route path="/profil" element={<ProtectedRoute><Profil /></ProtectedRoute>} />
@@ -113,7 +105,6 @@ export default function AppRoutes() {
       <Route path="/producteur" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurDashboard /></ProtectedRoute>} />
       <Route path="/producteur/lots" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurLots /></ProtectedRoute>} />
       <Route path="/producteur/nouvelle-collecte" element={<ProtectedRoute allowedRoles={['producteur']}><NouvelleCollecte /></ProtectedRoute>} />
-      <Route path="/producteur/collectes" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurCollectes /></ProtectedRoute>} />
       <Route path="/producteur/suivi/:id" element={<ProtectedRoute allowedRoles={['producteur']}><SuiviCollecte /></ProtectedRoute>} />
       <Route path="/producteur/revenus" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurRevenus /></ProtectedRoute>} />
       <Route path="/producteur/recompenses" element={<ProtectedRoute allowedRoles={['producteur']}><Recompenses /></ProtectedRoute>} />
@@ -129,10 +120,7 @@ export default function AppRoutes() {
       {/* Industriel (Refactorisé) */}
       <Route path="/industrial" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialDashboard /></ProtectedRoute>} />
       <Route path="/industrial/marketplace" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialMarketplace /></ProtectedRoute>} />
-      <Route path="/industrial/suppliers" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialSuppliers /></ProtectedRoute>} />
-      <Route path="/industrial/contracts" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialContracts /></ProtectedRoute>} />
       <Route path="/industrial/orders" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialOrders /></ProtectedRoute>} />
-      <Route path="/industrial/reports" element={<ProtectedRoute allowedRoles={['industriel']}><IndustrialReports /></ProtectedRoute>} />
       <Route path="/industrial/historique" element={<ProtectedRoute allowedRoles={['industriel']}><HistoriqueAchats /></ProtectedRoute>} />
 
 {/* Mairie / RSE (Refactorisé) */}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import AppLayout from '../components/AppLayout';
 import api from '../services/api';
 
@@ -33,7 +33,7 @@ function RiskBadge({ level }: { level: AlertZone['risk_level'] }) {
   );
 }
 
-function SaturationBar({ pct, style }: { pct: number; style?: React.CSSProperties }) {
+function SaturationBar({ pct, style }: { pct: number; style?: CSSProperties }) {
   const color = pct >= 90 ? '#EF4444' : pct >= 70 ? '#F59E0B' : pct >= 50 ? '#3B82F6' : '#10B981';
   return (
     <div style={{ height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 4, overflow: 'hidden', position: 'relative', ...style }}>
@@ -57,7 +57,7 @@ function SkeletonCard() {
   );
 }
 
-function ActionButton({ label, onClick, variant = 'primary', disabled, loading, style }: { label: string; onClick: () => void; variant?: 'primary' | 'secondary' | 'danger'; disabled?: boolean; loading?: boolean; style?: React.CSSProperties }) {
+function ActionButton({ label, onClick, variant = 'primary', disabled, loading, style }: { label: string; onClick: () => void; variant?: 'primary' | 'secondary' | 'danger'; disabled?: boolean; loading?: boolean; style?: CSSProperties }) {
   const colors: Record<string, { bg: string; color: string; border: string }> = {
     primary: { bg: 'var(--el-amber)', color: 'var(--el-ink)', border: 'var(--el-amber)' },
     secondary: { bg: 'transparent', color: 'var(--el-ink)', border: 'var(--el-line-dark)' },
@@ -284,27 +284,27 @@ export default function MairiePreventif() {
                 </div>
                 <div className="mp-detail-item">
                   <label>Remplissage complet prévu</label>
-                  <div>Dans {selectedZone.estimated_days_to_full} jour{selectedZone.estimated_days_to_full > 1 ? 's' : ''}</div>
+                  <div className="mp-detail-value">Dans {selectedZone.estimated_days_to_full} jour{selectedZone.estimated_days_to_full > 1 ? 's' : ''}</div>
                 </div>
                 <div className="mp-detail-item">
                   <label>Dernière collecte</label>
-                  <div>{selectedZone.last_collection ? new Date(selectedZone.last_collection).toLocaleDateString('fr-FR') : 'Jamais'}</div>
+                  <div className="mp-detail-value">{selectedZone.last_collection ? new Date(selectedZone.last_collection).toLocaleDateString('fr-FR') : 'Jamais'}</div>
                 </div>
                 <div className="mp-detail-item">
                   <label>Prochaine prévue</label>
-                  <div>{selectedZone.next_planned_collection ? new Date(selectedZone.next_planned_collection).toLocaleDateString('fr-FR') : 'Non programmée'}</div>
+                  <div className="mp-detail-value">{selectedZone.next_planned_collection ? new Date(selectedZone.next_planned_collection).toLocaleDateString('fr-FR') : 'Non programmée'}</div>
                 </div>
                 <div className="mp-detail-item">
                   <label>Collecteurs assignés</label>
-                  <div>{selectedZone.collector_count}</div>
+                  <div className="mp-detail-value">{selectedZone.collector_count}</div>
                 </div>
                 <div className="mp-detail-item">
                   <label>Population desservie</label>
-                  <div>{selectedZone.population_served.toLocaleString('fr-FR')} hab.</div>
+                  <div className="mp-detail-value">{selectedZone.population_served.toLocaleString('fr-FR')} hab.</div>
                 </div>
                 <div className="mp-detail-item">
                   <label>Coordonnées</label>
-                  <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '0.75rem' }}>
+                  <div className="mp-detail-value" style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '0.75rem' }}>
                     {selectedZone.latitude.toFixed(5)}, {selectedZone.longitude.toFixed(5)}
                   </div>
                 </div>
