@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -79,24 +80,32 @@ async def security_headers_middleware(request: Request, call_next):
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     # Les messages de validation Pydantic sont sûrs à renvoyer (ils décrivent le
-    # format attendu, pas l'état interne du serveur).
+    # format attendu, pas l'état interne du serveur). jsonable_encoder évite les
+    # erreurs de sérialisation (ex: objets ValueError non sérialisables).
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"detail": exc.errors()},
+        content=jsonable_encoder({"detail": exc.errors()}),
     )
 
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=exc.headers)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=jsonable_encoder({"detail": exc.detail}),
+        headers=exc.headers,
+    )
 
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
     logger.exception("Erreur non gérée sur %s %s", request.method, request.url.path)
+    origin = request.headers.get("origin")
+    headers = {"Access-Control-Allow-Origin": origin} if origin else {}
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "Une erreur interne est survenue. Réessayez plus tard."},
+        content=jsonable_encoder({"detail": "Une erreur interne est survenue. Réessayez plus tard."}),
+        headers=headers,
     )
 
 
