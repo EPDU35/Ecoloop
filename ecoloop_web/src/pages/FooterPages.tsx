@@ -58,10 +58,19 @@ function PublicFooter() {
 }
 
 export function About() {
+  const navigate = useNavigate();
   return (
     <div className="el-fade-in" style={{ background: 'var(--el-paper)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PublicHeader />
-      <main style={{ flex: 1, padding: '4rem 2rem', maxWidth: 800, margin: '0 auto' }}>
+      <main style={{ flex: 1, padding: '3rem 2rem', maxWidth: 800, margin: '0 auto', width: '100%' }}>
+        <button 
+          onClick={() => navigate('/')} 
+          className="el-link-muted" 
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, border: 'none', background: 'none', cursor: 'pointer', padding: 0, marginBottom: '2rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--el-ink)' }}
+        >
+          ← Retour à l'accueil
+        </button>
+        
         <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: '2.5rem', marginBottom: '1.5rem' }}>À propos d'EcoLoop AI</h1>
         <p style={{ fontSize: '1.1rem', lineHeight: 1.6, color: 'var(--el-ink-soft)', marginBottom: '1.5rem' }}>
           EcoLoop AI est né de la volonté de révolutionner la gestion des déchets à Abidjan et en Côte d'Ivoire. Nous croyons que chaque déchet possède une valeur intrinsèque et qu'avec l'aide de l'intelligence artificielle, nous pouvons organiser une économie circulaire pérenne, éthique et performante.
@@ -77,10 +86,19 @@ export function About() {
 }
 
 export function Partners() {
+  const navigate = useNavigate();
   return (
     <div className="el-fade-in" style={{ background: 'var(--el-paper)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PublicHeader />
-      <main style={{ flex: 1, padding: '4rem 2rem', maxWidth: 800, margin: '0 auto' }}>
+      <main style={{ flex: 1, padding: '3rem 2rem', maxWidth: 800, margin: '0 auto', width: '100%' }}>
+        <button 
+          onClick={() => navigate('/')} 
+          className="el-link-muted" 
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, border: 'none', background: 'none', cursor: 'pointer', padding: 0, marginBottom: '2rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--el-ink)' }}
+        >
+          ← Retour à l'accueil
+        </button>
+
         <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: '2.5rem', marginBottom: '1.5rem' }}>Partenaires RSE</h1>
         <p style={{ fontSize: '1.1rem', lineHeight: 1.6, color: 'var(--el-ink-soft)', marginBottom: '1.5rem' }}>
           Mairies, institutions publiques, et grandes entreprises engagées dans le développement durable en Côte d'Ivoire : EcoLoop AI vous fournit des indicateurs précis pour mesurer, valoriser et financer l'impact écologique et social de la collecte de déchets.
@@ -100,6 +118,7 @@ export function Partners() {
 }
 
 export function Contact() {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -118,7 +137,15 @@ export function Contact() {
   return (
     <div className="el-fade-in" style={{ background: 'var(--el-paper)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PublicHeader />
-      <main style={{ flex: 1, padding: '4rem 2rem', maxWidth: 800, margin: '0 auto', width: '100%' }}>
+      <main style={{ flex: 1, padding: '3rem 2rem', maxWidth: 800, margin: '0 auto', width: '100%' }}>
+        <button 
+          onClick={() => navigate('/')} 
+          className="el-link-muted" 
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, border: 'none', background: 'none', cursor: 'pointer', padding: 0, marginBottom: '2rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--el-ink)' }}
+        >
+          ← Retour à l'accueil
+        </button>
+
         <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: '2.5rem', marginBottom: '1.5rem' }}>Contactez-nous</h1>
         <p style={{ fontSize: '1.1rem', lineHeight: 1.6, color: 'var(--el-ink-soft)', marginBottom: '2rem' }}>
           Une question sur la plateforme ? Un besoin d'intégration RSE ? Remplissez ce formulaire et notre équipe à Abidjan vous répondra sous 24h.
