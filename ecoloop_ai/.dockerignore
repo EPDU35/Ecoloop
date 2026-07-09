@@ -1,0 +1,44 @@
+# Environnement Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Dossiers d'environnement virtuel
+venv/
+.env
+ENV/
+
+# IDE et OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Données temporaires ou lourdes
+# /data/synthetic/
+# /data/processed/
+
+# Tests
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Dossiers de modèles temporaires si non nécessaires au build
+# (Ne pas ignorer saved_models/ car on en a besoin pour l'API)
