@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../shared/ui_components.dart';
+import '../core/animation_helper.dart';
 
 class OtpScreen extends StatefulWidget {
   const OtpScreen({Key? key}) : super(key: key);
@@ -104,67 +105,76 @@ class _OtpScreenState extends State<OtpScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppTheme.brand.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
+                AnimationHelper.scaleIn(
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brand.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.sms_outlined, size: 40, color: AppTheme.brand),
                   ),
-                  child: const Icon(Icons.sms_outlined, size: 40, color: AppTheme.brand),
                 ),
                 const SizedBox(height: 22),
-                Text(
-                  'Vérifions votre numéro',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.textStrong,
-                  ),
+                AnimationHelper.fadeIn(
+                  delayMs: 200,
+                  child: Text('Vérifions votre numéro',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.textStrong),),
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  'Nous envoyons un code pour protéger votre compte et vous prévenir quand le collecteur arrive.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppTheme.textSoft, fontSize: 14, height: 1.5),
+                AnimationHelper.fadeIn(
+                  delayMs: 300,
+                  child: Text(
+                    'Nous envoyons un code pour protéger votre compte et vous prévenir quand le collecteur arrive.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppTheme.textSoft, fontSize: 14, height: 1.5),
+                  ),
                 ),
                 const SizedBox(height: 28),
-                TextFormField(
-                  controller: _otpController,
-                  keyboardType: TextInputType.number,
-                  maxLength: 6,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    fontSize: 28, letterSpacing: 12, fontWeight: FontWeight.w700,
-                    color: AppTheme.textStrong,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: '123456',
-                    counterText: '',
-                    filled: true,
-                    fillColor: AppTheme.ink800,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusInput),
-                      borderSide: const BorderSide(color: AppTheme.ink700),
+                AnimationHelper.slideUp(
+                  delayMs: 200,
+                  child: TextFormField(
+                    controller: _otpController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.outfit(
+                      fontSize: 28, letterSpacing: 12, fontWeight: FontWeight.w700,
+                      color: AppTheme.textStrong,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusInput),
-                      borderSide: const BorderSide(color: AppTheme.brand, width: 1.5),
+                    decoration: InputDecoration(
+                      hintText: '123456',
+                      counterText: '',
+                      filled: true,
+                      fillColor: AppTheme.ink800,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusInput),
+                        borderSide: const BorderSide(color: AppTheme.ink700),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusInput),
+                        borderSide: const BorderSide(color: AppTheme.brand, width: 1.5),
+                      ),
                     ),
+                    validator: (v) => v == null || v.length != 6 ? 'Saisissez le code à 6 chiffres' : null,
                   ),
-                  validator: (v) => v == null || v.length != 6 ? 'Saisissez le code à 6 chiffres' : null,
                 ),
                 if (_devOtp != null && _devOtp!.isNotEmpty) ...[
                   const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.warn.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.warn.withValues(alpha: 0.3)),
-                    ),
-                    child: Text(
-                      'MODE DEV : votre code est $_devOtp',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: AppTheme.warn, fontWeight: FontWeight.w600),
+                  AnimationHelper.fadeIn(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.warn.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppTheme.warn.withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        'MODE DEV : votre code est $_devOtp',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: AppTheme.warn, fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ),
                 ],
@@ -182,7 +192,6 @@ class _OtpScreenState extends State<OtpScreen> {
                     GestureDetector(
                       onTap: _canResend
                           ? () {
-                              // Renvoi (le backend renverra un nouveau code en prod).
                               _startTimer();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

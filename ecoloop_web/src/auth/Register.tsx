@@ -69,7 +69,7 @@ export default function Register() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: wire up to auth.service.ts once the backend contract is ready
-    console.log({ role, fullName, phone, password });
+    // TODO: wire up to auth.service.ts once the backend contract is ready
   };
 
   return (

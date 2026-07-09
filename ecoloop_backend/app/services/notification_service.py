@@ -1,12 +1,3 @@
-"""
-Interface de notification. L'implémentation réelle (push, SMS, email) sera
-branchée ici (ex: Firebase Cloud Messaging, Twilio). Découplée du reste du
-code pour ne jamais dépendre d'un fournisseur particulier dans les contrôleurs.
-
-RÈGLE DE SÉCURITÉ : ne jamais logguer le contenu complet d'une notification si
-elle contient des données personnelles ; ne jamais inclure de token/OTP dans
-un message poussé via un canal non chiffré sans nécessité absolue.
-"""
 import logging
 import uuid
 
@@ -15,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import settings
 from app.models.notification import Notification, NotificationType
+from app.models.device_token import DeviceToken
+from app.services.firebase_service import firebase_service
 
 logger = logging.getLogger("ecoloop.notifications")
 
@@ -38,6 +31,25 @@ async def _create_notification(
     )
     db.add(notification)
     await db.flush()
+
+    try:
+        result = await db.execute(
+            select(DeviceToken).where(
+                DeviceToken.user_id == user_id,
+                DeviceToken.is_active.is_(True),
+            )
+        )
+        tokens = result.scalars().all()
+        for dt in tokens:
+            firebase_service.send_push_notification(
+                device_token=dt.token,
+                title=title,
+                body=content,
+                data={"type": type.value, "entity_type": entity_type, "entity_id": str(entity_id)} if entity_id else None,
+            )
+    except Exception as e:
+        logger.error(f"Erreur envoi push notification: {e}")
+
     return notification
 
 
@@ -66,9 +78,6 @@ async def notify_collection_reserved(
 async def notify_validation_code(
     db: AsyncSession, producer_id: uuid.UUID, validation_code: str
 ) -> None:
-    """
-    Transmet le code de validation au PRODUCTEUR.
-    """
     body = (
         f"Votre code de validation de collecte est {validation_code}. "
         "Communiquez-le uniquement au collecteur venu récupérer votre lot."

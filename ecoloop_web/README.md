@@ -1,30 +1,61 @@
-# EcoLoop - Frontend Web (Vite + React + TS)
+# EcoLoop - Frontend Web
 
-Ce projet est configuré pour se connecter de manière fluide et sécurisée au backend FastAPI.
+Application web de la plateforme EcoLoop, construite avec React 18, TypeScript et Vite.
 
-## ⚙️ Intégration API & Sécurité
+## Stack
 
-Pour simplifier le développement, les outils de connexion fondamentaux sont déjà codés :
-1. **Client API configuré** (`src/services/api.ts`) :
-   * Contient l'instance d'Axios pointant sur le bon préfixe d'API.
-   * Ajoute automatiquement les en-têtes d'autorisation JWT `Authorization: Bearer <token>`.
-   * Gère automatiquement le renouvellement de session (rotation de Refresh Token) si le token d'accès expire en cours de route.
-2. **Context de Session** (`src/auth/AuthContext.tsx`) :
-   * Fournit l'état de l'utilisateur connecté (`user`, `loading`).
-   * Expose les méthodes `login`, `register`, `verifyOtp`, et `logout`.
-3. **Proxy de Développement** (`vite.config.ts`) :
-   * Redirige automatiquement le trafic de dev `/api` vers `http://localhost:8000`. Pas de configuration de CORS complexe nécessaire sur le poste de dev.
+- **React 18** avec TypeScript
+- **Vite 5** pour le bundling et le dev serveur
+- **React Router v6** pour le routage
+- **Axios** pour les appels API avec interceptor JWT
+- **Lucide React** pour les icônes
 
-## 🚀 Lancement local
+## Fonctionnalités
 
-1. Installez les dépendances :
-   ```bash
-   npm install
-   ```
+- Authentification (login, register, OTP)
+- Gestion des profils utilisateur (Producteur, Collecteur, Industriel, Mairie)
+- Tableau de bord et analytics
+- Gestion des lots de déchets
+- Système de collecte et validation
+- Paiements et récompenses
+- Notifications en temps réel
 
-2. Démarrez le serveur de développement local :
-   ```bash
-   npm run dev
-   ```
+## Démarrage
 
-3. Créez vos pages et composants directement dans `src/`. Vous pouvez utiliser la classe CSS standard ou importer des bibliothèques externes selon vos préférences.
+```bash
+npm install
+npm run dev          # Dev sur http://localhost:5173
+npm run build        # Production dans dist/
+npm run preview      # Prévisualisation du build
+```
+
+## Configuration
+
+Les variables d'environnement sont dans `src/config/index.ts` :
+
+```ts
+API_BASE_URL = '/api/v1'   # Proxy vers le backend
+```
+
+En développement, Vite proxy `/api` vers `http://localhost:8000` (voir `vite.config.ts`).
+
+## Structure
+
+```
+src/
+├── auth/          # Connexion, inscription, layout
+├── config/        # Configuration API
+├── hooks/         # Hooks React réutilisables
+├── models/        # Types TypeScript
+├── services/      # Client API Axios avec JWT
+├── assets/        # Images et icônes
+├── App.tsx        # Composant racine
+└── main.tsx       # Point d'entrée
+```
+
+## Docker
+
+```bash
+docker build -t ecoloop-web .
+docker run -p 3000:3000 ecoloop-web
+```

@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Query, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,13 +21,20 @@ CREDENTIALS_ERROR = HTTPException(
 
 
 async def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    if credentials is None or not credentials.credentials:
+    token = None
+    if credentials is not None and credentials.credentials:
+        token = credentials.credentials
+    else:
+        token = request.query_params.get("token")
+
+    if token is None:
         raise CREDENTIALS_ERROR
 
-    payload = decode_token(credentials.credentials)
+    payload = decode_token(token)
     if payload is None:
         raise CREDENTIALS_ERROR
 

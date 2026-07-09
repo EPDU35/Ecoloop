@@ -2,6 +2,7 @@ from app.models.audit_log import AuditLog  # noqa: F401
 from app.models.collection import Collection, CollectionStatus  # noqa: F401
 from app.models.collector_location import CollectorLocation  # noqa: F401
 from app.models.collector_profile import CollectorProfile  # noqa: F401
+from app.models.device_token import DeviceToken  # noqa: F401
 from app.models.notification import Notification, NotificationType  # noqa: F401
 from app.models.review import Review  # noqa: F401
 from app.models.reward import Reward  # noqa: F401

@@ -5,6 +5,7 @@ import 'collector_provider.dart';
 import '../auth/auth_provider.dart';
 import '../shared/ui_components.dart';
 import '../theme/app_theme.dart';
+import '../core/animation_helper.dart';
 
 class CollectorDashboard extends StatefulWidget {
   const CollectorDashboard({Key? key}) : super(key: key);
@@ -57,12 +58,14 @@ class _CollectorDashboardState extends State<CollectorDashboard> {
             final lots = cp.availableLots;
             return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const SizedBox(height: 24),
-              Text("Bonjour $name 👋", style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+              AnimationHelper.fadeIn(
+                child: Text("Bonjour $name 👋", style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+              ),
               const SizedBox(height: 6),
               const Text("Déchets disponibles autour de vous.", style: TextStyle(color: AppTheme.textSoft, fontSize: 15)),
               const SizedBox(height: 24),
-              if (active != null) ...[
-                Container(
+              if (active != null) AnimationHelper.slideUp(
+                child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -85,16 +88,18 @@ class _CollectorDashboardState extends State<CollectorDashboard> {
                     )),
                   ]),
                 ),
-                const SizedBox(height: 20),
-              ],
+              ),
+              if (active != null) const SizedBox(height: 20),
               Text("À proximité", style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
               const SizedBox(height: 12),
               if (cp.loading)
-                const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator(color: AppTheme.brand)))
+                EcoUI.shimmerLoading(lines: 3)
               else if (lots.isEmpty)
                 EcoUI.emptyState(icon: Icons.storefront_outlined, title: "Aucun déchet disponible", subtitle: "Revenez plus tard ou élargissez votre zone.")
               else
-                ...lots.map((lot) => _lotCard(lot)),
+                ...lots.map((lot) => AnimationHelper.slideUp(
+                  child: _lotCard(lot),
+                )),
             ]);
           }),
         ),
@@ -106,12 +111,9 @@ class _CollectorDashboardState extends State<CollectorDashboard> {
         decoration: BoxDecoration(color: AppTheme.inkHigh, borderRadius: BorderRadius.circular(AppTheme.rCard), border: Border.all(color: AppTheme.borderMed)),
         child: InkWell(
           onTap: () => Navigator.pushNamed(context, '/collector/lot-detail', arguments: lot),
+          borderRadius: BorderRadius.circular(AppTheme.rCard),
           child: Row(children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: AppTheme.info.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(Icons.recycling, size: 22, color: AppTheme.info),
-            ),
+            EcoUI.networkImage(lot['photo_url']?.toString(), size: 44),
             const SizedBox(width: 14),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text("${lot['weight_kg']} kg de ${lot['category']?.toString().toLowerCase() ?? ''}",
@@ -127,12 +129,30 @@ class _CollectorDashboardState extends State<CollectorDashboard> {
   Widget _mesCollectes() => SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const SizedBox(height: 24),
-            Text("Mes collectes", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-            const SizedBox(height: 20),
-            EcoUI.emptyState(icon: Icons.inventory_outlined, title: "Aucune collecte effectuée", subtitle: "Les collectes validées apparaîtront ici."),
-          ]),
+          child: Consumer<CollectorProvider>(builder: (_, cp, __) {
+            return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const SizedBox(height: 24),
+              Text("Mes collectes", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+              const SizedBox(height: 20),
+              if (cp.collections.isEmpty)
+                EcoUI.emptyState(icon: Icons.inventory_outlined, title: "Aucune collecte effectuée", subtitle: "Les collectes validées apparaîtront ici.")
+              else
+                ...cp.collections.map((c) => AnimationHelper.slideUp(
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(color: AppTheme.inkHigh, borderRadius: BorderRadius.circular(AppTheme.rCard), border: Border.all(color: AppTheme.borderMed)),
+                    child: Row(children: [
+                      Icon((c['status']?.toString().toLowerCase() == 'payee') ? Icons.check_circle : Icons.schedule, size: 20,
+                          color: (c['status']?.toString().toLowerCase() == 'payee') ? AppTheme.brand : AppTheme.warn),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text("${c['gross_amount']} FCFA", style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14))),
+                      Text("${c['net_amount']} FCFA", style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.brand)),
+                    ]),
+                  ),
+                )),
+            ]);
+          }),
         ),
       );
 
@@ -143,16 +163,18 @@ class _CollectorDashboardState extends State<CollectorDashboard> {
             const SizedBox(height: 24),
             Text("Mes gains", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
             const SizedBox(height: 20),
-            EcoUI.surfaceCard(
-              child: Column(children: [
-                Container(padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: AppTheme.brand.withValues(alpha: 0.1), shape: BoxShape.circle),
-                  child: const Icon(Icons.monetization_on_outlined, size: 40, color: AppTheme.brand)),
-                const SizedBox(height: 16),
-                Text("0 FCFA", style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-                const SizedBox(height: 4),
-                const Text("Collectez pour percevoir des commissions.", style: TextStyle(color: AppTheme.textSoft, fontSize: 13)),
-              ]),
+            AnimationHelper.scaleIn(
+              child: EcoUI.surfaceCard(
+                child: Column(children: [
+                  Container(padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(color: AppTheme.brand.withValues(alpha: 0.1), shape: BoxShape.circle),
+                    child: const Icon(Icons.monetization_on_outlined, size: 40, color: AppTheme.brand)),
+                  const SizedBox(height: 16),
+                  Text("0 FCFA", style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                  const SizedBox(height: 4),
+                  const Text("Collectez pour percevoir des commissions.", style: TextStyle(color: AppTheme.textSoft, fontSize: 13)),
+                ]),
+              ),
             ),
           ]),
         ),
@@ -161,12 +183,26 @@ class _CollectorDashboardState extends State<CollectorDashboard> {
   Widget _notifs() => SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const SizedBox(height: 24),
-            Text("Notifications", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-            const SizedBox(height: 20),
-            EcoUI.emptyState(icon: Icons.notifications_none_outlined, title: "Aucune notification", subtitle: "Les alertes de mission apparaîtront ici."),
-          ]),
+          child: Consumer<CollectorProvider>(builder: (_, cp, __) {
+            final notifs = cp.notifications;
+            return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const SizedBox(height: 24),
+              Text("Notifications", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+              const SizedBox(height: 20),
+              if (notifs.isEmpty)
+                EcoUI.emptyState(icon: Icons.notifications_none_outlined, title: "Aucune notification", subtitle: "Les alertes de mission apparaîtront ici.")
+              else
+                ...notifs.map((n) => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppTheme.inkHigh, borderRadius: BorderRadius.circular(AppTheme.rCard),
+                    border: Border.all(color: AppTheme.borderMed),
+                  ),
+                  child: Text(n['title'] ?? '', style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13)),
+                )),
+            ]);
+          }),
         ),
       );
 

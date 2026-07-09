@@ -32,10 +32,10 @@ async def register(request: Request, payload: UserRegisterSchema, db: AsyncSessi
     # le test manuel (aucun SMS/email réel n'est envoyé). En production il reste
     # strictement confidentiel et n'est jamais renvoyé au client.
     if settings.debug and not settings.is_production:
-        logger.warning("DEV OTP pour %s : %s", payload.email, otp_code)
+        logger.warning("DEV OTP pour %s : %s - NE JAMAIS EXPOSER EN PRODUCTION", payload.email, otp_code)
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,
-            content={**UserOutSchema.model_validate(user).model_dump(mode="json"), "dev_otp": otp_code},
+            content=UserOutSchema.model_validate(user).model_dump(mode="json"),
         )
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,

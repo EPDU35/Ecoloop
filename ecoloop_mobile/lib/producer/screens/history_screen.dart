@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../../core/api_service.dart';
 import '../../shared/ui_components.dart';
 import '../../theme/app_theme.dart';
+import '../../core/animation_helper.dart';
 
 class ProducerHistoryScreen extends StatefulWidget {
   const ProducerHistoryScreen({Key? key}) : super(key: key);
@@ -67,35 +68,33 @@ class _ProducerHistoryScreenState extends State<ProducerHistoryScreen> {
                         final wt = lot['weight_kg'] ?? 0;
                         final status = lot['status']?.toString() ?? '';
                         final total = ((lot['price_per_kg'] ?? 0) as num).toDouble() * (wt as num).toDouble();
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppTheme.inkHigh,
-                            borderRadius: BorderRadius.circular(AppTheme.rCard),
-                            border: Border.all(color: AppTheme.borderMed),
-                          ),
-                          child: Row(children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(color: _statusColor(status).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
-                              child: Icon(Icons.recycling, size: 22, color: _statusColor(status)),
+                        return AnimationHelper.slideUp(
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppTheme.inkHigh,
+                              borderRadius: BorderRadius.circular(AppTheme.rCard),
+                              border: Border.all(color: AppTheme.borderMed),
                             ),
-                            const SizedBox(width: 14),
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Text("$wt kg ${cat[0]}${cat.substring(1).toLowerCase()}",
-                                  style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(color: _statusColor(status).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(999)),
-                                child: Text(_statusLabel(status), style: TextStyle(color: _statusColor(status), fontSize: 11, fontWeight: FontWeight.w600)),
-                              ),
-                            ])),
-                            if (total > 0)
-                              Text("${total.toStringAsFixed(0)} FCFA",
-                                  style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.brand)),
-                          ]),
+                            child: Row(children: [
+                              EcoUI.networkImage(lot['photo_url']?.toString(), size: 44),
+                              const SizedBox(width: 14),
+                              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Text("$wt kg ${cat[0]}${cat.substring(1).toLowerCase()}",
+                                    style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(color: _statusColor(status).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(999)),
+                                  child: Text(_statusLabel(status), style: TextStyle(color: _statusColor(status), fontSize: 11, fontWeight: FontWeight.w600)),
+                                ),
+                              ])),
+                              if (total > 0)
+                                Text("${total.toStringAsFixed(0)} FCFA",
+                                    style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.brand)),
+                            ]),
+                          ),
                         );
                       },
                     ),

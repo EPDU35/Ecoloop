@@ -1,9 +1,8 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, Float, ForeignKey, Numeric
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
 
 from app.config.database import Base
 
@@ -20,5 +19,5 @@ class CollectorLocation(Base):
     accuracy_meters: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), index=True
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), index=True
     )

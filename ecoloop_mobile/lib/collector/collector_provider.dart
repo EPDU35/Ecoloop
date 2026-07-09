@@ -5,12 +5,14 @@ import '../core/api_service.dart';
 class CollectorProvider with ChangeNotifier {
   List<dynamic> _availableLots = [];
   List<dynamic> _notifications = [];
+  List<dynamic> _collections = [];
   Map<String, dynamic>? _activeCollection;
   bool _loading = false;
   String? _errorMessage;
 
   List<dynamic> get availableLots => _availableLots;
   List<dynamic> get notifications => _notifications;
+  List<dynamic> get collections => _collections;
   Map<String, dynamic>? get activeCollection => _activeCollection;
   bool get loading => _loading;
   String? get errorMessage => _errorMessage;
@@ -29,6 +31,11 @@ class CollectorProvider with ChangeNotifier {
       final notifResponse = await ApiService.get('/notifications');
       if (notifResponse.statusCode == 200) {
         _notifications = jsonDecode(notifResponse.body);
+      }
+
+      final collectionResponse = await ApiService.get('/transaction/history');
+      if (collectionResponse.statusCode == 200) {
+        _collections = jsonDecode(collectionResponse.body);
       }
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des données.';
@@ -103,7 +110,7 @@ class CollectorProvider with ChangeNotifier {
       });
 
       if (response.statusCode == 200) {
-        _activeCollection = null; // Clears active collection upon success
+        _activeCollection = null;
         await fetchData();
         return true;
       } else {

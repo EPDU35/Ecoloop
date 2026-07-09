@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../core/api_service.dart';
 import '../shared/ui_components.dart';
 import '../theme/app_theme.dart';
+import '../core/animation_helper.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({Key? key}) : super(key: key);
@@ -46,31 +47,33 @@ class _WalletScreenState extends State<WalletScreen> {
                       final gross = (t['gross_amount'] ?? 0) as num;
                       final net = (t['net_amount'] ?? 0) as num;
                       final paid = t['status']?.toString().toLowerCase() == 'payee' || t['status']?.toString().toLowerCase() == 'payé';
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppTheme.inkHigh,
-                          borderRadius: BorderRadius.circular(AppTheme.rCard),
-                          border: Border.all(color: AppTheme.borderMed),
-                        ),
-                        child: Row(children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: paid ? AppTheme.brand.withValues(alpha: 0.12) : AppTheme.warn.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(paid ? Icons.check_circle : Icons.schedule, size: 22, color: paid ? AppTheme.brand : AppTheme.warn),
+                      return AnimationHelper.slideUp(
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppTheme.inkHigh,
+                            borderRadius: BorderRadius.circular(AppTheme.rCard),
+                            border: Border.all(color: AppTheme.borderMed),
                           ),
-                          const SizedBox(width: 14),
-                          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            Text("$gross FCFA", style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-                            const SizedBox(height: 2),
-                            Text(t['payment_method']?.toString().toUpperCase() ?? '', style: const TextStyle(fontSize: 12, color: AppTheme.textSoft)),
-                          ])),
-                          Text("$net FCFA", style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.brand)),
-                        ]),
+                          child: Row(children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: paid ? AppTheme.brand.withValues(alpha: 0.12) : AppTheme.warn.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(paid ? Icons.check_circle : Icons.schedule, size: 22, color: paid ? AppTheme.brand : AppTheme.warn),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                              Text("$gross FCFA", style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                              const SizedBox(height: 2),
+                              Text(t['payment_method']?.toString().toUpperCase() ?? '', style: const TextStyle(fontSize: 12, color: AppTheme.textSoft)),
+                            ])),
+                            Text("$net FCFA", style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.brand)),
+                          ]),
+                        ),
                       );
                     },
                   ),

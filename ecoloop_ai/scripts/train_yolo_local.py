@@ -7,8 +7,10 @@ import yaml
 def main():
     print("🤖 AGENT ANTIGRAVITY : Prise de contrôle de l'entraînement...")
     
-    # 1. Configurer Kaggle API avec le nouveau token du user
-    os.environ['KAGGLE_API_TOKEN'] = "KGAT_2c00428c79435050a767f3d9c2e90814"
+    # 1. Configurer Kaggle API (définir KAGGLE_API_TOKEN dans les variables d'environnement)
+    if 'KAGGLE_API_TOKEN' not in os.environ:
+        print("⚠️ KAGGLE_API_TOKEN non défini. Définissez-le dans vos variables d'environnement.")
+        return
     
     # 2. Télécharger avec Kaggle CLI
     import sys

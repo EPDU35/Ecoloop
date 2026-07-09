@@ -11,6 +11,7 @@ from app.models.user import User
 from app.models.waste import WasteLot
 from app.schemas.transaction_schema import TransactionCreateSchema
 from app.services.payment_service import PaymentError, create_transaction_for_collection
+from app.services.ai_service import ai_service
 
 
 async def create_transaction(db: AsyncSession, current_user: User, payload: TransactionCreateSchema) -> Transaction:
@@ -24,16 +25,33 @@ async def create_transaction(db: AsyncSession, current_user: User, payload: Tran
     if lot is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lot associé introuvable.")
 
-    # Seuls le producteur du lot ou le collecteur assigné peuvent déclencher le paiement.
     if current_user.id not in (lot.producer_id, collection.collector_id):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Action non autorisée sur cette collecte.")
+
+    # AI Fraud check on transaction
+    try:
+        fraud_result = await ai_service.check_fraud({
+            "poids": float(collection.actual_weight_kg or lot.weight_kg),
+            "prix": float(lot.price_per_kg),
+            "user_id": str(current_user.id),
+            "heure": datetime.now(timezone.utc).hour,
+            "jour_semaine": datetime.now(timezone.utc).weekday(),
+        })
+        if fraud_result.get("is_fraudulent") and fraud_result.get("fraud_score", 0) > 0.8:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Transaction suspecte détectée. Veuillez contacter le support."
+            )
+    except HTTPException:
+        raise
+    except Exception:
+        pass  # AI service unavailable - proceed without fraud check
 
     try:
         transaction = await create_transaction_for_collection(db, collection, lot, payload.payment_method)
     except PaymentError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
 
-    # Mise à jour des récompenses du producteur (kg recyclés -> points -> niveau).
     reward_result = await db.execute(select(Reward).where(Reward.user_id == lot.producer_id))
     reward = reward_result.scalar_one_or_none()
     if reward is not None and collection.actual_weight_kg:
@@ -51,18 +69,13 @@ async def create_transaction(db: AsyncSession, current_user: User, payload: Tran
 
 
 async def mark_transaction_paid(db: AsyncSession, transaction_id, external_reference: str) -> Transaction:
-    """
-    Appelé uniquement par le webhook du prestataire de paiement (jamais directement
-    par un client mobile/web) — voir app/api/routes/payments.py pour la vérification
-    de signature du webhook avant d'atteindre cette fonction.
-    """
     result = await db.execute(select(Transaction).where(Transaction.id == transaction_id).with_for_update())
     transaction = result.scalar_one_or_none()
     if transaction is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction introuvable.")
 
     if transaction.status == TransactionStatus.PAYEE:
-        return transaction  # idempotence : un webhook rejoué ne double-paie jamais
+        return transaction
 
     transaction.status = TransactionStatus.PAYEE
     transaction.external_reference = external_reference

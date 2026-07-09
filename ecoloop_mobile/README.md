@@ -1,17 +1,75 @@
-# ecoloop_mobile
+# EcoLoop - Application Mobile
 
-A new Flutter project.
+Application mobile Flutter pour la plateforme EcoLoop de gestion intelligente des déchets.
 
-## Getting Started
+## Stack
 
-This project is a starting point for a Flutter application.
+- **Flutter** 3.0+ (Dart)
+- **Provider** pour la gestion d'état
+- **flutter_map** + OpenStreetMap pour la cartographie
+- **Lottie** pour les animations
+- **Firebase Cloud Messaging** pour les notifications push
 
-A few resources to get you started if this is your first Flutter project:
+## Fonctionnalités
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+### Producteur
+- Publier des lots de déchets
+- Suivre les collectes en temps réel
+- Scanner de codes-barres
+- Historique et statistiques
+- Programme de récompenses
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Collecteur
+- Voir les lots disponibles sur la carte
+- Accepter des collectes
+- Valider avec OTP
+- Gérer les tournées
+- Suivi GPS en temps réel
+
+### Communes
+- Tableaux de bord municipaux
+- Statistiques de recyclage
+- Rapports de performance
+
+## Démarrage
+
+```bash
+flutter pub get
+flutter run              # Lance sur device/émulateur
+flutter run -d chrome    # Version web
+flutter build apk        # Build Android
+flutter build ios        # Build iOS
+```
+
+## Configuration
+
+L'URL de l'API est configurée dans `lib/core/api_service.dart` :
+
+```dart
+baseUrl: 'http://localhost:8000'   # Dev
+# En production, utiliser l'URL HTTPS du backend déployé
+```
+
+## Structure
+
+```
+lib/
+├── auth/           # Authentification (login, register, OTP)
+├── producer/       # Fonctionnalités producteur
+├── collector/      # Fonctionnalités collecteur
+├── shared/         # Écrans partagés (notifications, wallet, etc.)
+├── core/           # Services (API, localisation, push, etc.)
+├── models/         # Modèles de données
+├── widgets/        # Widgets réutilisables
+├── theme/          # Thème sombre
+└── main.dart       # Point d'entrée
+```
+
+## Plateformes supportées
+
+- Android
+- iOS
+- Web (Flutter Web)
+- Windows
+- macOS
+- Linux

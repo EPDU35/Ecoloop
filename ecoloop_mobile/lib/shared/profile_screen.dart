@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../auth/auth_provider.dart';
 import '../theme/app_theme.dart';
+import '../core/animation_helper.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class ProfileScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(children: [
+          child: AnimationHelper.staggeredList(children: [
             const SizedBox(height: 24),
             Center(child: Column(children: [
               Container(padding: const EdgeInsets.all(24),

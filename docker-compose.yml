@@ -8,7 +8,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: ecoloop_user
-      POSTGRES_PASSWORD: ecoloop_pass
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecoloop_pass}
       POSTGRES_DB: ecoloop_db
     ports:
       - "5433:5432"
@@ -30,11 +30,12 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://ecoloop_user:ecoloop_pass@db:5432/ecoloop_db
+      - DATABASE_URL=postgresql+asyncpg://ecoloop_user:${POSTGRES_PASSWORD:-ecoloop_pass}@db:5432/ecoloop_db
       - ENVIRONMENT=development
       - DEBUG=true
-      - CORS_ORIGINS=http://localhost:5000,http://localhost:3000,http://localhost:3001
+      - CORS_ORIGINS=http://localhost:5000,http://localhost:3000,http://localhost:3001,http://localhost:4000
       - ALLOWED_HOSTS=localhost,127.0.0.1,10.0.2.2,api.ecoloop.ci
+      - AI_SERVICE_URL=http://ai:8001
     depends_on:
       db:
         condition: service_healthy
@@ -53,5 +54,36 @@ services:
     depends_on:
       - backend
 
+  # 4. Backoffice (administration)
+  backoffice:
+    build:
+      context: ./ecoloop_backoffice
+      dockerfile: Dockerfile
+    container_name: ecoloop_backoffice_app
+    restart: always
+    ports:
+      - "4000:4000"
+    depends_on:
+      - backend
+
+  # 5. Service IA (classification, prédiction, détection de fraude)
+  ai:
+    build:
+      context: ./ecoloop_ai
+      dockerfile: Dockerfile
+    container_name: ecoloop_ai_service
+    restart: always
+    ports:
+      - "8001:8000"
+    environment:
+      - API_PORT=8000
+      - MODEL_PATH=saved_models
+      - ENV=development
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4000,http://localhost:8000
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
+    volumes:
+      - model_data:/app/saved_models
+
 volumes:
   postgres_data:
+  model_data:

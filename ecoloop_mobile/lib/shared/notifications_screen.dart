@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../core/api_service.dart';
 import '../shared/ui_components.dart';
 import '../theme/app_theme.dart';
+import '../core/animation_helper.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({Key? key}) : super(key: key);
@@ -49,41 +50,43 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     itemBuilder: (ctx, i) {
                       final n = _notifs[i];
                       final read = n['is_read'] == true;
-                      return Dismissible(
-                        key: Key(n['id']?.toString() ?? i.toString()),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: (_) => _markRead(n['id']),
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          decoration: BoxDecoration(color: AppTheme.inkMid, borderRadius: BorderRadius.circular(AppTheme.rCard)),
-                          child: const Icon(Icons.check, color: AppTheme.brand),
-                        ),
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: read ? AppTheme.inkHigh : AppTheme.inkMid,
-                            borderRadius: BorderRadius.circular(AppTheme.rCard),
-                            border: Border.all(color: read ? AppTheme.borderMed : AppTheme.brand.withValues(alpha: 0.2)),
+                      return AnimationHelper.slideUp(
+                        child: Dismissible(
+                          key: Key(n['id']?.toString() ?? i.toString()),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (_) => _markRead(n['id']),
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 20),
+                            decoration: BoxDecoration(color: AppTheme.inkMid, borderRadius: BorderRadius.circular(AppTheme.rCard)),
+                            child: const Icon(Icons.check, color: AppTheme.brand),
                           ),
-                          child: Row(children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: (read ? AppTheme.textFaint : AppTheme.brand).withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(read ? Icons.notifications_none : Icons.notifications_active, size: 20,
-                                  color: read ? AppTheme.textFaint : AppTheme.brand),
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: read ? AppTheme.inkHigh : AppTheme.inkMid,
+                              borderRadius: BorderRadius.circular(AppTheme.rCard),
+                              border: Border.all(color: read ? AppTheme.borderMed : AppTheme.brand.withValues(alpha: 0.2)),
                             ),
-                            const SizedBox(width: 14),
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Text(n['title'] ?? '', style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w700, color: read ? AppTheme.textSoft : AppTheme.textPrimary)),
-                              if (n['content'] != null) ...[const SizedBox(height: 2), Text(n['content'], style: const TextStyle(fontSize: 12, color: AppTheme.textFaint))],
-                            ])),
-                            if (!read) Container(width: 8, height: 8, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppTheme.brand)),
-                          ]),
+                            child: Row(children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: (read ? AppTheme.textFaint : AppTheme.brand).withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(read ? Icons.notifications_none : Icons.notifications_active, size: 20,
+                                    color: read ? AppTheme.textFaint : AppTheme.brand),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Text(n['title'] ?? '', style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w700, color: read ? AppTheme.textSoft : AppTheme.textPrimary)),
+                                if (n['content'] != null) ...[const SizedBox(height: 2), Text(n['content'], style: const TextStyle(fontSize: 12, color: AppTheme.textFaint))],
+                              ])),
+                              if (!read) Container(width: 8, height: 8, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppTheme.brand)),
+                            ]),
+                          ),
                         ),
                       );
                     },

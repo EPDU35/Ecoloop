@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     ENV: str = 'development'
 
     # --- Authentification JWT ---
-    JWT_SECRET: str = 'your-secret-key-change-in-production'
+    JWT_SECRET: str
     JWT_ALGORITHM: str = 'HS256'
 
     # --- Modèles IA ---

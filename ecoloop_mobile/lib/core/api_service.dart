@@ -4,8 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  // If --dart-define=API_BASE_URL=... is provided at launch, it takes priority.
-  // Otherwise: localhost for web/desktop, 10.0.2.2 for Android emulator.
   static final String baseUrl = () {
     const defined = String.fromEnvironment('API_BASE_URL', defaultValue: '');
     if (defined.isNotEmpty) return defined;
@@ -18,6 +16,13 @@ class ApiService {
     final token = await _storage.read(key: 'access_token');
     return {
       'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  static Future<Map<String, String>> getAuthHeaders() async {
+    final token = await _storage.read(key: 'access_token');
+    return {
       if (token != null) 'Authorization': 'Bearer $token',
     };
   }
@@ -44,6 +49,18 @@ class ApiService {
     final uri = Uri.parse('$baseUrl$endpoint');
     final headers = await _getHeaders();
     return http.delete(uri, headers: headers);
+  }
+
+  static Future<http.Response> uploadFile(String endpoint, String filePath, String fieldName) async {
+    final uri = Uri.parse('$baseUrl$endpoint');
+    final headers = await getAuthHeaders();
+
+    final request = http.MultipartRequest('POST', uri);
+    request.headers.addAll(headers);
+    request.files.add(await http.MultipartFile.fromPath(fieldName, filePath));
+
+    final streamed = await request.send();
+    return http.Response.fromStream(streamed);
   }
 
   static Future<void> saveTokens(String access, String refresh) async {

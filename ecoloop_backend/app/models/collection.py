@@ -1,10 +1,9 @@
 import enum
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
 
 from app.config.database import Base
 from app.models.user import UserRole
@@ -34,5 +33,5 @@ class Collection(Base):
     weight_verified_by: Mapped[UserRole | None] = mapped_column(Enum(UserRole), nullable=True)
     weight_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    reserved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    reserved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     validated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

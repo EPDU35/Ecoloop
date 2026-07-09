@@ -18,7 +18,9 @@ import 'shared/notifications_screen.dart';
 import 'shared/wallet_screen.dart';
 import 'shared/rewards_screen.dart';
 import 'shared/profile_screen.dart';
+import 'shared/price_chart_screen.dart';
 import 'theme/app_theme.dart';
+import 'core/animation_helper.dart';
 
 void main() {
   runApp(
@@ -43,28 +45,45 @@ class EcoLoopApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/otp': (context) => const OtpScreen(),
-        '/producer': (context) => const ProducerDashboard(),
-        '/producer/publish': (context) => const PublishLotScreen(),
-        '/producer/history': (context) => const ProducerHistoryScreen(),
-        '/collector': (context) => const CollectorDashboard(),
-        '/collector/validate': (context) => const ValidateOtpScreen(),
-        '/collector/collections': (context) => const MyCollectionsScreen(),
-        '/notifications': (context) => const NotificationsScreen(),
-        '/wallet': (context) => const WalletScreen(),
-        '/rewards': (context) => const RewardsScreen(),
-        '/profile': (context) => const ProfileScreen(),
-      },
       onGenerateRoute: (settings) {
-        if (settings.name == '/collector/lot-detail') {
-          final lot = settings.arguments as Map<String, dynamic>;
-          return MaterialPageRoute(builder: (_) => LotDetailScreen(lot: lot));
+        switch (settings.name) {
+          case '/':
+            return AnimationHelper.pageTransition(const SplashScreen());
+          case '/login':
+            return AnimationHelper.pageTransition(const LoginScreen());
+          case '/register':
+            return AnimationHelper.pageTransition(const RegisterScreen());
+          case '/otp':
+            return AnimationHelper.pageTransition(const OtpScreen());
+          case '/producer':
+            return AnimationHelper.pageTransition(const ProducerDashboard());
+          case '/producer/publish':
+            return AnimationHelper.pageTransition(const PublishLotScreen());
+          case '/producer/history':
+            return AnimationHelper.pageTransition(const ProducerHistoryScreen());
+          case '/collector':
+            return AnimationHelper.pageTransition(const CollectorDashboard());
+          case '/collector/validate':
+            return AnimationHelper.pageTransition(const ValidateOtpScreen());
+          case '/collector/collections':
+            return AnimationHelper.pageTransition(const MyCollectionsScreen());
+          case '/collector/lot-detail':
+            final lot = settings.arguments as Map<String, dynamic>;
+            return AnimationHelper.pageTransition(LotDetailScreen(lot: lot));
+          case '/notifications':
+            return AnimationHelper.pageTransition(const NotificationsScreen());
+          case '/wallet':
+            return AnimationHelper.pageTransition(const WalletScreen());
+          case '/rewards':
+            return AnimationHelper.pageTransition(const RewardsScreen());
+          case '/profile':
+            return AnimationHelper.pageTransition(const ProfileScreen());
+          case '/price-chart':
+            final category = settings.arguments as String? ?? 'PLASTIQUE';
+            return AnimationHelper.pageTransition(PriceChartScreen(category: category));
+          default:
+            return null;
         }
-        return null;
       },
     );
   }

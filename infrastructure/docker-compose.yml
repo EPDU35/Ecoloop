@@ -31,7 +31,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-ecoloop_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecoloop_pass}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       POSTGRES_DB: ${POSTGRES_DB:-ecoloop_db}
     ports:
       - "5432:5432"
@@ -75,8 +75,9 @@ services:
     env_file:
       - ../ecoloop_backend/.env
     environment:
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ecoloop_user}:${POSTGRES_PASSWORD:-ecoloop_pass}@db:5432/${POSTGRES_DB:-ecoloop_db}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ecoloop_user}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@db:5432/${POSTGRES_DB:-ecoloop_db}
       REDIS_URL: redis://redis:6379/0
+      AI_SERVICE_URL: http://ai:8001
     ports:
       - "8000:8000"
     depends_on:
@@ -100,6 +101,21 @@ services:
     restart: unless-stopped
     expose:
       - "3000"
+    depends_on:
+      - backend
+    networks:
+      - ecoloop_net
+
+  # ---------------------------------------------------------------------------
+  # Backoffice (administration)
+  # ---------------------------------------------------------------------------
+  backoffice:
+    build:
+      context: ./ecoloop_backoffice
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose:
+      - "4000"
     depends_on:
       - backend
     networks:

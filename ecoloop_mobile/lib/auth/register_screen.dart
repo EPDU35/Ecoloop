@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../shared/ui_components.dart';
+import '../core/animation_helper.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -104,95 +105,102 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Quel est votre profil ?',
-                  style: GoogleFonts.outfit(
-                    fontSize: 22, fontWeight: FontWeight.w700, color: AppTheme.textStrong,
-                  ),
+                AnimationHelper.fadeIn(
+                  child: Text('Quel est votre profil ?',
+                    style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w700, color: AppTheme.textStrong),),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  'Cela nous aide à vous proposer la bonne expérience.',
-                  style: TextStyle(color: AppTheme.textSoft, fontSize: 14),
-                ),
+                const Text('Cela nous aide à vous proposer la bonne expérience.',
+                    style: TextStyle(color: AppTheme.textSoft, fontSize: 14)),
                 const SizedBox(height: 18),
                 ..._roles.entries.map((e) {
                   final selected = _selectedRole == e.key;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: GestureDetector(
-                      onTap: () => setState(() => _selectedRole = e.key),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: selected ? AppTheme.brand.withValues(alpha: 0.12) : AppTheme.ink800,
-                          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-                          border: Border.all(
-                            color: selected ? AppTheme.brand : AppTheme.ink700,
-                            width: selected ? 1.5 : 1,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(e.value['icon'] as IconData,
-                                color: selected ? AppTheme.brand : AppTheme.textSoft, size: 26),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(e.value['label'] as String,
-                                      style: const TextStyle(
-                                          color: AppTheme.textStrong, fontWeight: FontWeight.w600, fontSize: 15)),
-                                  const SizedBox(height: 2),
-                                  Text(e.value['sub'] as String,
-                                      style: const TextStyle(color: AppTheme.textSoft, fontSize: 13)),
-                                ],
-                              ),
+                  return AnimationHelper.fadeIn(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: GestureDetector(
+                        onTap: () => setState(() => _selectedRole = e.key),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: selected ? AppTheme.brand.withValues(alpha: 0.12) : AppTheme.ink800,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+                            border: Border.all(
+                              color: selected ? AppTheme.brand : AppTheme.ink700,
+                              width: selected ? 1.5 : 1,
                             ),
-                            if (selected)
-                              const Icon(Icons.check_circle, color: AppTheme.brand, size: 22),
-                          ],
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(e.value['icon'] as IconData,
+                                  color: selected ? AppTheme.brand : AppTheme.textSoft, size: 26),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(e.value['label'] as String,
+                                        style: const TextStyle(
+                                            color: AppTheme.textStrong, fontWeight: FontWeight.w600, fontSize: 15)),
+                                    const SizedBox(height: 2),
+                                    Text(e.value['sub'] as String,
+                                        style: const TextStyle(color: AppTheme.textSoft, fontSize: 13)),
+                                  ],
+                                ),
+                              ),
+                              if (selected)
+                                const Icon(Icons.check_circle, color: AppTheme.brand, size: 22),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   );
                 }),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _fullNameController,
-                  decoration: _dec('Nom ou prénom', Icons.person_outline),
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Indiquez votre nom' : null,
+                AnimationHelper.slideUp(
+                  child: TextFormField(
+                    controller: _fullNameController,
+                    decoration: _dec('Nom ou prénom', Icons.person_outline),
+                    validator: (v) => v == null || v.trim().isEmpty ? 'Indiquez votre nom' : null,
+                  ),
                 ),
                 const SizedBox(height: 14),
-                TextFormField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: _dec('Numéro de téléphone', Icons.phone_outlined),
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Indiquez votre numéro';
-                    if (v.trim().length < 8) return 'Numéro trop court';
-                    return null;
-                  },
+                AnimationHelper.slideUp(
+                  child: TextFormField(
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: _dec('Numéro de téléphone', Icons.phone_outlined),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return 'Indiquez votre numéro';
+                      if (v.trim().length < 8) return 'Numéro trop court';
+                      return null;
+                    },
+                  ),
                 ),
                 const SizedBox(height: 14),
-                TextFormField(
-                  controller: _districtController,
-                  decoration: _dec('Quartier', Icons.location_on_outlined),
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Indiquez votre quartier' : null,
+                AnimationHelper.slideUp(
+                  child: TextFormField(
+                    controller: _districtController,
+                    decoration: _dec('Quartier', Icons.location_on_outlined),
+                    validator: (v) => v == null || v.trim().isEmpty ? 'Indiquez votre quartier' : null,
+                  ),
                 ),
                 const SizedBox(height: 14),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: _dec('Mot de passe', Icons.lock_outline),
-                  validator: (v) {
-                    if (v == null || v.length < 10) return 'Au moins 10 caractères';
-                    if (!v.contains(RegExp(r'[A-Z]'))) return 'Au moins une majuscule';
-                    if (!v.contains(RegExp(r'[a-z]'))) return 'Au moins une minuscule';
-                    if (!v.contains(RegExp(r'[0-9]'))) return 'Au moins un chiffre';
-                    return null;
-                  },
+                AnimationHelper.slideUp(
+                  child: TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: _dec('Mot de passe', Icons.lock_outline),
+                    validator: (v) {
+                      if (v == null || v.length < 10) return 'Au moins 10 caractères';
+                      if (!v.contains(RegExp(r'[A-Z]'))) return 'Au moins une majuscule';
+                      if (!v.contains(RegExp(r'[a-z]'))) return 'Au moins une minuscule';
+                      if (!v.contains(RegExp(r'[0-9]'))) return 'Au moins un chiffre';
+                      return null;
+                    },
+                  ),
                 ),
                 const SizedBox(height: 24),
                 EcoUI.primaryButton(

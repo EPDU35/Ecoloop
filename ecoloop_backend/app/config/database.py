@@ -1,25 +1,30 @@
-"""
-Connexion à PostgreSQL.
-
-RÈGLE DE SÉCURITÉ : toute requête passe par l'ORM SQLAlchemy (paramétrage automatique).
-Aucune concaténation de chaînes SQL n'est autorisée dans le projet — voir app/utils/helpers.py
-pour le rappel de convention. Si une requête brute est un jour nécessaire, elle DOIT utiliser
-text() avec des paramètres bindés, jamais un f-string.
-"""
 from typing import AsyncGenerator
 
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
 from app.config.settings import settings
 
+is_sqlite = settings.database_url.startswith("sqlite")
+
 engine = create_async_engine(
     settings.database_url,
-    pool_size=settings.db_pool_size,
-    max_overflow=settings.db_max_overflow,
-    pool_pre_ping=True,          # évite les connexions mortes silencieuses
+    **(dict(connect_args={"check_same_thread": False}) if is_sqlite else dict(
+        pool_size=settings.db_pool_size,
+        max_overflow=settings.db_max_overflow,
+        pool_pre_ping=True,
+    )),
     echo=settings.debug and not settings.is_production,
 )
+
+if is_sqlite:
+    import datetime as _dt
+
+    def _register_now(conn, _record):
+        conn.create_function("now", 0, lambda: _dt.datetime.now(_dt.timezone.utc).isoformat())
+
+    event.listen(engine.sync_engine, "connect", _register_now)
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
@@ -30,15 +35,10 @@ AsyncSessionLocal = async_sessionmaker(
 
 
 class Base(DeclarativeBase):
-    """Classe de base déclarative pour tous les modèles ORM."""
     pass
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """
-    Dépendance FastAPI fournissant une session DB par requête.
-    Rollback automatique en cas d'exception pour éviter les états incohérents.
-    """
     async with AsyncSessionLocal() as session:
         try:
             yield session

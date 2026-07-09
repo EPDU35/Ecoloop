@@ -17,6 +17,7 @@ web_stage/
 *.njsproj
 *.sln
 *.sw?
+*.iml
 .gemini/
 
 # OS metadata

@@ -4,16 +4,24 @@ import '../core/api_service.dart';
 
 class ProducerProvider with ChangeNotifier {
   Map<String, dynamic>? _rewards;
+  Map<String, dynamic>? _dashboard;
   List<dynamic> _myLots = [];
   List<dynamic> _pointsHistory = [];
+  List<dynamic> _notifications = [];
+  Map<String, dynamic>? _pricePredictions;
   bool _loading = false;
   String? _errorMessage;
+  String? _lastPublishedLotId;
 
   Map<String, dynamic>? get rewards => _rewards;
+  Map<String, dynamic>? get dashboard => _dashboard;
   List<dynamic> get myLots => _myLots;
   List<dynamic> get pointsHistory => _pointsHistory;
+  List<dynamic> get notifications => _notifications;
+  Map<String, dynamic>? get pricePredictions => _pricePredictions;
   bool get loading => _loading;
   String? get errorMessage => _errorMessage;
+  String? get lastPublishedLotId => _lastPublishedLotId;
 
   Future<void> fetchData() async {
     _loading = true;
@@ -21,6 +29,12 @@ class ProducerProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      final dashResponse = await ApiService.get('/dashboard/producer');
+      if (dashResponse.statusCode == 200) {
+        _dashboard = jsonDecode(dashResponse.body);
+        _pricePredictions = _dashboard?['price_predictions'];
+      }
+
       final rewardsResponse = await ApiService.get('/rewards/me');
       if (rewardsResponse.statusCode == 200) {
         _rewards = jsonDecode(rewardsResponse.body);
@@ -34,6 +48,11 @@ class ProducerProvider with ChangeNotifier {
       final historyResponse = await ApiService.get('/rewards/history');
       if (historyResponse.statusCode == 200) {
         _pointsHistory = jsonDecode(historyResponse.body);
+      }
+
+      final notifResponse = await ApiService.get('/notifications');
+      if (notifResponse.statusCode == 200) {
+        _notifications = jsonDecode(notifResponse.body);
       }
     } catch (e) {
       _errorMessage = 'Erreur lors de la récupération des données.';
@@ -53,6 +72,7 @@ class ProducerProvider with ChangeNotifier {
   }) async {
     _loading = true;
     _errorMessage = null;
+    _lastPublishedLotId = null;
     notifyListeners();
 
     try {
@@ -66,7 +86,9 @@ class ProducerProvider with ChangeNotifier {
       });
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await fetchData(); // Refresh data
+        final data = jsonDecode(response.body);
+        _lastPublishedLotId = data['id']?.toString();
+        await fetchData();
         return true;
       } else {
         final errorData = jsonDecode(response.body);

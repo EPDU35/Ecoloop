@@ -15,6 +15,7 @@ from app.models.review import Review
 from app.models.transaction import Transaction, TransactionStatus
 from app.models.user import User, UserRole
 from app.models.waste import LotStatus, WasteCategory, WasteLot
+from app.services.ai_service import ai_service
 
 router = APIRouter(prefix="/dashboard", tags=["Tableau de bord"])
 
@@ -66,6 +67,15 @@ async def producer_dashboard(
             "created_at": lot.created_at.isoformat() if lot.created_at else None,
         })
 
+    price_predictions = {}
+    for cat in WasteCategory:
+        try:
+            pred = await ai_service.predict_price(cat.value.lower(), periods=7)
+            if pred and pred.get("predictions"):
+                price_predictions[cat.value] = pred["predictions"][:7]
+        except Exception:
+            pass
+
     return {
         "total_revenue_fcfa": total_revenue,
         "total_kg_recycled": float(total_kg),
@@ -74,6 +84,7 @@ async def producer_dashboard(
         "points": points,
         "co2_avoided_kg": co2_avoided,
         "recent_lots": lots_data,
+        "price_predictions": price_predictions,
     }
 
 

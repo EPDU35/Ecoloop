@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ecoloop_user
-      POSTGRES_PASSWORD: ecoloop_pass
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecoloop_pass}
       POSTGRES_DB: ecoloop_db
     ports:
       - "5432:5432"

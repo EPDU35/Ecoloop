@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../../core/api_service.dart';
 import '../../shared/ui_components.dart';
 import '../../theme/app_theme.dart';
+import '../../core/animation_helper.dart';
 
 class MyCollectionsScreen extends StatefulWidget {
   const MyCollectionsScreen({Key? key}) : super(key: key);
@@ -55,41 +56,43 @@ class _MyCollectionsScreenState extends State<MyCollectionsScreen> {
                         final net = (c['net_amount'] ?? 0) as num;
                         final status = c['status']?.toString() ?? '';
                         final paid = status.toLowerCase() == 'payee' || status.toLowerCase() == 'payé';
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppTheme.inkHigh,
-                            borderRadius: BorderRadius.circular(AppTheme.rCard),
-                            border: Border.all(color: AppTheme.borderMed),
-                          ),
-                          child: Row(children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: paid ? AppTheme.brand.withValues(alpha: 0.12) : AppTheme.warn.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(paid ? Icons.check_circle : Icons.schedule, size: 22, color: paid ? AppTheme.brand : AppTheme.warn),
+                        return AnimationHelper.slideUp(
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppTheme.inkHigh,
+                              borderRadius: BorderRadius.circular(AppTheme.rCard),
+                              border: Border.all(color: AppTheme.borderMed),
                             ),
-                            const SizedBox(width: 14),
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Text("$gross FCFA", style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-                              const SizedBox(height: 2),
-                              Text("Commission: ${c['commission_amount'] ?? 0} FCFA", style: const TextStyle(fontSize: 12, color: AppTheme.textSoft)),
-                            ])),
-                            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                              Text("$net FCFA", style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.brand)),
+                            child: Row(children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: paid ? AppTheme.brand.withValues(alpha: 0.15) : AppTheme.warn.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(999),
+                                  color: paid ? AppTheme.brand.withValues(alpha: 0.12) : AppTheme.warn.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Text(_statusLabel(status), style: TextStyle(color: paid ? AppTheme.brand : AppTheme.warn, fontSize: 10, fontWeight: FontWeight.w600)),
+                                child: Icon(paid ? Icons.check_circle : Icons.schedule, size: 22, color: paid ? AppTheme.brand : AppTheme.warn),
                               ),
+                              const SizedBox(width: 14),
+                              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Text("$gross FCFA", style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                                const SizedBox(height: 2),
+                                Text("Commission: ${c['commission_amount'] ?? 0} FCFA", style: const TextStyle(fontSize: 12, color: AppTheme.textSoft)),
+                              ])),
+                              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                                Text("$net FCFA", style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.brand)),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: paid ? AppTheme.brand.withValues(alpha: 0.15) : AppTheme.warn.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(_statusLabel(status), style: TextStyle(color: paid ? AppTheme.brand : AppTheme.warn, fontSize: 10, fontWeight: FontWeight.w600)),
+                                ),
+                              ]),
                             ]),
-                          ]),
+                          ),
                         );
                       },
                     ),

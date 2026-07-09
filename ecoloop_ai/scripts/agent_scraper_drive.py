@@ -3,8 +3,6 @@ Agent Scraper Avancé - Collecte d'images de déchets pour EcoLoop AI
 Cible : Google Images -> Google Drive
 """
 import os
-import sys
-sys.path.append(r'C:\Users\CHRIST\AppData\Roaming\Python\Python312\site-packages')
 import time
 import requests
 from io import BytesIO
