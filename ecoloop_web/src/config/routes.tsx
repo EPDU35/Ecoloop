@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import Home from "../pages/Home";
-import Fonctionnement from "../pages/Fonctionnement";
+
 import Pricing from "../pages/Pricing";
 
 import IndustrialDashboard from "../industrial/Dashboard";
@@ -89,7 +89,7 @@ export default function AppRoutes() {
     <Routes>
       {/* Pages publiques */}
       <Route path="/" element={<HomeRedirect />} />
-      <Route path="/fonctionnement" element={<Fonctionnement />} />
+
       <Route path="/about" element={<About />} />
       <Route path="/partners" element={<Partners />} />
       <Route path="/pricing" element={<Pricing />} />

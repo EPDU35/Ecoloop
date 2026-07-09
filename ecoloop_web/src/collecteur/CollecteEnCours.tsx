@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import { NAV_ITEMS, NAV_PATHS } from './nav';
 import { useAuth } from '../auth/AuthContext';
 import { getTransactionHistory } from '../services/producteur.service';
-import { QRScanner } from '../components/QRScanner';
+import QRScanner from '../components/QRScanner';
 
 const STATUS_STEPS = [
   { key: 'en_route', label: 'En route', icon: '🚗' },

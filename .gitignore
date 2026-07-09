@@ -51,3 +51,5 @@ docker-volumes/
 *.sqlite
 *.sqlite3
 ecoloop_dev.db
+
+.vercel
