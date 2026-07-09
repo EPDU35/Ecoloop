@@ -18,7 +18,7 @@ from app.config.security import (
 )
 from app.config.settings import settings
 from app.models.reward import Reward
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.user_schema import (
     PasswordResetConfirmSchema,
     PasswordResetRequestSchema,
@@ -44,12 +44,18 @@ async def register_user(db: AsyncSession, payload: UserRegisterSchema) -> tuple[
         )
 
     otp_code = generate_otp()
+    # Règle métier : le Producteur a un accès en libre-service (compte actif
+    # dès la vérification OTP). Les comptes professionnels (Collecteur,
+    # Industriel, Mairie/RSE) doivent être validés manuellement par un
+    # administrateur avant de pouvoir se connecter -> is_active=False.
+    auto_active = payload.role == UserRole.PRODUCTEUR
     user = User(
         full_name=payload.full_name,
         email=payload.email,
         phone=payload.phone,
         hashed_password=hash_password(payload.password),
         role=payload.role,
+        is_active=auto_active,
         is_verified=False,
         otp_hash=hash_otp(otp_code),
         otp_expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
@@ -105,9 +111,8 @@ async def authenticate_user(db: AsyncSession, payload: UserLoginSchema) -> User:
             detail="Compte temporairement verrouillé suite à plusieurs échecs. Réessayez plus tard.",
         )
 
-    if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Compte désactivé.")
-
+    # On vérifie le mot de passe AVANT de révéler l'état du compte (verified /
+    # actif), pour ne pas divulguer d'information à un tiers non authentifié.
     if not verify_password(payload.password, user.hashed_password):
         user.failed_login_attempts += 1
         if user.failed_login_attempts >= settings.max_login_attempts:
@@ -118,7 +123,16 @@ async def authenticate_user(db: AsyncSession, payload: UserLoginSchema) -> User:
     if not user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Compte non vérifié. Consultez vos messages pour le code de confirmation.",
+            detail="Compte non vérifié. Consultez votre email pour le code de confirmation.",
+        )
+
+    # Producteur : actif après OTP. Pros (Collecteur/Industriel/Mairie) : en
+    # attente de validation par un administrateur tant que is_active est False.
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Votre compte est en attente de validation par un administrateur. "
+                   "Vous recevrez un email dès qu'il sera activé.",
         )
 
     # Connexion réussie : on réinitialise le compteur d'échecs.

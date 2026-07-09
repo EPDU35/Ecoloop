@@ -6,10 +6,12 @@ import './auth.css';
 
 export type UserRole = 'producteur' | 'collecteur' | 'industriel' | 'mairie';
 
-const ROLES: { id: UserRole; label: string; icon: React.ReactNode }[] = [
+const ROLES: { id: UserRole; label: string; desc: string; needsApproval: boolean; icon: React.ReactNode }[] = [
   {
     id: 'producteur',
     label: 'Producteur',
+    desc: "Vous générez des déchets recyclables (ménage, commerce, entreprise) et souhaitez les vendre à des collecteurs.",
+    needsApproval: false,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M3 3h18v18H3z" />
@@ -20,6 +22,8 @@ const ROLES: { id: UserRole; label: string; icon: React.ReactNode }[] = [
   {
     id: 'collecteur',
     label: 'Collecteur',
+    desc: "Vous collectez les déchets auprès des producteurs et les revendez aux industriels. Organisez vos tournées et vos revenus.",
+    needsApproval: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M3 13h18M5 13V7a2 2 0 012-2h10a2 2 0 012 2v6M5 13l-1 6h16l-1-6" />
@@ -29,6 +33,8 @@ const ROLES: { id: UserRole; label: string; icon: React.ReactNode }[] = [
   {
     id: 'industriel',
     label: 'Industriel',
+    desc: "Vous transformez la matière recyclée. Approvisionnez-vous auprès des collecteurs via la marketplace et gérez vos contrats.",
+    needsApproval: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M3 21h18M5 21V10l5-4 5 4v11M14 21v-7h4v7" />
@@ -38,6 +44,8 @@ const ROLES: { id: UserRole; label: string; icon: React.ReactNode }[] = [
   {
     id: 'mairie',
     label: 'Mairie / RSE',
+    desc: "Collectivité ou entreprise engagée : suivez la carte des déchets, les alertes et l'impact environnemental de votre territoire.",
+    needsApproval: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M12 2l9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5" />
@@ -70,6 +78,8 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const selectedRole = ROLES.find((r) => r.id === role);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
@@ -124,7 +134,7 @@ export default function Register() {
         password,
         role: role.toUpperCase(),
       });
-      navigate(`/verifier-otp?email=${encodeURIComponent(email)}`);
+      navigate(`/verifier-otp?email=${encodeURIComponent(email)}&role=${role}`);
     } catch (err: any) {
       const data = err?.response?.data;
       const detail = data?.detail || data;
@@ -175,6 +185,19 @@ export default function Register() {
             </button>
           ))}
         </div>
+
+        {selectedRole && (
+          <div className="el-role-desc">
+            <p className="el-role-desc-text">{selectedRole.desc}</p>
+            {selectedRole.needsApproval && (
+              <p className="el-role-desc-note">
+                <strong>Compte professionnel :</strong> après vérification de votre email,
+                votre inscription sera examinée puis validée par notre équipe. Vous recevrez
+                un email dès l'activation de votre accès.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="el-field">
           <label htmlFor="fullName">Nom complet</label>

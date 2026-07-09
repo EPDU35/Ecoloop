@@ -162,6 +162,32 @@ class EmailService:
         )
         return await self.send_email(to_email, subject, html_content, to_name, text_content)
 
+    async def send_account_approved_email(self, to_email: str, to_name: Optional[str] = None) -> bool:
+        """Prévient un professionnel que son compte a été validé par un admin."""
+        subject = "Votre compte EcoLoop est activé ✅"
+        login_link = f"{settings.frontend_url.rstrip('/')}/connexion"
+        html_content = f"""
+        <div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:auto;color:#1a1a1a">
+          <h2 style="color:#159c5b">EcoLoop ♻️</h2>
+          <p>Bonjour{(' ' + to_name) if to_name else ''},</p>
+          <p>Bonne nouvelle : votre compte professionnel a été <strong>validé</strong>
+             par notre équipe. Vous pouvez dès maintenant vous connecter et accéder
+             à votre espace.</p>
+          <p style="text-align:center">
+            <a href="{login_link}"
+               style="background:#159c5b;color:#fff;text-decoration:none;
+                      padding:12px 24px;border-radius:8px;display:inline-block">
+              Me connecter
+            </a>
+          </p>
+          <p style="color:#888;font-size:13px">Bienvenue dans la boucle EcoLoop.</p>
+        </div>
+        """
+        text_content = (
+            "Votre compte EcoLoop a été validé. Connectez-vous : " + login_link
+        )
+        return await self.send_email(to_email, subject, html_content, to_name, text_content)
+
     async def send_password_reset_email(
         self, to_email: str, token: str, to_name: Optional[str] = None
     ) -> bool:

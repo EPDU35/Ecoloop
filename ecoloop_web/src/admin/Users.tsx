@@ -6,7 +6,7 @@ export default function Users() {
   const [users, setUsers] = useState<PlatformUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<'all' | 'Producteur' | 'Collecteur' | 'Recycleur' | 'Mairie'>('all');
+  const [roleFilter, setRoleFilter] = useState<'all' | 'Producteur' | 'Collecteur' | 'Industriel' | 'Mairie'>('all');
 
   async function loadData() {
     try {
@@ -32,7 +32,11 @@ export default function Users() {
   };
 
   const filtered = users.filter((u) => {
-    const matchesSearch = u.name.toLowerCase().includes(query.toLowerCase()) || u.phone.includes(query);
+    const q = query.toLowerCase();
+    const matchesSearch =
+      u.name.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q) ||
+      u.phone.includes(query);
     const matchesRole = roleFilter === 'all' || u.role === roleFilter;
     return matchesSearch && matchesRole;
   });
@@ -49,7 +53,7 @@ export default function Users() {
           <input
             id="userSearch"
             type="text"
-            placeholder="Nom ou téléphone..."
+            placeholder="Nom, email ou téléphone..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -65,7 +69,7 @@ export default function Users() {
             <option value="all">Tous les rôles</option>
             <option value="Producteur">Producteur</option>
             <option value="Collecteur">Collecteur</option>
-            <option value="Recycleur">Recycleur</option>
+            <option value="Industriel">Industriel</option>
             <option value="Mairie">Mairie / RSE</option>
           </select>
         </div>
@@ -80,8 +84,8 @@ export default function Users() {
           <table className="el-table">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Nom</th>
+                <th>Email</th>
                 <th>Téléphone</th>
                 <th>Rôle</th>
                 <th>Statut</th>
@@ -91,8 +95,8 @@ export default function Users() {
             <tbody>
               {filtered.map((u) => (
                 <tr key={u.id}>
-                  <td className="el-mono">{u.id}</td>
                   <td style={{ fontWeight: 600 }}>{u.name}</td>
+                  <td className="el-mono">{u.email}</td>
                   <td className="el-mono">{u.phone}</td>
                   <td>
                     <span
@@ -103,7 +107,7 @@ export default function Users() {
                             ? '#efefef'
                             : u.role === 'Collecteur'
                               ? '#d9a441'
-                              : u.role === 'Recycleur'
+                              : u.role === 'Industriel'
                                 ? '#3fa34d'
                                 : '#6b8f79',
                         color: '#1a1a1a',

@@ -67,13 +67,34 @@ export interface PlatformUser {
   id: string;
   name: string;
   phone: string;
-  role: 'Producteur' | 'Collecteur' | 'Recycleur' | 'Mairie';
+  email: string;
+  role: 'Producteur' | 'Collecteur' | 'Industriel' | 'Mairie' | 'Admin';
   status: 'active' | 'pending' | 'suspended';
+  isVerified: boolean;
 }
 
+const ROLE_LABELS: Record<string, PlatformUser['role']> = {
+  PRODUCTEUR: 'Producteur',
+  COLLECTEUR: 'Collecteur',
+  INDUSTRIEL: 'Industriel',
+  MAIRIE: 'Mairie',
+  ADMIN: 'Admin',
+};
+
 export async function getAdminUsers(): Promise<PlatformUser[]> {
+  // Le backend renvoie { total, limit, offset, users: [...] } avec des champs
+  // en snake_case et un rôle en MAJUSCULES. On adapte au format de l'UI.
   const res = await api.get('/admin/users');
-  return res.data;
+  const rows = Array.isArray(res.data) ? res.data : res.data?.users ?? [];
+  return rows.map((u: any): PlatformUser => ({
+    id: String(u.id),
+    name: u.full_name ?? u.name ?? '—',
+    phone: u.phone ?? '',
+    email: u.email ?? '',
+    role: ROLE_LABELS[String(u.role || '').toUpperCase()] ?? 'Producteur',
+    status: u.is_active ? 'active' : 'pending',
+    isVerified: Boolean(u.is_verified),
+  }));
 }
 
 export async function validatePlatformUser(id: string): Promise<void> {

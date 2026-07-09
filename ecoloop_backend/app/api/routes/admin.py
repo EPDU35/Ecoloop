@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import uuid
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -20,6 +21,7 @@ from app.models.transaction import Transaction, TransactionStatus
 from app.models.user import User, UserRole
 from app.models.waste import LotStatus, WasteCategory, WasteLot
 from app.services.ai_service import ai_service
+from app.services.email_service import email_service
 from app.services.event_manager import event_manager
 
 logger = logging.getLogger("ecoloop.admin")
@@ -161,6 +163,51 @@ async def admin_users(
             for u in users
         ],
     }
+
+
+async def _get_user_or_404(db: AsyncSession, user_id: str) -> User:
+    try:
+        uid = uuid.UUID(str(user_id))
+    except (ValueError, AttributeError):
+        raise HTTPException(status_code=400, detail="Identifiant utilisateur invalide.")
+    result = await db.execute(select(User).where(User.id == uid))
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable.")
+    return user
+
+
+@router.patch("/users/{user_id}/validate")
+async def admin_validate_user(
+    user_id: str,
+    db: AsyncSession = Depends(get_db),
+    _admin: User = Depends(require_roles(UserRole.ADMIN)),
+):
+    """Valide (active) un compte professionnel en attente et notifie par email."""
+    user = await _get_user_or_404(db, user_id)
+    user.is_active = True
+    await db.commit()
+    await email_service.send_account_approved_email(user.email, user.full_name)
+    logger.info("Compte validé par admin : %s (%s)", user.email, user.role.value)
+    return {"status": "validated", "id": str(user.id), "is_active": user.is_active}
+
+
+@router.patch("/users/{user_id}/suspend")
+async def admin_suspend_user(
+    user_id: str,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(require_roles(UserRole.ADMIN)),
+):
+    """Suspend (désactive) un compte utilisateur."""
+    user = await _get_user_or_404(db, user_id)
+    if user.id == admin.id:
+        raise HTTPException(status_code=400, detail="Vous ne pouvez pas suspendre votre propre compte.")
+    if user.role == UserRole.ADMIN:
+        raise HTTPException(status_code=400, detail="Impossible de suspendre un compte administrateur.")
+    user.is_active = False
+    await db.commit()
+    logger.info("Compte suspendu par admin : %s", user.email)
+    return {"status": "suspended", "id": str(user.id), "is_active": user.is_active}
 
 
 @router.get("/collections")
