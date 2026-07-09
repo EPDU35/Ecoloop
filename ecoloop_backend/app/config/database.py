@@ -10,10 +10,11 @@ is_sqlite = settings.database_url.startswith("sqlite")
 
 engine = create_async_engine(
     settings.database_url,
-    **(dict(connect_args={"check_same_thread": False}) if is_sqlite else dict(
+    **({} if is_sqlite else dict(
         pool_size=settings.db_pool_size,
         max_overflow=settings.db_max_overflow,
         pool_pre_ping=True,
+        connect_args={"statement_cache_size": 0},
     )),
     echo=settings.debug and not settings.is_production,
 )
