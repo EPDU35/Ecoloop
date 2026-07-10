@@ -1,5 +1,6 @@
 import os
 import uuid
+import asyncio
 import logging
 from typing import Optional
 from datetime import datetime
@@ -155,6 +156,24 @@ async def startup_event():
         fraud_detector = None
 
     logger.info("Initialisation terminée")
+
+    import httpx
+    async def keep_alive_task():
+        url = os.environ.get("RENDER_EXTERNAL_URL")
+        if not url:
+            return
+        ping_url = f"{url.rstrip('/')}/api/health"
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            while True:
+                await asyncio.sleep(8 * 60)
+                try:
+                    await client.get(ping_url)
+                    logger.info("Keep-alive ping sent successfully")
+                except Exception as e:
+                    logger.warning(f"Keep-alive ping failed: {e}")
+
+    if os.environ.get("RENDER_EXTERNAL_URL"):
+        asyncio.create_task(keep_alive_task())
 
 
 app.include_router(classify_router)

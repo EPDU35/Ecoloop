@@ -114,7 +114,7 @@ async def keep_alive_task():
     ping_url = f"{url.rstrip('/')}/health"
     async with httpx.AsyncClient(timeout=10.0) as client:
         while True:
-            await asyncio.sleep(14 * 60)
+            await asyncio.sleep(8 * 60)
             try:
                 await client.get(ping_url)
                 logger.info("Keep-alive ping sent successfully")

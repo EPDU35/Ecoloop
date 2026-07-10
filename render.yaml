@@ -124,7 +124,7 @@ services:
   # ---------------------------------------------------------------------------
   - type: cron
     name: ecoloop-keepalive
-    schedule: "*/10 * * * *"
+    schedule: "*/5 * * * *"
     env: docker
     dockerfilePath: ./keep_alive/Dockerfile
     dockerContext: ./keep_alive
