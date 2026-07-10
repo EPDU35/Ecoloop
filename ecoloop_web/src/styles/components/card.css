@@ -1,0 +1,72 @@
+/* Card component styles */
+
+.card {
+  background-color: var(--color-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+card.header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+card.content {
+  padding: var(--spacing-md);
+}
+
+card.footer {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Stat Card specific */
+.stat-card {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-fast);
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.stat-card .label {
+  font-size: var(--font-size-sm);
+  color: var(--color-muted-foreground);
+  margin-bottom: var(--spacing-xs);
+}
+
+.stat-card .value {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-card-foreground);
+}
+
+.stat-card .change {
+  font-size: var(--font-size-xs);
+  margin-top: var(--spacing-xs);
+}
+
+.stat-card .change.positive {
+  color: var(--color-green);
+}
+
+.stat-card .change.negative {
+  color: var(--color-red);
+}
+
+.stat-card .change.neutral {
+  color: var(--color-muted-foreground);
+}

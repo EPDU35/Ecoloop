@@ -1,0 +1,78 @@
+/* Index CSS - imports all component styles */
+
+@import './globals.css';
+@import './components/button.css';
+@import './components/card.css';
+@import './components/badge.css';
+@import './components/input.css';
+@import './components/dropdown.css';
+@import './components/modal.css';
+@import './components/table.css';
+@import './components/toast.css';
+@import './layout/container.css';
+@import './layout/grid.css';
+@import './layout/flex.css';
+@import './layout/spacing.css';
+@import './feedback/alert.css';
+@import './feedback/badge.css';
+@import './feedback/toast.css';
+@import './data-display/card.css';
+@import './data-display/table.css';
+@import './data-display/stat-card.css';
+@import './data-display/empty-state.css';
+@import './navigation/navbar.css';
+@import './navigation/sidebar.css';
+@import './forms/input.css';
+@import './forms/label.css';
+@import './forms/select.css';
+@import './forms/checkbox.css';
+@import './forms/radio.css';
+@import './forms/switch.css';
+@import './utils/visibility.css';
+@import './utils/loading.css';
+@import './utils/overflow.css';
+@import './utils/typography.css';
+
+/* Root element styles */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+}
+
+/* Base element styles */
+body {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Link styles */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-primary-foreground);
+}
+
+/* Utility classes */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}

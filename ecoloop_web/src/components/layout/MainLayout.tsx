@@ -24,9 +24,6 @@ export function MainLayout() {
       <aside className="sidebar-desktop">
         <div className="sidebar-logo">
           <Link to="/">EcoLoop</Link>
-          {import.meta.env.VITE_DEMO_MODE === 'true' && (
-            <span className="demo-badge">Mode Démo</span>
-          )}
         </div>
         
         {user && (

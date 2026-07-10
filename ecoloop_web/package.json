@@ -25,5 +25,15 @@
     "oxlint": "^1.71.0",
     "typescript": "~6.0.2",
     "vite": "^8.1.1"
+  },
+  "imports": {
+    "#components/*": "./src/components/*",
+    "#features/*": "./src/features/*",
+    "#services/*": "./src/services/*",
+    "#hooks": "./src/hooks",
+    "#lib": "./src/lib",
+    "#styles": "./src/styles",
+    "#types": "./src/types",
+    "#assets": "./src/assets"
   }
 }

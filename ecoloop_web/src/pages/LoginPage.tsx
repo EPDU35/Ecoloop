@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthContext';
-import { MOCK_USERS } from '@/services/mocks/mockData';
 import './LoginPage.css';
 
 export function LoginPage() {
@@ -18,29 +17,15 @@ export function LoginPage() {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    
-    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true';
 
     try {
-      if (isDemo) {
-        const user = Object.values(MOCK_USERS).find(u => u.email === email);
-        if (!user) throw new Error("Email démo non reconnu.");
-        await login(email, password);
-      } else {
-        await login(email, password);
-      }
-      
+      await login(email, password);
       navigate('/'); 
     } catch (err: any) {
       setError(err.response?.data?.detail || err.message || "Erreur de connexion. Vérifiez vos identifiants.");
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const fillDemoCredentials = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword('demo123');
   };
 
   return (
@@ -51,22 +36,6 @@ export function LoginPage() {
           <h2>Connexion à votre espace</h2>
           <p>Gérez vos déchets, optimisez vos tournées ou suivez l'impact de votre commune.</p>
         </div>
-
-        {import.meta.env.VITE_DEMO_MODE === 'true' && (
-          <div className="demo-alert">
-            <AlertCircle size={20} className="text-alert" />
-            <div>
-              <strong>Mode Démo Actif</strong>
-              <p>Sélectionnez un profil pour tester la plateforme :</p>
-              <div className="demo-buttons">
-                <button type="button" onClick={() => fillDemoCredentials('mairie@abobo.ci')} className="demo-btn">Mairie</button>
-                <button type="button" onClick={() => fillDemoCredentials('producteur@restaurant.ci')} className="demo-btn">Producteur</button>
-                <button type="button" onClick={() => fillDemoCredentials('collecteur@express.ci')} className="demo-btn">Collecteur</button>
-                <button type="button" onClick={() => fillDemoCredentials('industriel@plastique.ci')} className="demo-btn">Industriel</button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {error && (
           <div className="demo-alert" style={{ backgroundColor: '#fee2e2', borderColor: '#fca5a5' }}>
