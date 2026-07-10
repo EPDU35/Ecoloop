@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import { 
   ArrowRight, Leaf, ShieldCheck, Factory, BrainCircuit, 
-  Map, BarChart3, Users, Zap, CheckCircle2,
-  ChevronDown, Globe, Award, TrendingUp, Truck
+  Map, BarChart3, Zap, CheckCircle2,
+  ChevronDown, Globe, TrendingUp, Truck,
+  Recycle, Building2, Eye, AlertTriangle, Droplets, CloudOff
 } from 'lucide-react';
 import { useState } from 'react';
 import './LandingPage.css';
@@ -21,9 +22,12 @@ export function LandingPage() {
           </div>
           <div className="nav-links">
             <a href="#solution">Solution</a>
-            <a href="#acteurs">Pour qui ?</a>
+            <a href="#fonctionnement">Fonctionnement</a>
+            <a href="#acteurs">Acteurs</a>
             <a href="#intelligence">Intelligence</a>
             <a href="#impact">Impact</a>
+            <a href="#tarifs">Tarifs</a>
+            <a href="#faq">Ressources</a>
           </div>
           <div className="nav-actions hidden md:flex">
             <Link to="/login" className="btn btn-secondary">Connexion</Link>
@@ -36,56 +40,139 @@ export function LandingPage() {
       <header className="hero-section text-center fade-in-up">
         <div className="hero-content">
           <div className="badge-new mb-6 inline-flex items-center gap-2 px-4 py-2 bg-primary-light text-primary rounded-full font-medium text-sm mx-auto">
-            <Zap size={16} /> EcoLoop 2.0 est disponible
+            <Zap size={16} /> Nouveau &bull; EcoLoop 2.0 disponible
           </div>
           <h1 className="hero-title">
-            L'intelligence qui transforme les déchets en <span className="text-gradient">ressources stratégiques.</span>
+            Les déchets ne sont plus un problème.<br />
+            <span className="text-gradient">Ils deviennent une ressource.</span>
           </h1>
           <p className="hero-subtitle max-w-3xl mx-auto">
-            La première plateforme africaine qui orchestre la collecte, la traçabilité et la valorisation des déchets grâce à un moteur décisionnel de pointe.
+            EcoLoop connecte producteurs, collecteurs, recycleurs et collectivités dans une seule plateforme intelligente pour rendre la gestion des déchets plus simple, plus rentable et plus durable.
           </p>
           <div className="hero-cta mt-10 flex flex-col md:flex-row justify-center gap-4">
             <Link to="/register" className="btn btn-primary btn-lg w-full md:w-auto text-center justify-center">
-              Démarrer gratuitement <ArrowRight size={20} className="ml-2 inline" />
+              Commencer gratuitement <ArrowRight size={20} className="ml-2 inline" />
             </Link>
             <Link to="/contact" className="btn btn-outline btn-lg w-full md:w-auto text-center justify-center">
-              Contacter les ventes
+              Demander une démonstration
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Problème Section */}
-      <section id="probleme" className="section bg-light py-20">
-        <div className="section-container text-center max-w-4xl">
-          <h2 className="section-title mb-6">Le chaos de la gestion des déchets</h2>
-          <p className="section-description text-xl text-secondary mb-12">
-            Actuellement, les producteurs ne savent pas comment valoriser leurs déchets, les collecteurs perdent du temps à chercher de la matière, l'industrie manque de matières premières fiables et les mairies naviguent à vue.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-            <div className="problem-card">
-              <h3 className="font-bold text-lg mb-2 text-alert">0 Visibilité</h3>
-              <p className="text-secondary">Aucune traçabilité des volumes générés par quartier.</p>
+      {/* Chiffres */}
+      <section className="section py-20 border-b">
+        <div className="section-container">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="impact-stat">
+              <span className="impact-number text-primary">+14 000</span>
+              <span className="impact-label">Tonnes de déchets valorisées</span>
             </div>
-            <div className="problem-card">
-              <h3 className="font-bold text-lg mb-2 text-alert">40% Pertes</h3>
-              <p className="text-secondary">Temps et carburant gaspillés par les collecteurs.</p>
+            <div className="impact-stat">
+              <span className="impact-number text-info">5 000+</span>
+              <span className="impact-label">Tonnes de CO₂ évitées</span>
             </div>
-            <div className="problem-card">
-              <h3 className="font-bold text-lg mb-2 text-alert">Déficit matière</h3>
-              <p className="text-secondary">Les industriels importent de la matière recyclable.</p>
+            <div className="impact-stat">
+              <span className="impact-number text-accent">250+</span>
+              <span className="impact-label">Acteurs connectés</span>
+            </div>
+            <div className="impact-stat">
+              <span className="impact-number text-warning">12</span>
+              <span className="impact-label">Communes accompagnées</span>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Le problème */}
+      <section id="probleme" className="section bg-light py-24">
+        <div className="section-container text-center max-w-5xl">
+          <h2 className="section-title mb-6">Aujourd'hui, la chaîne de gestion des déchets est fragmentée.</h2>
+          <p className="section-description text-xl text-secondary mb-16 max-w-3xl mx-auto">
+            Chaque acteur avise pour lui-même, sans visibilité sur le reste de la chaîne.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left mb-16">
+            <div className="problem-card flex items-start gap-4">
+              <AlertTriangle size={24} className="text-alert flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="font-bold text-lg mb-2">Les producteurs ne savent pas où envoyer leurs déchets.</h3>
+                <p className="text-secondary">Restaurants, supermarchés, entreprises : ils génèrent des matières recyclables sans savoir comment les valoriser.</p>
+              </div>
+            </div>
+            <div className="problem-card flex items-start gap-4">
+              <Truck size={24} className="text-alert flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="font-bold text-lg mb-2">Les collecteurs perdent du temps à chercher des missions rentables.</h3>
+                <p className="text-secondary">Sans visibilité sur les volumes disponibles, ils parcourent des kilomètres pour des résultats incertains.</p>
+              </div>
+            </div>
+            <div className="problem-card flex items-start gap-4">
+              <Factory size={24} className="text-alert flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="font-bold text-lg mb-2">Les industriels peinent à sécuriser leur approvisionnement.</h3>
+                <p className="text-secondary">La matière recyclable manque de traçabilité et de qualité constante.</p>
+              </div>
+            </div>
+            <div className="problem-card flex items-start gap-4">
+              <Building2 size={24} className="text-alert flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="font-bold text-lg mb-2">Les collectivités manquent de visibilité pour anticiper les zones à risque.</h3>
+                <p className="text-secondary">Sans données fiables, elles réagissent aux problèmes au lieu de les prévenir.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-4">
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-full text-sm font-medium">
+              <Eye size={16} /> Perte économique
+            </span>
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-full text-sm font-medium">
+              <Recycle size={16} /> Pollution
+            </span>
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-full text-sm font-medium">
+              <Droplets size={16} /> Inondations
+            </span>
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-full text-sm font-medium">
+              <CloudOff size={16} /> Émissions de CO₂
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Notre solution */}
+      <section id="solution" className="section py-24">
+        <div className="section-container text-center max-w-5xl">
+          <h2 className="section-title mb-4">Une seule plateforme.<br />Toute la chaîne de valeur.</h2>
+          <p className="section-description text-xl text-secondary mb-16 max-w-3xl mx-auto">
+            EcoLoop centralise les informations, coordonne les acteurs et facilite chaque étape du recyclage.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+            {[
+              { icon: <Leaf size={20} />, text: "Déclarer un lot" },
+              { icon: <Truck size={20} />, text: "Trouver un collecteur" },
+              { icon: <Factory size={20} />, text: "Acheter des matières recyclables" },
+              { icon: <BarChart3 size={20} />, text: "Suivre l'impact environnemental" },
+              { icon: <Map size={20} />, text: "Anticiper les risques urbains" },
+              { icon: <ShieldCheck size={20} />, text: "Garantir la traçabilité" },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-3 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
+                <span className="text-primary flex-shrink-0">{item.icon}</span>
+                <span className="font-medium">{item.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Les 4 Acteurs Section */}
-      <section id="acteurs" className="section py-24">
+      <section id="acteurs" className="section bg-light py-24">
         <div className="section-container">
           <div className="text-center mb-16">
-            <h2 className="section-title">Une plateforme, quatre univers métiers</h2>
+            <h2 className="section-title">Les acteurs de la chaîne</h2>
             <p className="section-description max-w-2xl mx-auto">
-              Nous avons conçu des outils spécifiques pour chaque acteur de la chaîne de valeur.
+              Chaque profil dispose d'un espace conçu pour ses besoins spécifiques.
             </p>
           </div>
 
@@ -94,11 +181,13 @@ export function LandingPage() {
             <div className="actor-card theme-producer group">
               <div className="actor-icon"><Leaf size={32} /></div>
               <h3>Producteurs</h3>
-              <p>Hôtels, supermarchés, entreprises et particuliers.</p>
-              <ul className="mt-6 space-y-3">
-                <li><CheckCircle2 size={18} /> Déclaration en 1 clic</li>
-                <li><CheckCircle2 size={18} /> Gain de récompenses</li>
-                <li><CheckCircle2 size={18} /> Rapports d'impact</li>
+              <p className="text-sm text-secondary mb-4">Restaurants, entreprises, supermarchés, hôtels, particuliers.</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-secondary mb-3">Ils peuvent :</p>
+              <ul className="space-y-2 text-sm">
+                <li><CheckCircle2 size={16} /> Publier leurs déchets en quelques secondes</li>
+                <li><CheckCircle2 size={16} /> Recevoir des récompenses</li>
+                <li><CheckCircle2 size={16} /> Suivre leur impact environnemental</li>
+                <li><CheckCircle2 size={16} /> Consulter leur historique</li>
               </ul>
             </div>
 
@@ -106,11 +195,13 @@ export function LandingPage() {
             <div className="actor-card theme-collector group">
               <div className="actor-icon"><Truck size={32} /></div>
               <h3>Collecteurs</h3>
-              <p>Flottes formelles et collecteurs indépendants.</p>
-              <ul className="mt-6 space-y-3">
-                <li><CheckCircle2 size={18} /> GPS & Itinéraires</li>
-                <li><CheckCircle2 size={18} /> Missions recommandées</li>
-                <li><CheckCircle2 size={18} /> Paiement garanti</li>
+              <p className="text-sm text-secondary mb-4">Flottes professionnelles et collecteurs indépendants.</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-secondary mb-3">Ils reçoivent :</p>
+              <ul className="space-y-2 text-sm">
+                <li><CheckCircle2 size={16} /> Des missions optimisées</li>
+                <li><CheckCircle2 size={16} /> Les meilleurs itinéraires</li>
+                <li><CheckCircle2 size={16} /> Leurs gains</li>
+                <li><CheckCircle2 size={16} /> Leurs performances</li>
               </ul>
             </div>
 
@@ -118,129 +209,181 @@ export function LandingPage() {
             <div className="actor-card theme-recycler group">
               <div className="actor-icon"><Factory size={32} /></div>
               <h3>Industriels</h3>
-              <p>Centres de recyclage et acheteurs B2B.</p>
-              <ul className="mt-6 space-y-3">
-                <li><CheckCircle2 size={18} /> Marketplace qualifiée</li>
-                <li><CheckCircle2 size={18} /> Traçabilité totale</li>
-                <li><CheckCircle2 size={18} /> Exports ESG</li>
+              <p className="text-sm text-secondary mb-4">Centres de recyclage et acheteurs B2B.</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-secondary mb-3">Ils accèdent à :</p>
+              <ul className="space-y-2 text-sm">
+                <li><CheckCircle2 size={16} /> Une marketplace qualifiée</li>
+                <li><CheckCircle2 size={16} /> Des matières traçables</li>
+                <li><CheckCircle2 size={16} /> Des rapports ESG</li>
+                <li><CheckCircle2 size={16} /> Des contrats numériques</li>
               </ul>
             </div>
 
             {/* Mairie */}
             <div className="actor-card theme-municipality group">
-              <div className="actor-icon"><Map size={32} /></div>
-              <h3>Mairies & État</h3>
-              <p>Gestionnaires urbains et régulateurs.</p>
-              <ul className="mt-6 space-y-3">
-                <li><CheckCircle2 size={18} /> Dashboard supervision</li>
-                <li><CheckCircle2 size={18} /> Alertes saturation</li>
-                <li><CheckCircle2 size={18} /> Cartographie IA</li>
+              <div className="actor-icon"><Building2 size={32} /></div>
+              <h3>Collectivités</h3>
+              <p className="text-sm text-secondary mb-4">Mairies, communes et institutions publiques.</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-secondary mb-3">Elles disposent de :</p>
+              <ul className="space-y-2 text-sm">
+                <li><CheckCircle2 size={16} /> Cartographie des zones</li>
+                <li><CheckCircle2 size={16} /> Indicateurs clés</li>
+                <li><CheckCircle2 size={16} /> Alertes et recommandations</li>
+                <li><CheckCircle2 size={16} /> Historique des décisions</li>
               </ul>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Intelligence Section */}
+      {/* Intelligence EcoLoop */}
       <section id="intelligence" className="section bg-dark text-white py-24">
         <div className="section-container text-center">
           <div className="inline-block p-4 bg-white/10 rounded-2xl mb-8">
             <BrainCircuit size={48} className="text-white" />
           </div>
-          <h2 className="section-title text-white">Analyse Assistée & Décisions</h2>
+          <h2 className="section-title text-white">Une aide à la décision, pas une boîte noire.</h2>
           <p className="section-description text-gray-400 max-w-3xl mx-auto mb-16">
-            EcoLoop embarque un moteur d'assistance qui aide au tri et optimise les trajets en temps réel, offrant des recommandations explicables, transparentes et auditables.
+            Notre moteur d'analyse exploite les données disponibles pour proposer des recommandations compréhensibles et vérifiables.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-left">
-            <div className="glass-card">
-              <h3 className="text-2xl font-bold mb-4 flex items-center gap-3">
-                <ShieldCheck className="text-primary" /> Assistant de tri
-              </h3>
-              <p className="text-gray-400 mb-6">
-                Le producteur prend une photo. Notre modèle suggère la classification des matériaux (PET, Carton, Verre), estime la qualité et propose un prix juste.
-              </p>
-            </div>
-            
-            <div className="glass-card">
-              <h3 className="text-2xl font-bold mb-4 flex items-center gap-3">
-                <BarChart3 className="text-warning" /> Intelligence Center
-              </h3>
-              <p className="text-gray-400 mb-6">
-                Prévisions à J+7 des zones à risque de saturation pour les mairies, basées sur la démographie, la saisonnalité et l'historique de collecte.
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+            {[
+              { title: "Suggestion de tri", desc: "Identifier automatiquement la nature d'un déchet (plastique, carton, verre, métal)." },
+              { title: "Estimation de valeur", desc: "Proposer un prix juste en fonction du marché local et de la qualité." },
+              { title: "Collecteur recommandé", desc: "Suggérer le collecteur le plus adapté selon la position et la capacité." },
+              { title: "Zones d'attention", desc: "Identifier les quartiers nécessitant une intervention prioritaire." },
+              { title: "Actions préventives", desc: "Anticiper les risques de saturation et proposer des solutions." },
+              { title: "Transparence totale", desc: "Chaque recommandation est accompagnée d'une explication claire." },
+            ].map((item, i) => (
+              <div key={i} className="glass-card">
+                <h3 className="text-lg font-bold mb-2">{item.title}</h3>
+                <p className="text-gray-400 text-sm">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Statistiques & Impact */}
-      <section className="section py-24 border-b">
-        <div className="section-container">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="impact-stat">
-              <TrendingUp size={40} className="text-primary mb-4 mx-auto" />
-              <span className="impact-number">...</span>
-              <span className="impact-label">Tonnes tracées</span>
-            </div>
-            <div className="impact-stat">
-              <Globe size={40} className="text-info mb-4 mx-auto" />
-              <span className="impact-number">14K</span>
-              <span className="impact-label">T. CO₂ évitées</span>
-            </div>
-            <div className="impact-stat">
-              <Users size={40} className="text-accent mb-4 mx-auto" />
-              <span className="impact-number">5K+</span>
-              <span className="impact-label">Emplois soutenus</span>
-            </div>
-            <div className="impact-stat">
-              <Award size={40} className="text-warning mb-4 mx-auto" />
-              <span className="impact-number">12</span>
-              <span className="impact-label">Communes</span>
-            </div>
+      {/* Comment ça fonctionne */}
+      <section id="fonctionnement" className="section py-24">
+        <div className="section-container text-center max-w-4xl">
+          <h2 className="section-title mb-16">Comment ça fonctionne ?</h2>
+          
+          <div className="space-y-8 text-left">
+            {[
+              { step: "1", title: "Le producteur publie un lot.", desc: "Il déclare ses déchets en quelques secondes via l'application." },
+              { step: "2", title: "Le moteur analyse les informations disponibles.", desc: "Classification, estimation de valeur, collecteur recommandé." },
+              { step: "3", title: "Les collecteurs reçoivent les missions les plus pertinentes.", desc: "Itinéraires optimisés et gains garantis." },
+              { step: "4", title: "L'industriel achète les matières recyclables.", desc: "Marketplace qualifiée avec traçabilité complète." },
+              { step: "5", title: "La collectivité suit l'impact en temps réel.", desc: "Dashboard, alertes et recommandations d'action." },
+            ].map((item, i) => (
+              <div key={i} className="flex items-start gap-6 p-6 bg-white border border-gray-100 rounded-xl shadow-sm">
+                <div className="w-12 h-12 bg-primary-light text-primary rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
+                  {item.step}
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                  <p className="text-secondary">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pourquoi EcoLoop */}
+      <section className="section bg-light py-24">
+        <div className="section-container text-center max-w-5xl">
+          <h2 className="section-title mb-16">Une plateforme pensée pour l'Afrique.</h2>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+            {[
+              { icon: <Globe size={24} />, text: "Adaptée aux réalités locales" },
+              { icon: <Zap size={24} />, text: "Accessible sur mobile" },
+              { icon: <TrendingUp size={24} />, text: "Évolutive" },
+              { icon: <ShieldCheck size={24} />, text: "Sécurisée" },
+              { icon: <Eye size={24} />, text: "Traçable" },
+              { icon: <Recycle size={24} />, text: "Économie circulaire" },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center gap-3 p-6">
+                <span className="text-primary">{item.icon}</span>
+                <span className="font-medium text-center">{item.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Impact */}
+      <section id="impact" className="section py-24 border-b">
+        <div className="section-container text-center max-w-4xl">
+          <h2 className="section-title mb-6">Chaque collecte compte.</h2>
+          <p className="section-description text-xl text-secondary mb-12">
+            Grâce à EcoLoop :
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+            {[
+              "Moins de déchets abandonnés",
+              "Moins d'inondations liées aux déchets",
+              "Moins de pollution",
+              "Plus de matières recyclées",
+              "Plus de revenus pour les collecteurs",
+              "Une meilleure visibilité pour les collectivités",
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-3 p-4 bg-green-50 rounded-xl">
+                <CheckCircle2 size={20} className="text-green-600 flex-shrink-0" />
+                <span className="font-medium text-green-900">{item}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Roadmap & Business Model */}
-      <section className="section py-24 bg-light">
+      <section id="tarifs" className="section py-24">
         <div className="section-container grid grid-cols-1 lg:grid-cols-2 gap-16">
           <div>
-            <h2 className="text-3xl font-bold mb-8">Business Model</h2>
+            <h2 className="text-3xl font-bold mb-8">Un modèle économique durable.</h2>
             <div className="space-y-6">
               <div className="p-6 bg-white rounded-xl border border-gray-100 shadow-sm">
-                <h3 className="font-bold text-lg mb-2 text-primary">Marketplace B2B (Frais de transaction)</h3>
-                <p className="text-secondary">Commission de 5 à 8% sur les transactions de gros volumes entre collecteurs et industriels.</p>
+                <h3 className="font-bold text-lg mb-2 text-primary">Marketplace</h3>
+                <p className="text-secondary">Commission sur les transactions entre collecteurs et industriels.</p>
               </div>
               <div className="p-6 bg-white rounded-xl border border-gray-100 shadow-sm">
-                <h3 className="font-bold text-lg mb-2 text-warning">SaaS Communes (Abonnement)</h3>
-                <p className="text-secondary">Licence mensuelle pour l'accès à l'Intelligence Center et aux rapports prédictifs.</p>
+                <h3 className="font-bold text-lg mb-2 text-accent">SaaS Industriels</h3>
+                <p className="text-secondary">Abonnement donnant accès aux fonctionnalités avancées, aux rapports ESG et aux outils de suivi.</p>
+              </div>
+              <div className="p-6 bg-white rounded-xl border border-gray-100 shadow-sm">
+                <h3 className="font-bold text-lg mb-2 text-warning">SaaS Collectivités</h3>
+                <p className="text-secondary">Licence annuelle incluant le centre de pilotage, les tableaux de bord et les indicateurs territoriaux.</p>
               </div>
             </div>
           </div>
           
           <div>
-            <h2 className="text-3xl font-bold mb-8">Roadmap 2026-2027</h2>
+            <h2 className="text-3xl font-bold mb-8">Roadmap</h2>
             <div className="timeline">
               <div className="timeline-item">
                 <div className="timeline-dot bg-primary"></div>
                 <div className="timeline-content">
-                  <h4 className="font-bold">Q3 2026 - Lancement Abidjan</h4>
-                  <p className="text-sm text-secondary">Déploiement sur 3 communes pilotes.</p>
+                  <h4 className="font-bold">2026</h4>
+                  <p className="text-sm text-secondary">Déploiement pilote à Abidjan.</p>
                 </div>
               </div>
               <div className="timeline-item">
                 <div className="timeline-dot bg-info"></div>
                 <div className="timeline-content">
-                  <h4 className="font-bold">Q1 2027 - API Ouverte</h4>
-                  <p className="text-sm text-secondary">Connexion avec les systèmes comptables des industriels.</p>
+                  <h4 className="font-bold">2027</h4>
+                  <p className="text-sm text-secondary">Extension à plusieurs communes ivoiriennes.</p>
                 </div>
               </div>
               <div className="timeline-item pb-0">
                 <div className="timeline-dot bg-accent"></div>
                 <div className="timeline-content">
-                  <h4 className="font-bold">Q3 2027 - Expansion Sous-Région</h4>
-                  <p className="text-sm text-secondary">Ouverture à Dakar et Accra.</p>
+                  <h4 className="font-bold">2028</h4>
+                  <p className="text-sm text-secondary">Ouverture vers d'autres grandes villes d'Afrique de l'Ouest.</p>
                 </div>
               </div>
             </div>
@@ -249,14 +392,15 @@ export function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="section py-24">
+      <section id="faq" className="section bg-light py-24">
         <div className="section-container max-w-3xl">
           <h2 className="section-title text-center mb-12">Questions fréquentes</h2>
           <div className="space-y-4">
             {[
-              { q: "La plateforme est-elle gratuite pour les producteurs ?", a: "Oui, la création de compte et la publication de lots sont 100% gratuites pour les producteurs (particuliers et entreprises)." },
-              { q: "Comment les collecteurs sont-ils payés ?", a: "Les collecteurs sont payés directement via mobile money ou virement bancaire une fois le lot livré et validé par l'industriel." },
-              { q: "EcoLoop possède-t-elle des camions ?", a: "Non, EcoLoop est une plateforme technologique (SaaS/Marketplace) qui connecte l'écosystème existant sans posséder d'actifs physiques lourds." }
+              { q: "Les producteurs paient-ils pour publier leurs déchets ?", a: "La publication est gratuite." },
+              { q: "Comment les collecteurs sont-ils rémunérés ?", a: "Ils reçoivent directement le paiement prévu pour chaque mission validée." },
+              { q: "EcoLoop possède-t-elle sa propre flotte ?", a: "Non. Nous connectons et optimisons les acteurs déjà présents sur le terrain." },
+              { q: "Les données sont-elles sécurisées ?", a: "Oui. Toutes les communications sont protégées et les accès sont sécurisés par authentification." },
             ].map((faq, i) => (
               <div key={i} className="border border-gray-200 rounded-xl overflow-hidden transition-all duration-300">
                 <button 
@@ -264,7 +408,7 @@ export function LandingPage() {
                   onClick={() => setActiveFaq(activeFaq === i ? null : i)}
                 >
                   {faq.q}
-                  <ChevronDown className={`transition-transform duration-300 ${activeFaq === i ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`transition-transform duration-300 flex-shrink-0 ml-4 ${activeFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 <div className={`px-6 overflow-hidden transition-all duration-300 ease-in-out ${activeFaq === i ? 'max-h-40 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}>
                   <p className="text-secondary">{faq.a}</p>
@@ -278,13 +422,16 @@ export function LandingPage() {
       {/* CTA Final */}
       <section className="section bg-gradient-to-r from-primary to-primary-dark text-white text-center py-24">
         <div className="section-container max-w-3xl">
-          <h2 className="text-4xl font-bold mb-6 text-white">Prêt à transformer la gestion des déchets ?</h2>
+          <h2 className="text-4xl font-bold mb-6 text-white">Rejoignez la nouvelle génération de l'économie circulaire.</h2>
           <p className="text-lg opacity-90 mb-10">
-            Rejoignez des centaines d'acteurs engagés dans l'économie circulaire d'aujourd'hui.
+            Transformons les déchets en opportunités économiques et environnementales.
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-col md:flex-row justify-center gap-4">
             <Link to="/register" className="btn bg-white text-primary hover:bg-gray-100 btn-lg">
               Créer un compte
+            </Link>
+            <Link to="/contact" className="btn border-2 border-white text-white hover:bg-white hover:text-primary btn-lg">
+              Planifier une démonstration
             </Link>
           </div>
         </div>
@@ -300,32 +447,29 @@ export function LandingPage() {
                 <span className="text-white text-2xl font-bold">EcoLoop</span>
               </div>
               <p className="mb-6 max-w-sm leading-relaxed">
-                Le système d'exploitation de l'économie circulaire. Nous connectons la chaîne de valeur du recyclage grâce à l'analyse de données.
+                La plateforme qui transforme les déchets en ressources. Connectons la chaîne de valeur du recyclage pour une Afrique plus propre et plus rentable.
               </p>
-              <div className="flex gap-4">
-                <span className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition cursor-pointer">In</span>
-                <span className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition cursor-pointer">X</span>
-              </div>
             </div>
             
             <div>
               <h4 className="text-white font-bold mb-6">Produit</h4>
               <ul className="space-y-4">
-                <li><Link to="/producteurs" className="hover:text-white transition">Producteurs</Link></li>
-                <li><Link to="/collecteurs" className="hover:text-white transition">Collecteurs</Link></li>
-                <li><Link to="/industriels" className="hover:text-white transition">Industriels</Link></li>
-                <li><Link to="/mairies" className="hover:text-white transition">Mairies & État</Link></li>
-                <li><Link to="/tarifs" className="hover:text-white transition">Tarifs</Link></li>
+                <li><Link to="/register" className="hover:text-white transition">Producteurs</Link></li>
+                <li><Link to="/register" className="hover:text-white transition">Collecteurs</Link></li>
+                <li><Link to="/register" className="hover:text-white transition">Industriels</Link></li>
+                <li><Link to="/register" className="hover:text-white transition">Collectivités</Link></li>
+                <li><a href="#tarifs" className="hover:text-white transition">Tarifs</a></li>
               </ul>
             </div>
 
             <div>
               <h4 className="text-white font-bold mb-6">Ressources</h4>
               <ul className="space-y-4">
-                <li><Link to="/docs" className="hover:text-white transition">Documentation API</Link></li>
-                <li><Link to="/blog" className="hover:text-white transition">Blog</Link></li>
+                <li><Link to="/docs" className="hover:text-white transition">Documentation</Link></li>
+                <li><Link to="/docs" className="hover:text-white transition">API</Link></li>
                 <li><Link to="/help" className="hover:text-white transition">Centre d'aide</Link></li>
-                <li><Link to="/status" className="hover:text-white transition">Statut du service</Link></li>
+                <li><Link to="/blog" className="hover:text-white transition">Blog</Link></li>
+                <li><Link to="/status" className="hover:text-white transition">Statut des services</Link></li>
               </ul>
             </div>
 
@@ -341,7 +485,7 @@ export function LandingPage() {
           </div>
 
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
-            <p>&copy; {new Date().getFullYear()} EcoLoop Inc. Tous droits réservés.</p>
+            <p>&copy; 2026 EcoLoop &mdash; Tous droits réservés.</p>
             <div className="flex gap-6 mt-4 md:mt-0">
               <Link to="/legal" className="hover:text-white transition">Mentions légales</Link>
               <Link to="/privacy" className="hover:text-white transition">Politique de confidentialité</Link>
