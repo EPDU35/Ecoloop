@@ -9,7 +9,8 @@ export function RegisterPage() {
   const [role, setRole] = useState<'producteur' | 'collecteur' | 'industriel' | 'mairie' | ''>('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,10 +29,10 @@ export function RegisterPage() {
     setError(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/auth/register`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({ full_name: fullName, email, phone, password, role }),
       });
 
       if (!response.ok) {
@@ -44,9 +45,10 @@ export function RegisterPage() {
       localStorage.setItem('refresh_token', refresh_token);
 
       await login(email, password);
-      navigate('/');
-    } catch (err: any) {
-      setError(err.message || "Erreur d'inscription.");
+      navigate('/dashboard');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erreur d'inscription.";
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -119,8 +121,8 @@ export function RegisterPage() {
               <input 
                 type="text" 
                 className="input" 
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 placeholder="Ex: Restaurant La Terrasse"
                 required 
               />
@@ -137,13 +139,24 @@ export function RegisterPage() {
               />
             </div>
             <div className="form-group">
+              <label>Téléphone</label>
+              <input 
+                type="tel" 
+                className="input"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+225 07 00 00 00 00"
+                required 
+              />
+            </div>
+            <div className="form-group">
               <label>Mot de passe</label>
               <input 
                 type="password" 
                 className="input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Min. 10 caractères, majuscule, chiffre"
                 required 
               />
             </div>
@@ -168,7 +181,7 @@ export function RegisterPage() {
             <button 
               className="btn btn-primary flex-1 ml-4 justify-center" 
               onClick={handleRegister}
-              disabled={isSubmitting || !name || !email || !password}
+              disabled={isSubmitting || !fullName || !email || !phone || !password}
             >
               {isSubmitting ? 'Création...' : (
                 <>S'inscrire <UserCheck size={18} className="ml-2" /></>
