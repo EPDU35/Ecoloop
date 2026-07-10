@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import { NAV_ITEMS, NAV_PATHS } from './nav';
 import { useAuth } from '../auth/AuthContext';
 import { getTransactionHistory } from '../services/producteur.service';
+import { validateCollection } from '../services/collecteur.service';
 import QRScanner from '../components/QRScanner';
 
 const STATUS_STEPS = [
@@ -146,15 +147,20 @@ export default function CollecteEnCours() {
   };
 
   const submitCollection = async () => {
+    if (!collection) { setError('Collecte introuvable'); return; }
     setSubmitting(true);
     try {
-      // TODO: Appel API pour valider la collecte
-      await new Promise(r => setTimeout(r, 1500));
+      await validateCollection(collection.id, {
+        actual_weight_kg: Number(actualWeight),
+        photos,
+        latitude: gpsCoords?.lat,
+        longitude: gpsCoords?.lng,
+      });
       setCompletedSteps(5);
       setCurrentStep(6);
       setTimeout(() => navigate('/collecteur/tournees'), 2000);
     } catch (e) {
-      setError('Erreur lors de la validation');
+      setError('Erreur lors de la validation. Veuillez réessayer.');
     } finally { setSubmitting(false); }
   };
 

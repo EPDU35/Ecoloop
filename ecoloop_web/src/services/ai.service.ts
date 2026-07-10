@@ -42,7 +42,7 @@ export async function classifyImage(file: File): Promise<any> {
   formData.append('file', file);
   const res = await api.post('/ai/classify', formData, {
     headers: {
-      'Content-Type': 'multipart/form-tdata',
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;
