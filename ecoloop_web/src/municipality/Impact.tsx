@@ -6,8 +6,11 @@ export default function GlobalImpact() {
       <div className="el-shell">
         <div className="el-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', textAlign: 'center' }}>
           
-          <div className="el-fade-in" style={{ marginBottom: 48 }}>
-            <div style={{ fontSize: '4rem', marginBottom: 16 }}>🌍</div>
+          <div className="el-fade-in" style={{ marginBottom: 48, position: 'relative' }}>
+            <div style={{ position: 'absolute', top: -30, left: '50%', transform: 'translateX(-50%)', background: '#FEF3C7', color: '#92400E', padding: '6px 12px', borderRadius: 20, fontSize: '0.75rem', fontWeight: 700, border: '1px solid #FCD34D', whiteSpace: 'nowrap' }}>
+              ⚠️ Mode démonstration - Données simulées VIBEATHON 2026
+            </div>
+            <div style={{ fontSize: '4rem', marginBottom: 16, marginTop: 24 }}>🌍</div>
             <h1 style={{ fontFamily: 'Fraunces', fontSize: '3.5rem', margin: 0, lineHeight: 1.1, background: 'linear-gradient(to right, #10B981, #3B82F6)', WebkitBackgroundClip: 'text', color: 'transparent' }}>
               Impact EcoLoop
             </h1>

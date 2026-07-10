@@ -38,8 +38,9 @@ export const NAV_ITEMS: NavItem[] = [
   { key: 'carte', label: 'Carte des déchets', icon: <MapIcon /> },
   { key: 'alertes', label: 'Signalements', icon: <AlertIcon /> },
   { key: 'impact', label: 'Impact RSE', icon: <ImpactIcon /> },
+  { key: 'architecture', label: 'Architecture', icon: <MapIcon /> },
+  { key: 'ai-explain', label: 'Comment ça marche ?', icon: <PreventifIcon /> },
   { key: 'reports', label: 'Rapports', icon: <ReportsIcon /> },
-  { key: 'preventif', label: 'Système préventif', icon: <PreventifIcon /> },
 ];
 
 export const NAV_PATHS: Record<string, string> = {
@@ -47,6 +48,8 @@ export const NAV_PATHS: Record<string, string> = {
   carte: '/mairie/carte',
   alertes: '/mairie/alertes',
   impact: '/mairie/impact',
+  architecture: '/mairie/architecture',
+  'ai-explain': '/mairie/ai-explain',
   reports: '/mairie/rapports',
   preventif: '/mairie/preventif',
 };

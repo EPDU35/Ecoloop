@@ -57,7 +57,7 @@ export default function MunicipalityDashboard() {
               <span style={{ fontSize: '1.2rem' }}>🧠</span>
               <div>
                 <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#60A5FA' }}>EcoLoop AI Engine</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Analyse en temps réel</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Decision Support Engine</div>
               </div>
             </div>
           </div>
