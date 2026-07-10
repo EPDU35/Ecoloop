@@ -4,6 +4,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
+import logging
+
+logger = logging.getLogger(__name__)
 
 from app.config.database import get_db
 from app.middlewares.jwt import get_current_user
@@ -41,7 +44,7 @@ async def producer_dashboard(
         select(func.coalesce(func.sum(Transaction.net_amount), 0))
         .where(Transaction.producer_id == current_user.id, Transaction.status == TransactionStatus.PAYEE)
     )
-    total_revenue = float(paid_result.scalar_one())
+    total_revenue = float(paid_result.scalar() or 0)
 
     collections_result = await db.execute(
         select(func.count())
@@ -49,7 +52,7 @@ async def producer_dashboard(
         .join(WasteLot, Collection.waste_lot_id == WasteLot.id)
         .where(WasteLot.producer_id == current_user.id, Collection.status == CollectionStatus.VALIDEE)
     )
-    collections_count = collections_result.scalar_one()
+    collections_count = collections_result.scalar() or 0
 
     lots = await db.execute(
         select(WasteLot)
@@ -110,7 +113,7 @@ async def collector_dashboard(
         select(func.coalesce(func.sum(Transaction.net_amount), 0))
         .where(Transaction.collector_id == current_user.id, Transaction.status == TransactionStatus.PAYEE)
     )
-    total_earnings = float(paid_result.scalar_one())
+    total_earnings = float(paid_result.scalar() or 0)
 
     available_lots = await db.execute(
         select(WasteLot)
@@ -219,7 +222,7 @@ async def municipality_dashboard(
     _mairie: User = Depends(require_roles(UserRole.MAIRIE, UserRole.ADMIN)),
 ):
     total_weight = await db.execute(select(func.coalesce(func.sum(WasteLot.weight_kg), 0)))
-    total_weight = float(total_weight.scalar_one())
+    total_weight = float(total_weight.scalar() or 0)
 
     by_category = await db.execute(
         select(WasteLot.category, func.coalesce(func.sum(WasteLot.weight_kg), 0))
@@ -231,15 +234,15 @@ async def municipality_dashboard(
         select(func.coalesce(func.sum(Transaction.gross_amount), 0))
         .where(Transaction.status == TransactionStatus.PAYEE)
     )
-    total_paid = float(paid_amount.scalar_one())
+    total_paid = float(paid_amount.scalar() or 0)
 
     users_count = await db.execute(select(func.count()).select_from(User))
-    active_users = users_count.scalar_one()
+    active_users = users_count.scalar() or 0
 
     collections_validated = await db.execute(
         select(func.count()).select_from(Collection).where(Collection.status == CollectionStatus.VALIDEE)
     )
-    validated_count = collections_validated.scalar_one()
+    validated_count = collections_validated.scalar() or 0
 
     co2_avoided = round(total_weight * CO2_PER_KG, 2)
 

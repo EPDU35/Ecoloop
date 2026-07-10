@@ -1,269 +1,177 @@
 /* ============================================================
-   PRODUCTEUR DASHBOARD — Design aligné avec ecoloop_mobile
-   Fond sombre #0A0A0F · Accent émeraude #10B981 · Typo Outfit
+   PRODUCTEUR DASHBOARD — EcoLoop Design System
    ============================================================ */
-
-/* ── Root context: force le dark sur la zone contenu ── */
-.pd-root {
-  --pd-bg: #0A0A0F;
-  --pd-card: #121219;
-  --pd-card-2: #1A1A24;
-  --pd-border: rgba(255,255,255,0.07);
-  --pd-text: #F8FAFC;
-  --pd-soft: #A1A1AA;
-  --pd-faint: #52525B;
-  --pd-brand: #10B981;
-  --pd-brand-dim: rgba(16,185,129,0.12);
-  --pd-warn: #F59E0B;
-
-  background: var(--pd-bg);
-  min-height: calc(100vh - 62px);
-  color: var(--pd-text);
-  font-family: 'Manrope', sans-serif;
-}
-
-/* ── Hero ── */
 .pd-hero {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding-top: 0.25rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
 .pd-hello {
-  font-family: 'Outfit', 'Manrope', sans-serif;
-  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-family: 'Fraunces', serif;
+  font-size: var(--fs-display);
   font-weight: 700;
-  color: var(--pd-text);
+  color: var(--text-primary);
   line-height: 1.15;
   margin: 0;
 }
 
 .pd-sub {
-  font-size: 0.88rem;
-  color: var(--pd-soft);
+  font-size: var(--fs-body);
+  color: var(--text-secondary);
   margin-top: 4px;
 }
 
-.pd-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--pd-brand);
-  color: #000;
-  font-family: 'Outfit', 'Manrope', sans-serif;
-  font-weight: 700;
-  font-size: 0.88rem;
-  border: none;
-  padding: 0.7rem 1.4rem;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
-  white-space: nowrap;
-}
-.pd-cta:hover { background: #059669; }
-.pd-cta:active { transform: scale(0.97); }
-
-/* ── KPI Grid ── */
+/* KPI Grid */
 .pd-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.75rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
 }
-@media (max-width: 1200px) { .pd-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+
+@media (max-width: 900px) { .pd-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px)  { .pd-kpi-grid { grid-template-columns: 1fr; } }
 
 .pd-kpi {
-  background: var(--pd-card);
-  border: 1px solid var(--pd-border);
-  border-radius: 18px;
-  padding: 1.25rem 1.25rem 1.1rem;
   display: flex;
-  flex-direction: column;
-  gap: 0;
-  transition: border-color 0.2s ease, transform 0.2s ease;
-  cursor: default;
-}
-.pd-kpi:hover {
-  border-color: rgba(16,185,129,0.3);
-  transform: translateY(-2px);
+  align-items: flex-start;
+  gap: var(--space-4);
 }
 
-.pd-kpi-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.9rem;
-  line-height: 1;
-}
-
-.pd-kpi-label {
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--pd-faint);
-  font-family: 'IBM Plex Mono', monospace;
-  margin-bottom: 0.4rem;
-}
-
-.pd-kpi-value {
-  font-family: 'Outfit', 'Fraunces', serif;
-  font-weight: 700;
-  font-size: clamp(1.15rem, 2vw, 1.5rem);
-  color: var(--pd-text);
-  line-height: 1.15;
-  word-break: break-all;
-}
-
-.pd-kpi-sub {
-  font-size: 0.72rem;
-  color: var(--pd-soft);
-  margin-top: 5px;
-}
-
-/* ── Main Grid ── */
-.pd-main-grid {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 1.25rem;
-  align-items: start;
-}
-@media (max-width: 1100px) { .pd-main-grid { grid-template-columns: 1fr; } }
-
-.pd-right-col {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-/* ── Section card ── */
-.pd-section {
-  background: var(--pd-card);
-  border: 1px solid var(--pd-border);
-  border-radius: 18px;
-  padding: 1.25rem;
-}
-
-.pd-section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-.pd-section-title {
-  font-family: 'Outfit', 'Manrope', sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--pd-text);
-}
-
-.pd-see-all {
-  background: none;
-  border: none;
-  color: var(--pd-brand);
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  padding: 0;
-  transition: opacity 0.15s ease;
-}
-.pd-see-all:hover { opacity: 0.75; }
-
-/* ── Lot rows ── */
-.pd-lots-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-}
-
-.pd-lot-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: var(--pd-card-2);
-  border: 1px solid var(--pd-border);
-  border-radius: 12px;
-  transition: border-color 0.2s ease;
-}
-.pd-lot-row:hover { border-color: rgba(16,185,129,0.25); }
-
-.pd-lot-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
+.pd-kpi-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--primary-light);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.pd-lot-name {
-  font-size: 0.85rem;
+.pd-kpi-icon-wrap svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2;
+}
+
+.pd-kpi-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-kpi-label {
+  font-size: var(--fs-label);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
   font-weight: 600;
-  color: var(--pd-text);
+  margin-bottom: 2px;
+}
+
+.pd-kpi-value {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* Main Grid (Content + Sidebar) */
+.pd-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 1100px) { .pd-main-grid { grid-template-columns: 1fr; } }
+
+/* Lot Rows */
+.pd-lots-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pd-lot-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  background: var(--background);
+  border-radius: var(--radius-md);
+  transition: background 0.2s;
+}
+
+.pd-lot-row:hover {
+  background: rgba(0, 168, 89, 0.05);
+}
+
+.pd-lot-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pd-lot-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pd-lot-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .pd-lot-date {
-  font-size: 0.72rem;
-  color: var(--pd-faint);
-  margin-top: 2px;
+  font-size: var(--fs-label);
+  color: var(--text-secondary);
 }
 
-/* ── Level card ── */
-.pd-level-card {
-  background: var(--pd-card-2);
-  border: 1px solid;
-  border-radius: 14px;
-  padding: 1.25rem;
-  text-align: center;
+.pd-lot-meta {
+  text-align: right;
+  flex-shrink: 0;
 }
 
-.pd-level-badge {
-  display: inline-block;
-  padding: 5px 14px;
-  border-radius: 999px;
-  font-size: 0.8rem;
+.pd-lot-weight {
   font-weight: 700;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.875rem;
+  color: var(--text-primary);
+  font-size: 0.95rem;
 }
 
-.pd-level-points {
-  font-family: 'Outfit', serif;
-  font-weight: 700;
-  font-size: 2.2rem;
-  color: var(--pd-text);
-  line-height: 1.1;
-}
-
-.pd-level-sub {
-  font-size: 0.78rem;
-  color: var(--pd-soft);
-  margin-top: 4px;
-}
-
-/* ── Empty ── */
+/* Empty State */
 .pd-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 2rem 1rem;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
   text-align: center;
-  color: var(--pd-soft);
-  font-size: 0.88rem;
+  color: var(--text-secondary);
+  background: var(--background);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
 }
 
-/* ── Skeleton pulse ── */
-@keyframes pdPulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+.pd-empty svg {
+  width: 48px;
+  height: 48px;
+  color: var(--border-focus);
 }

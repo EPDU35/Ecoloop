@@ -11,9 +11,13 @@ import App from "./App";
    styles qui les utilisent.
    ------------------------------------------------------------------ */
 import "./styles/tokens.css";
+import "./styles/buttons.css";
+import "./styles/cards.css";
+import "./styles/forms.css";
+import "./styles/animations.css";
 import "./styles/layout.css";
+import "./producteur/dashboard.css";
 import "./styles/widgets.css";
-import "./styles/dark-dashboard.css";
 import "./styles/landing.css";
 
 const rootElement = document.getElementById("root");

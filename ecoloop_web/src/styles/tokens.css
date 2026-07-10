@@ -1,58 +1,70 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 /* ============================================================
-   DESIGN TOKENS — EcoLoop AI
-   Base 16px → tout est en rem pour respecter les préférences
-   d'accessibilité du navigateur (zoom texte).
-   Breakpoints : 480 / 640 / 900 / 1100 / 1300
+   DESIGN TOKENS — EcoLoop Design System
+   Inspiré par Djamo, personnalisé pour EcoLoop
    ============================================================ */
 :root {
-  /* Couleurs — palette "matière première" (kraft, forêt, ambre) */
-  --el-forest: #0d1f16;
-  --el-forest-2: #16281f;
-  --el-forest-3: #1e332a;
-  --el-paper: #f3eee1;
-  --el-paper-2: #e9e0cb;
-  --el-ink: #14251b;
-  --el-ink-soft: #2c3b31;
-  --el-amber: #d9a441;
-  --el-amber-dark: #b6862f;
-  --el-signal: #3fa34d;
-  --el-rust: #b4522f;
-  --el-line: rgba(243, 238, 225, 0.14);
-  --el-line-dark: rgba(20, 37, 27, 0.12);
-  --el-white: #ffffff;
-  --el-emerald: #3fa34d;   /* alias — same as --el-signal */
-  --el-border: rgba(20, 37, 27, 0.12); /* alias — same as --el-line-dark */
+  /* Couleurs de base */
+  --background: #F8FAFC;
+  --card: #FFFFFF;
+  
+  /* Vert EcoLoop (Identité) */
+  --primary: #00A859;
+  --primary-dark: #008F4C;
+  --primary-light: rgba(0, 168, 89, 0.1);
+  
+  /* Texte & Interface */
+  --text-primary: #111827;
+  --text-secondary: #64748B;
+  --border: #E2E8F0;
+  --border-focus: #CBD5E1;
+  
+  /* Retenues / Alertes */
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --success: #10B981;
 
-  /* Rayons */
-  --radius-sm: 4px;
-  --radius-card: 6px;
-  --radius-pill: 20px;
+  /* Rayons (Arrondis doux) */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-card: 16px;
+  --radius-pill: 9999px;
 
-  /* Échelle d'espacement (base 4px) */
+  /* Ombres douces (Djamo style) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+
+  /* Espacement */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-7: 2rem;
-  --space-8: 2.75rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
 
   /* Typographie fluide */
-  --fs-display: clamp(1.35rem, 1.1rem + 1vw, 1.75rem);
-  --fs-title: clamp(0.95rem, 0.88rem + 0.3vw, 1.05rem);
-  --fs-body: clamp(0.8rem, 0.78rem + 0.15vw, 0.875rem);
-  --fs-label: 0.65rem;
+  --fs-display: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+  --fs-title: clamp(1.1rem, 1rem + 0.5vw, 1.25rem);
+  --fs-body: 0.9rem;
+  --fs-label: 0.75rem;
 
+  /* Layout */
   --content-max: 1200px;
-  --sidebar-w: 240px;
+  --sidebar-w: 260px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 100%; -webkit-text-size-adjust: 100%; }
-body { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; }
+body { 
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif; 
+  background: var(--background);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
 
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }

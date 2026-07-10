@@ -1,0 +1,35 @@
+/* ============================================================
+   ANIMATIONS — EcoLoop Design System
+   ============================================================ */
+
+/* Skeleton Loader */
+@keyframes elPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.el-skeleton {
+  animation: elPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background: var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.el-skeleton-circular {
+  border-radius: 50%;
+}
+
+/* Fade In Animation */
+@keyframes elFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.el-fade-in {
+  animation: elFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Slide In (Sidebar) */
+@keyframes elSlideInRight {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
