@@ -40,22 +40,24 @@ export default function System() {
         </div>
       </div>
 
-      <div className="bo-cards-grid">
+      <div className="bo-cards-grid bo-stagger">
         {services.map((svc, i) => {
           const Icon = svc.icon;
           const healthy = svc.status === 'healthy';
           return (
             <div key={i} className="bo-card">
-              <div className="bo-card-header">
-                <Icon size={20} color={svc.color} />
-                <span>{svc.label}</span>
-              </div>
-              <div className="bo-card-value" style={{ color: healthy ? '#10b981' : '#ef4444' }}>
-                {healthy ? 'En ligne' : 'Hors ligne'}
-              </div>
-              <div className="bo-card-sub">
-                <span className={`bo-status-dot${healthy ? ' online' : ' offline'}`} />
-                Dernier check: maintenant
+              <div className="bo-card-core">
+                <div className="bo-card-header">
+                  <Icon size={20} color={svc.color} />
+                  <span>{svc.label}</span>
+                </div>
+                <div className="bo-card-value" style={{ color: healthy ? '#10b981' : '#ef4444' }}>
+                  {healthy ? 'En ligne' : 'Hors ligne'}
+                </div>
+                <div className="bo-card-sub">
+                  <span className={`bo-status-dot${healthy ? ' online' : ' offline'}`} />
+                  Dernier check: maintenant
+                </div>
               </div>
             </div>
           );

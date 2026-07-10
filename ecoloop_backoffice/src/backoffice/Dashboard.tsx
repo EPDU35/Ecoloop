@@ -98,7 +98,7 @@ export default function Dashboard() {
           <h3>
             <Activity size={16} /> Activité récente
           </h3>
-          <div className="bo-activity-list">
+          <div className="bo-activity-list bo-stagger">
             {activity.map((e, i) => (
               <div key={i} className="bo-activity-item">
                 <span className={`bo-activity-dot ${e.type.includes('collection') ? 'green' : 'blue'}`} />
@@ -115,7 +115,7 @@ export default function Dashboard() {
           <h3>
             <AlertTriangle size={16} /> Événements temps réel
           </h3>
-          <div className="bo-activity-list">
+          <div className="bo-activity-list bo-stagger">
             {realtimeEvents.length === 0 && (
               <div className="bo-empty">En attente d'événements...</div>
             )}

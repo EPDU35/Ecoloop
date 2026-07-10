@@ -48,30 +48,34 @@ export default function AI() {
         </div>
       ) : health ? (
         <>
-          <div className="bo-cards-grid">
+          <div className="bo-cards-grid bo-stagger">
             <div className="bo-card">
-              <div className="bo-card-header">
-                <Brain size={20} color="#10b981" />
-                <span>Statut</span>
+              <div className="bo-card-core">
+                <div className="bo-card-header">
+                  <Brain size={20} color="#10b981" />
+                  <span>Statut</span>
+                </div>
+                <div className="bo-card-value" style={{ color: '#10b981' }}>{health.status}</div>
+                <div className="bo-card-sub">Version {health.version}</div>
               </div>
-              <div className="bo-card-value" style={{ color: '#10b981' }}>{health.status}</div>
-              <div className="bo-card-sub">Version {health.version}</div>
             </div>
             <div className="bo-card">
-              <div className="bo-card-header">
-                <TrendingUp size={20} color="#3b82f6" />
-                <span>Modèles chargés</span>
+              <div className="bo-card-core">
+                <div className="bo-card-header">
+                  <TrendingUp size={20} color="#3b82f6" />
+                  <span>Modèles chargés</span>
+                </div>
+                <div className="bo-card-value">
+                  {Object.values(health.models_loaded).filter(Boolean).length}/{Object.keys(health.models_loaded).length}
+                </div>
+                <div className="bo-card-sub">Environnement: {health.environment}</div>
               </div>
-              <div className="bo-card-value">
-                {Object.values(health.models_loaded).filter(Boolean).length}/{Object.keys(health.models_loaded).length}
-              </div>
-              <div className="bo-card-sub">Environnement: {health.environment}</div>
             </div>
           </div>
 
           <div className="bo-panel">
             <h3>Modèles</h3>
-            <div className="bo-model-list">
+            <div className="bo-model-list bo-stagger">
               {Object.entries(health.models_loaded).map(([key, loaded]) => (
                 <div key={key} className="bo-model-item">
                   <div className="bo-model-info">
