@@ -56,13 +56,14 @@ async def list_available_wastes(db: AsyncSession, category: str | None = None, l
 
 
 async def list_my_wastes(db: AsyncSession, producer: User, limit: int = 50, offset: int = 0) -> list[WasteLot]:
-    query = (
-        select(WasteLot)
-        .where(WasteLot.producer_id == producer.id)
-        .order_by(WasteLot.created_at.desc())
-        .limit(min(limit, 100))
-        .offset(max(offset, 0))
-    )
+    from app.models.user import UserRole
+    query = select(WasteLot).order_by(WasteLot.created_at.desc()).limit(min(limit, 100)).offset(max(offset, 0))
+
+    if producer.role == UserRole.COLLECTEUR:
+        query = query.where(WasteLot.collector_id == producer.id)
+    elif producer.role in (UserRole.PRODUCTEUR, UserRole.MAIRIE, UserRole.INDUSTRIEL):
+        query = query.where(WasteLot.producer_id == producer.id)
+
     result = await db.execute(query)
     return list(result.scalars().all())
 

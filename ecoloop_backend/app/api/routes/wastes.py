@@ -54,9 +54,9 @@ async def my_wastes(
 @router.get("/history", response_model=list[WasteLotOutSchema])
 async def my_history(
     db: AsyncSession = Depends(get_db),
-    producer: User = Depends(require_roles(UserRole.PRODUCTEUR)),
+    current_user: User = Depends(get_current_verified_user),
 ):
-    return await waste_controller.list_my_wastes(db, producer, limit=100, offset=0)
+    return await waste_controller.list_my_wastes(db, current_user, limit=100, offset=0)
 
 
 @router.get("/available-wastes", response_model=list[WasteLotOutSchema])
