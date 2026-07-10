@@ -79,11 +79,9 @@ services:
         # *.vercel.app (previews) est géré côté code via allow_origin_regex
         # dans main.py, qui a été complété pour couvrir ce cas.
       - key: AI_SERVICE_URL
-        value: https://ecoloop-ai.onrender.com
-        # Le backend appelle le service IA. Doit pointer vers le service
-        # ecoloop-ai (et NON un ancien domaine orphelin comme ecolo-9zrn).
+        value: https://ecoloop-ai-s1vd.onrender.com
       - key: ALLOWED_HOSTS
-        value: localhost,ecoloop-backend.onrender.com,.onrender.com,*.vercel.app
+        value: localhost,127.0.0.1,*.onrender.com,*.vercel.app
       - key: API_V1_PREFIX
         value: /api/v1
       - key: APP_NAME
@@ -116,8 +114,6 @@ services:
       - key: MODEL_PATH
         value: /app/saved_models
       - key: ALLOWED_ORIGINS
-        value: https://ecoloop-backend.onrender.com
-        # Le service IA n'accepte que le backend courant. L'ancien domaine
-        # ecolo-backend-5pdb.onrender.com était obsolète et rejetait tout appel.
+        value: https://ecoloop-backend-s1vd.onrender.com
       - key: PORT
         value: "8000"
