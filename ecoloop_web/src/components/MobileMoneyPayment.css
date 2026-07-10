@@ -584,3 +584,174 @@
   .el-mm-input { padding: var(--space-3) var(--space-3) var(--space-3) 40px; }
   .el-btn-lg { padding: var(--space-3) var(--space-4); }
 }
+/* ============================================================
+   AJOUTS — classes réellement utilisées par MobileMoneyPayment.tsx
+   après refonte du composant (le CSS n'avait pas été mis à jour :
+   la modale, la grille de fournisseurs et le champ téléphone
+   rendaient donc sans aucun style).
+   ============================================================ */
+
+.el-mobile-money-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 31, 22, 0.6);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: var(--space-4);
+}
+
+.el-mobile-money-modal {
+  background: var(--el-paper);
+  border-radius: var(--radius-card);
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5);
+}
+
+.el-mm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6) var(--space-3);
+  border-bottom: 1px solid var(--el-line-dark);
+}
+.el-mm-header h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--el-ink);
+}
+
+.el-mm-close {
+  display: inline-flex;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--el-ink-soft);
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.el-mm-close:hover { background: var(--el-paper-2); color: var(--el-ink); }
+
+.el-mm-body { padding: var(--space-5) var(--space-6); }
+
+.el-mm-footer {
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--el-line-dark);
+  text-align: center;
+}
+.el-mm-footer-note { font-size: 0.7rem; color: var(--el-ink-soft); opacity: 0.75; }
+
+.el-mobile-money-inline { display: contents; }
+
+/* ---------- Grille de fournisseurs (2 colonnes, style carte) ---------- */
+.el-mm-providers h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--el-ink);
+  margin-bottom: var(--space-3);
+}
+
+.el-provider-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.el-provider-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1.5px solid var(--el-line-dark);
+  border-radius: var(--radius-card);
+  background: var(--el-paper);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+.el-provider-card:hover {
+  background: var(--el-paper-2);
+  transform: translateY(-1px);
+}
+
+.el-provider-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+.el-provider-name { font-weight: 700; font-size: 0.85rem; color: var(--el-ink); }
+.el-provider-ussd { font-size: 0.7rem; color: var(--el-ink-soft); font-family: 'IBM Plex Mono', monospace; }
+
+/* ---------- Étape numéro de téléphone ---------- */
+.el-mm-phone-input h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--el-ink);
+  margin-bottom: var(--space-2);
+}
+
+.el-mm-hint {
+  font-size: 0.75rem;
+  color: var(--el-ink-soft);
+  opacity: 0.8;
+  margin-bottom: var(--space-3);
+}
+
+.el-phone-input-wrapper {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid var(--el-line-dark);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+.el-phone-input-wrapper:focus-within { border-color: var(--el-signal); }
+
+.el-phone-prefix {
+  border: none;
+  background: var(--el-paper-2);
+  color: var(--el-ink-soft);
+  font-size: 0.8rem;
+  font-family: inherit;
+  padding: 0 var(--space-2);
+}
+
+.el-phone-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: var(--el-paper);
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--el-ink);
+  padding: var(--space-3) var(--space-3);
+  min-width: 0;
+}
+
+.el-mm-hint.el-mm-secure {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--space-3);
+  margin-bottom: 0;
+}
+
+@media (max-width: 480px) {
+  .el-provider-grid { grid-template-columns: 1fr; }
+  .el-mm-body, .el-mm-header, .el-mm-footer { padding-left: var(--space-4); padding-right: var(--space-4); }
+}

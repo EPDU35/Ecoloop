@@ -339,6 +339,40 @@
 .el-section-head h2 { font-family: 'Fraunces', serif; font-size: clamp(1.45rem, 2.5vw + 0.6rem, 1.85rem); font-weight: 700; margin-bottom: var(--space-4); }
 .el-section-head p { font-family: 'Manrope', sans-serif; color: var(--el-ink-soft); font-size: 0.92rem; line-height: 1.55; }
 
+.el-section-hero { padding-top: clamp(3rem, 6vw, 5rem); }
+
+.el-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-5);
+}
+
+.el-step-card {
+  position: relative;
+  background: var(--el-paper);
+  border: 1px solid var(--el-line-dark);
+  border-radius: var(--radius-card);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.el-step-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px -16px rgba(0,0,0,0.18); }
+.el-step-card h3 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.02rem; margin: var(--space-3) 0 var(--space-2); }
+.el-step-card p { font-size: 0.85rem; color: var(--el-ink-soft); line-height: 1.5; }
+.el-step-card .el-step-icon { font-size: 1.6rem; }
+
+.el-step-badge {
+  position: absolute;
+  top: -12px;
+  right: var(--space-4);
+  background: var(--el-forest);
+  color: var(--el-paper);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+
 /* ---------- FLOW (comment ça marche) ---------- */
 .el-flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-4); }
 @media (max-width: 1100px) { .el-flow { grid-template-columns: repeat(3, 1fr); } }

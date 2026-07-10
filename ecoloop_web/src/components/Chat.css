@@ -909,3 +909,28 @@
     height: 20px;
   }
 }
+/* ============================================================
+   AJOUTS — petites classes manquantes (nouvelle conversation)
+   ============================================================ */
+.el-new-conversation {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--el-line-dark);
+}
+.el-new-conversation h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: var(--space-3);
+}
+.el-new-conversation .el-input {
+  width: 100%;
+  border: 1.5px solid var(--el-line-dark);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  margin-bottom: var(--space-3);
+}
+.el-new-conversation .el-input:focus { border-color: var(--el-signal); }
+.el-new-conv-users { display: flex; flex-direction: column; gap: var(--space-2); max-height: 240px; overflow-y: auto; }

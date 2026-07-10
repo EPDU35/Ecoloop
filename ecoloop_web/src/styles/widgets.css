@@ -339,3 +339,225 @@
 .el-btn-emerald:hover { background: #2d8a3a; }
 .el-btn-el-emerald:active,
 .el-btn-emerald:active { transform: scale(0.98); }
+
+/* ============================================================
+   PRIMITIVES MANQUANTS — utilisés dans les dashboards/marketplace
+   mais jamais stylés (boutons, modales, bannières, états vides...)
+   ============================================================ */
+
+/* ---------- Boutons génériques ---------- */
+.el-btn-primary,
+.el-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.6rem 1.15rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: background 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+.el-btn-primary {
+  background: var(--el-forest);
+  color: var(--el-paper);
+}
+.el-btn-primary:hover { background: var(--el-forest-3); }
+.el-btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.el-btn-secondary {
+  background: transparent;
+  color: var(--el-ink-soft);
+  border-color: var(--el-line-dark);
+}
+.el-btn-secondary:hover { border-color: var(--el-ink-soft); color: var(--el-ink); }
+
+.el-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--el-ink-soft);
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.el-btn-icon:hover { background: var(--el-paper-2); color: var(--el-ink); }
+
+.el-filter-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+
+/* ---------- Modales ---------- */
+.el-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 31, 22, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: var(--space-4);
+}
+
+.el-modal {
+  background: var(--el-paper);
+  border-radius: var(--radius-card);
+  width: 100%;
+  max-width: 460px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: var(--space-6);
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.45);
+}
+
+.el-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+}
+.el-modal-header h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--el-ink);
+}
+
+.el-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--el-ink-soft);
+  padding: var(--space-1);
+}
+.el-modal-close:hover { color: var(--el-ink); }
+
+.el-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+/* el-field / el-hint used outside the auth screens (e.g. admin modals) */
+.el-modal .el-field { margin-bottom: var(--space-4); }
+.el-modal .el-field label {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--el-ink-soft);
+  margin-bottom: 0.4rem;
+}
+.el-modal .el-field input,
+.el-modal .el-field select {
+  width: 100%;
+  border: 1.5px solid var(--el-line-dark);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--el-ink);
+  background: var(--el-white);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.el-modal .el-field input:focus,
+.el-modal .el-field select:focus { border-color: var(--el-signal); }
+
+.el-hint {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--el-ink-soft);
+  margin-top: 0.4rem;
+  line-height: 1.4;
+}
+
+/* ---------- Bannières / alertes ---------- */
+.el-banner,
+.el-alert {
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin-bottom: var(--space-4);
+  border: 1px solid transparent;
+}
+.el-banner-success,
+.el-banner.success { background: rgba(63, 163, 77, 0.1); border-color: rgba(63, 163, 77, 0.3); color: #1f5c2a; }
+.el-banner-warning,
+.el-banner.warning { background: rgba(217, 164, 65, 0.12); border-color: rgba(217, 164, 65, 0.35); color: #7a5a1a; }
+.el-banner.error { background: rgba(180, 82, 47, 0.1); border-color: rgba(180, 82, 47, 0.3); color: #8a3a1f; }
+.el-alert { background: rgba(217, 164, 65, 0.1); border-color: rgba(217, 164, 65, 0.3); color: var(--el-ink); }
+
+/* ---------- États vides ---------- */
+.el-empty,
+.el-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-4);
+  color: var(--el-ink-soft);
+}
+.el-empty-icon,
+.el-empty svg { font-size: 2rem; opacity: 0.5; }
+.el-empty p, .el-empty-state p { font-size: 0.85rem; }
+
+/* ---------- Spinner ---------- */
+.el-spinner,
+.el-spin,
+.el-loading {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--el-line-dark);
+  border-top-color: var(--el-signal);
+  border-radius: 50%;
+  animation: el-spin 0.7s linear infinite;
+}
+@keyframes el-spin { to { transform: rotate(360deg); } }
+
+/* ---------- Paires label/valeur (fiches détail) ---------- */
+.el-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--el-ink-soft);
+}
+.el-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--el-ink);
+}
+
+/* ---------- Badge non-lu ---------- */
+.el-unread-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--el-rust);
+  color: var(--el-white);
+  font-size: 0.65rem;
+  font-weight: 700;
+}

@@ -354,7 +354,7 @@ function PendingPayment({ amount, currency, transactionId, provider: _provider }
       <p className="el-txn-id">Transaction: <code>{transactionId.slice(0, 12)}...</code></p>
       
       <div className="el-pending-steps">
-        <div className="el-pending-step done">
+        <div className="el-step done">
           <span className="el-step-icon">✓</span>
           <span>Demande envoyee</span>
         </div>
