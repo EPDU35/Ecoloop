@@ -42,7 +42,9 @@ def do_run_migrations(connection) -> None:
 
 
 async def run_migrations_online() -> None:
-    database_url = settings.database_url.replace("+asyncpg", "+psycopg")
+    database_url = settings.database_url
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg://")
+    database_url = database_url.replace("+asyncpg", "+psycopg")
     connectable: AsyncEngine = create_async_engine(
         database_url,
         poolclass=None,

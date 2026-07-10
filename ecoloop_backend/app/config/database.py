@@ -10,7 +10,16 @@ from app.config.settings import settings
 # psycopg (v3) est utilisé à la place d'asyncpg car PgBouncer (transaction/statement mode)
 # ne supporte pas les requêtes préparées d'asyncpg. psycopg n'utilise pas de PREPARE
 # par défaut et est totalement compatible avec PgBouncer.
-database_url = settings.database_url.replace("+asyncpg", "+psycopg")
+#
+# IMPORTANT : le DATABASE_URL fourni par Render est de la forme
+# postgresql://user:pass@host:port/dbname (SANS suffixe de driver). Le
+# .replace("+asyncpg", "+psycopg") était un no-op car "+asyncpg" n'apparaît
+# pas dans l'URL. Sans suffixe, SQLAlchemy tombe sur le dialecte psycopg2
+# (non installé) => ModuleNotFoundError. Il faut donc remplacer
+# "postgresql://" par "postgresql+psycopg://" pour forcer le driver v3.
+database_url = settings.database_url
+database_url = database_url.replace("postgresql://", "postgresql+psycopg://")
+database_url = database_url.replace("+asyncpg", "+psycopg")
 is_sqlite = database_url.startswith("sqlite")
 
 engine = create_async_engine(

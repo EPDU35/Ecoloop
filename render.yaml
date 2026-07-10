@@ -88,6 +88,12 @@ services:
         value: /api/v1
       - key: APP_NAME
         value: EcoLoop API
+      - key: PORT
+        value: "8000"
+        # Le start.sh lie 0.0.0.0:8000. Render route le trafic vers $PORT
+        # (défaut 10000 pour Docker). Sans cette variable, le health check
+        # échoue car Render envoie du trafic sur 10000 mais l'app écoute
+        # sur 8000.
 
   # ---------------------------------------------------------------------------
   # Service IA (classification, prédiction, détection de fraude)
