@@ -29,10 +29,11 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    from sqlalchemy.dialects.postgresql import ENUM
     op.create_table('user_invitations',
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
-    sa.Column('role', sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', name='userrole'), nullable=False),
+    sa.Column('role', ENUM('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', name='userrole', create_type=False), nullable=False),
     sa.Column('invited_by_id', sa.Uuid(), nullable=False),
     sa.Column('token', sa.String(length=255), nullable=False),
     sa.Column('status', sa.Enum('PENDING', 'ACCEPTED', 'EXPIRED', 'CANCELLED', name='invitationstatus'), nullable=False),
