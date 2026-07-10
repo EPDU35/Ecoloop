@@ -7,7 +7,7 @@ import cloudinary.api
 
 CLOUD_NAME = "kqtgcqr5"
 API_KEY = "938672558499711"
-API_SECRET = "9exCT0grGj8Yuu1XUtlUdaoRRhU"
+API_SECRET = "REMPLACER_PAR_VOTRE_SECRET"
 
 cloudinary.config(
     cloud_name=CLOUD_NAME,

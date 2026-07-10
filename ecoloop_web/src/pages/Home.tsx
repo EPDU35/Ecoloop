@@ -143,7 +143,7 @@ export default function Home() {
           <div>
             <div className="el-eyebrow">♻️ Plateforme de valorisation des déchets — Afrique de l'Ouest</div>
             <h1>
-              Vos déchets ont<br />une <em>valeur</em>.<br />EcoLoop la révèle.
+              L'intelligence qui transforme<br />les déchets en <em>ressources</em>.<br />Anticiper. Optimiser. Recycler.
             </h1>
             <p className="el-lead">
               EcoLoop AI connecte producteurs de déchets, collecteurs, recycleurs et mairies

@@ -27,6 +27,7 @@ export const RewardsIcon = () => (
 export const NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
   { key: 'lots', label: 'Mes lots', icon: <LotsIcon /> },
+  { key: 'scanner', label: 'Scanner IA 📸', icon: <LotsIcon /> },
   { key: 'nouvelle-collecte', label: 'Nouvelle collecte', icon: <OrdersIcon /> },
   { key: 'revenus', label: 'Revenus', icon: <RevenueIcon /> },
   { key: 'recompenses', label: 'Récompenses', icon: <RewardsIcon /> },
@@ -35,6 +36,7 @@ export const NAV_ITEMS: NavItem[] = [
 export const NAV_PATHS: Record<string, string> = {
   dashboard: '/producteur',
   lots: '/producteur/lots',
+  scanner: '/producteur/scanner',
   'nouvelle-collecte': '/producteur/nouvelle-collecte',
   revenus: '/producteur/revenus',
   recompenses: '/producteur/recompenses',

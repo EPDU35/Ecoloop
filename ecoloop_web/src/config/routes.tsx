@@ -16,6 +16,7 @@ import MunicipalityReports from "../municipality/Reports";
 import MairiePreventif from "../municipality/Preventif";
 import Architecture from "../municipality/Architecture";
 import AiExplain from "../municipality/AiExplain";
+import BusinessModel from "../municipality/BusinessModel";
 
 import AdminDashboard from "../admin/Dashboard";
 import AdminUsers from "../admin/Users";
@@ -35,6 +36,7 @@ import ProducteurRevenus from "../producteur/Revenus";
 import NouvelleCollecte from "../producteur/NouvelleCollecte";
 import SuiviCollecte from "../producteur/SuiviCollecte";
 import Recompenses from "../producteur/Recompenses";
+import AiScanner from "../producteur/Scanner";
 
 import CollecteurDashboard from "../collecteur/Dashboard";
 import CollecteurMarketplace from "../collecteur/Marketplace";
@@ -132,6 +134,7 @@ export default function AppRoutes() {
       <Route path="/mairie/impact" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityImpact /></ProtectedRoute>} />
       <Route path="/mairie/architecture" element={<ProtectedRoute allowedRoles={['mairie']}><Architecture /></ProtectedRoute>} />
       <Route path="/mairie/ai-explain" element={<ProtectedRoute allowedRoles={['mairie']}><AiExplain /></ProtectedRoute>} />
+      <Route path="/mairie/business" element={<ProtectedRoute allowedRoles={['mairie']}><BusinessModel /></ProtectedRoute>} />
       <Route path="/mairie/rapports" element={<ProtectedRoute allowedRoles={['mairie']}><MunicipalityReports /></ProtectedRoute>} />
       <Route path="/mairie/preventif" element={<ProtectedRoute allowedRoles={['mairie']}><MairiePreventif /></ProtectedRoute>} />
 
