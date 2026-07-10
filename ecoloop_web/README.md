@@ -1,61 +1,32 @@
-# EcoLoop - Frontend Web
+# React + TypeScript + Vite
 
-Application web de la plateforme EcoLoop, construite avec React 18, TypeScript et Vite.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-## Stack
+Currently, two official plugins are available:
 
-- **React 18** avec TypeScript
-- **Vite 5** pour le bundling et le dev serveur
-- **React Router v6** pour le routage
-- **Axios** pour les appels API avec interceptor JWT
-- **Lucide React** pour les icônes
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Fonctionnalités
+## React Compiler
 
-- Authentification (login, register, OTP)
-- Gestion des profils utilisateur (Producteur, Collecteur, Industriel, Mairie)
-- Tableau de bord et analytics
-- Gestion des lots de déchets
-- Système de collecte et validation
-- Paiements et récompenses
-- Notifications en temps réel
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Démarrage
+## Expanding the Oxlint configuration
 
-```bash
-npm install
-npm run dev          # Dev sur http://localhost:5173
-npm run build        # Production dans dist/
-npm run preview      # Prévisualisation du build
+If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+
+```json
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "options": {
+    "typeAware": true
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  }
+}
 ```
 
-## Configuration
-
-Les variables d'environnement sont dans `src/config/index.ts` :
-
-```ts
-API_BASE_URL = '/api/v1'   # Proxy vers le backend
-```
-
-En développement, Vite proxy `/api` vers `http://localhost:8000` (voir `vite.config.ts`).
-
-## Structure
-
-```
-src/
-├── auth/          # Connexion, inscription, layout
-├── config/        # Configuration API
-├── hooks/         # Hooks React réutilisables
-├── models/        # Types TypeScript
-├── services/      # Client API Axios avec JWT
-├── assets/        # Images et icônes
-├── App.tsx        # Composant racine
-└── main.tsx       # Point d'entrée
-```
-
-## Docker
-
-```bash
-docker build -t ecoloop-web .
-docker run -p 3000:3000 ecoloop-web
-```
+See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.

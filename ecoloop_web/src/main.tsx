@@ -1,32 +1,10 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import App from "./App";
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.tsx'
 
-/* ------------------------------------------------------------------
-   Styles globaux — chargés UNE SEULE FOIS pour toute l'application.
-   C'est pour ça que les composants (Dashboard.tsx, Home.tsx, etc.)
-   n'importent aucun CSS eux-mêmes : ils s'appuient tous sur les mêmes
-   classes `el-*` et variables définies ici.
-   Ordre important : tokens d'abord (couleurs, espacements), puis les
-   styles qui les utilisent.
-   ------------------------------------------------------------------ */
-import "./styles/tokens.css";
-import "./styles/buttons.css";
-import "./styles/cards.css";
-import "./styles/forms.css";
-import "./styles/animations.css";
-import "./styles/layout.css";
-import "./producteur/dashboard.css";
-import "./styles/widgets.css";
-import "./styles/landing.css";
-
-const rootElement = document.getElementById("root");
-if (!rootElement) {
-  throw new Error("Élément #root introuvable dans index.html");
-}
-
-createRoot(rootElement).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
-  </StrictMode>
-);
+  </StrictMode>,
+)
