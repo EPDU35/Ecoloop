@@ -301,11 +301,15 @@ def get_recycling_tips(waste_type: str) -> dict:
     waste_type_lower = waste_type.lower().strip()
 
     if waste_type_lower not in recycling_tips:
-        categories_disponibles = ', '.join(recycling_tips.keys())
-        raise ValueError(
-            f"Type de déchet non reconnu : '{waste_type}'. "
-            f"Catégories disponibles : {categories_disponibles}"
-        )
+        logger.warning(f"Type de déchet non reconnu pour les conseils : '{waste_type}'.")
+        return {
+            'categorie': 'Autre / Résiduel',
+            'poubelle': 'Poubelle classique (grise/noire) ou déchèterie selon la taille',
+            'conseils': ['En cas de doute, jetez dans la poubelle classique pour éviter de contaminer le bac de tri.'],
+            'exemples': [],
+            'erreurs_courantes': [],
+            'impact_environnemental': 'Les déchets résiduels sont souvent incinérés ou enfouis.'
+        }
 
     logger.info(f"Conseils de recyclage récupérés pour : {waste_type_lower}")
     return recycling_tips[waste_type_lower]
