@@ -6,7 +6,9 @@ import { NAV_ITEMS as IND_ITEMS, NAV_PATHS as IND_PATHS } from '../industrial/na
 import { NAV_ITEMS as MUN_ITEMS, NAV_PATHS as MUN_PATHS } from '../municipality/nav';
 import { NAV_ITEMS as ADM_ITEMS, NAV_PATHS as ADM_PATHS } from '../admin/nav';
 
-type RoleType = 'industrial' | 'municipality' | 'admin';
+import { NAV_ITEMS as PROD_ITEMS, NAV_PATHS as PROD_PATHS } from '../producteur/nav';
+
+type RoleType = 'industrial' | 'municipality' | 'admin' | 'producteur';
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -48,6 +50,10 @@ export default function AppLayout({ children, activeKey, title, role }: AppLayou
     items = ADM_ITEMS;
     paths = ADM_PATHS;
     user = { name: 'Admin EcoLoop', role: 'Super-Administrateur' };
+  } else if (role === 'producteur') {
+    items = PROD_ITEMS;
+    paths = PROD_PATHS;
+    user = { name: 'Espace Producteur', role: 'Producteur de Déchets' };
   }
 
   const handleSelect = (key: string) => {

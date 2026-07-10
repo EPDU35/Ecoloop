@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import AppLayout from '../components/AppLayout';
-import { useAuth } from '../auth/AuthContext';
-import api from '../services/api';
 
 const MATERIALS = [
   { id: 'm1', name: 'PET Plastique', weight: 500, quality: 'A+', origin: 'Daloa Centre', value: 150000, co2: 300, image: 'https://images.unsplash.com/photo-1595278455490-6718d781cebf?auto=format&fit=crop&q=80&w=400', category: 'PLASTIQUE' },
@@ -11,7 +9,6 @@ const MATERIALS = [
 ];
 
 export default function Marketplace() {
-  const { user } = useAuth();
   const [reserving, setReserving] = useState<string | null>(null);
 
   const handleReserve = (id: string) => {

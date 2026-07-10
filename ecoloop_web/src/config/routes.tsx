@@ -112,6 +112,7 @@ export default function AppRoutes() {
       <Route path="/producteur/suivi/:id" element={<ProtectedRoute allowedRoles={['producteur']}><SuiviCollecte /></ProtectedRoute>} />
       <Route path="/producteur/revenus" element={<ProtectedRoute allowedRoles={['producteur']}><ProducteurRevenus /></ProtectedRoute>} />
       <Route path="/producteur/recompenses" element={<ProtectedRoute allowedRoles={['producteur']}><Recompenses /></ProtectedRoute>} />
+      <Route path="/producteur/scanner" element={<ProtectedRoute allowedRoles={['producteur']}><AiScanner /></ProtectedRoute>} />
 
       {/* Collecteur */}
       <Route path="/collecteur" element={<ProtectedRoute allowedRoles={['collecteur']}><CollecteurDashboard /></ProtectedRoute>} />

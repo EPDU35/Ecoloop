@@ -1,9 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import AppLayout from '../components/AppLayout';
-import { useAuth } from '../auth/AuthContext';
-import { NAV_PATHS } from './nav';
-import api from '../services/api';
 
 // --- Mocks AI pour le rendu Vibeathon ---
 const AI_ZONES = [
@@ -34,14 +30,10 @@ const TIMELINE = [
 ];
 
 export default function MunicipalityDashboard() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const [activeZone, setActiveZone] = useState(AI_ZONES[0]);
   const [showExplanation, setShowExplanation] = useState(false);
   const [simulating, setSimulating] = useState(false);
   const [simulationDone, setSimulationDone] = useState(false);
-
-  const firstName = user?.full_name?.split(' ')[0] ?? 'Mairie';
 
   const handleSimulate = () => {
     setSimulating(true);
