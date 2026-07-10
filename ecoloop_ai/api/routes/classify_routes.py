@@ -233,3 +233,41 @@ async def get_categories():
         categories=CATEGORIES_DECHETS,
         total=len(CATEGORIES_DECHETS)
     )
+
+import os
+import shutil
+from fastapi import Form
+
+@router.post(
+    "/feedback",
+    summary="[Data Flywheel] Sauvegarder une correction utilisateur",
+    description="Sauvegarde une image corrigée par un utilisateur pour le futur réentraînement de l'IA."
+)
+async def submit_feedback(
+    file: UploadFile = File(...),
+    correct_category: str = Form(...)
+):
+    """
+    Si l'IA se trompe, l'utilisateur envoie l'image avec la VRAIE catégorie.
+    L'image est sauvegardée dans le dossier 'data/feedback/categorie' pour un futur réentraînement.
+    """
+    try:
+        # Créer le dossier s'il n'existe pas
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        feedback_dir = os.path.join(base_dir, "data", "feedback", correct_category.lower())
+        os.makedirs(feedback_dir, exist_ok=True)
+        
+        # Générer un nom unique
+        from uuid import uuid4
+        filename = f"{uuid4().hex}_{file.filename}"
+        filepath = os.path.join(feedback_dir, filename)
+        
+        # Sauvegarder l'image
+        with open(filepath, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        return {"status": "success", "message": f"Feedback enregistré pour réentraînement. Image sauvée dans {correct_category}"}
+    except Exception as e:
+        logger.error(f"Erreur lors de la sauvegarde du feedback : {e}")
+        raise HTTPException(status_code=500, detail="Impossible de sauvegarder le feedback.")
+
