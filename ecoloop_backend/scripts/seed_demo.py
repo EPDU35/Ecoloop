@@ -26,9 +26,9 @@ async def seed_data():
         jury_id = uuid.uuid4()
         jury = User(
             id=jury_id,
-            email="jury@ecoloop.com",
+            email="mairie@abobo.ci",
             hashed_password=hash_password("Demo2026!"),
-            full_name="Jury Vibeathon",
+            full_name="Mairie d'Abobo",
             role=UserRole.MAIRIE,
             phone="+2250102030405",
             is_active=True
@@ -39,7 +39,7 @@ async def seed_data():
         prod_id = uuid.uuid4()
         prod = User(
             id=prod_id,
-            email="ledelice@ecoloop.com",
+            email="producteur@restaurant.ci",
             hashed_password=hash_password("Demo2026!"),
             full_name="Restaurant Le Délice",
             role=UserRole.PRODUCTEUR,
@@ -52,7 +52,7 @@ async def seed_data():
         coll_id = uuid.uuid4()
         coll = User(
             id=coll_id,
-            email="express@ecoloop.com",
+            email="collecteur@express.ci",
             hashed_password=hash_password("Demo2026!"),
             full_name="Transport Express",
             role=UserRole.COLLECTEUR,
@@ -65,7 +65,7 @@ async def seed_data():
         ind_id = uuid.uuid4()
         ind = User(
             id=ind_id,
-            email="ecorecycle@ecoloop.com",
+            email="industriel@plastique.ci",
             hashed_password=hash_password("Demo2026!"),
             full_name="EcoRecycle CI",
             role=UserRole.INDUSTRIEL,
