@@ -82,16 +82,23 @@ class WasteClassifier:
                     # Extraire le nom de la classe
                     class_name = self.model.names[class_id]
                     
-                    # Convertir en nom "EcoLoop" simplifié si on utilise le modèle COCO par défaut
-                    # (Ceci est une adaptation temporaire si on utilise yolov8n.pt non fine-tuné)
-                    if class_name in ['bottle', 'cup']:
+                    # --- MAPPING NIVEAU 99 : Dataset TACO vers EcoLoop ---
+                    name_lower = class_name.lower()
+                    
+                    if any(x in name_lower for x in ['plastic', 'bottle', 'cup', 'bag', 'wrapper', 'styrofoam']):
                         ecoloop_class = 'plastique'
-                    elif class_name in ['apple', 'orange', 'banana', 'broccoli', 'carrot']:
-                        ecoloop_class = 'organique'
-                    elif class_name in ['book']:
+                    elif any(x in name_lower for x in ['can', 'metal', 'tin', 'aluminum', 'aerosol']):
+                        ecoloop_class = 'metal'
+                    elif any(x in name_lower for x in ['glass', 'jar']):
+                        ecoloop_class = 'verre'
+                    elif any(x in name_lower for x in ['paper', 'cardboard', 'carton', 'magazine', 'book', 'box']):
                         ecoloop_class = 'papier'
+                    elif any(x in name_lower for x in ['food', 'apple', 'orange', 'banana', 'organic', 'fruit']):
+                        ecoloop_class = 'organique'
+                    elif any(x in name_lower for x in ['battery', 'electronic', 'chemical']):
+                        ecoloop_class = 'dangereux'
                     else:
-                        ecoloop_class = class_name # On garde le nom original pour le moment
+                        ecoloop_class = 'residuel'
                         
                     # Confiance
                     confidence = float(box.conf[0])
