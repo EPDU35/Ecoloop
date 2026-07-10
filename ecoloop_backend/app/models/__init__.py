@@ -9,4 +9,5 @@ from app.models.reward import Reward  # noqa: F401
 from app.models.reward_transaction import RewardTransaction, RewardAction  # noqa: F401
 from app.models.transaction import PaymentMethod, Transaction, TransactionStatus  # noqa: F401
 from app.models.user import User, UserRole  # noqa: F401
-from app.models.waste import LotStatus, WasteCategory, WasteLot  # noqa: F401
+from app.models.waste import WasteCategory, LotStatus, WasteLot
+from app.models.ai_models import AIModel, Zone, WasteEvent, AIPrediction, Recommendation, EnvironmentalMetric

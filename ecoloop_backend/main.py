@@ -156,7 +156,7 @@ app.include_router(notifications.router, prefix=prefix)
 app.include_router(reviews.router, prefix=prefix)
 app.include_router(rewards.router, prefix=prefix)
 app.include_router(push.router, prefix=prefix)
-app.include_router(ai.router)
+app.include_router(ai.router, prefix=f"{prefix}/ai", tags=["AI Engine"])
 
 
 @app.get("/health", tags=["Système"])

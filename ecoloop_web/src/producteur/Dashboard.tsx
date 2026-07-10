@@ -170,21 +170,47 @@ export default function ProducteurDashboard() {
               )}
             </div>
             
-            <div className="el-card" style={{ background: 'var(--primary)', color: '#fff', border: 'none' }}>
-              <div style={{ marginBottom: 16 }}>
-                <span className="el-badge" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff' }}>
-                  🏆 Niveau {(data?.level ?? 'BRONZE').toUpperCase()}
+            <div className="el-card" style={{ background: 'var(--primary)', color: '#fff', border: 'none', display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '1.2rem', fontWeight: 600 }}>Votre EcoScore</span>
+                <span className="el-badge" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: '0.8rem' }}>
+                  🏆 NIVEAU {(data?.level ?? 'GOLD').toUpperCase()}
                 </span>
               </div>
-              <div style={{ fontSize: '2rem', fontFamily: 'Outfit', fontWeight: 700, lineHeight: 1.1 }}>
-                {(data?.points ?? 0).toLocaleString('fr-FR')}
-              </div>
-              <div style={{ fontSize: '0.85rem', opacity: 0.9, marginTop: 4 }}>Points EcoLoop accumulés</div>
               
-              <div style={{ marginTop: 24, padding: '12px', background: 'rgba(0,0,0,0.1)', borderRadius: '12px' }}>
-                <div style={{ fontSize: '0.85rem', opacity: 0.9 }}>Émissions évitées</div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-                  {data?.co2_avoided_kg.toFixed(1) ?? 0} kg CO₂
+              <div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                  <span style={{ fontSize: '3rem', fontFamily: 'Outfit', fontWeight: 800, lineHeight: 1 }}>780</span>
+                  <span style={{ fontSize: '1rem', opacity: 0.8 }}>/ 1000</span>
+                </div>
+                
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: 6, opacity: 0.9 }}>
+                    <span>Progression vers Platinum</span>
+                    <span>78%</span>
+                  </div>
+                  <div style={{ height: 6, background: 'rgba(0,0,0,0.2)', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: '78%', background: '#fff', borderRadius: 3 }} />
+                  </div>
+                </div>
+                
+                <div style={{ fontSize: '0.85rem', marginTop: 12, padding: '10px 12px', background: 'rgba(0,0,0,0.15)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span>🎁</span> Prochaine récompense : +20 points pour 50 kg recyclés.
+                </div>
+              </div>
+              
+              <div style={{ marginTop: 8, display: 'flex', gap: 12 }}>
+                <div style={{ flex: 1, padding: '12px', background: 'rgba(0,0,0,0.1)', borderRadius: '12px' }}>
+                  <div style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: 4 }}>CO₂ Évité</div>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 700 }}>
+                    {data?.co2_avoided_kg.toFixed(0) ?? 85} kg
+                  </div>
+                </div>
+                <div style={{ flex: 1, padding: '12px', background: 'rgba(0,0,0,0.1)', borderRadius: '12px' }}>
+                  <div style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: 4 }}>Équivalent</div>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 700 }}>
+                    🌳 3 arbres
+                  </div>
                 </div>
               </div>
             </div>
