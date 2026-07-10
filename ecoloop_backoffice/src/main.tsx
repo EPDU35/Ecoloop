@@ -1,10 +1,16 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 import './index.css';
+import App from './App.tsx';
+import { startKeepAlive } from './services/keepAlive';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+// Ne ping Render qu'en production — pas pendant le développement local
+if (import.meta.env.PROD) {
+  startKeepAlive();
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
     <App />
-  </React.StrictMode>
+  </StrictMode>,
 );

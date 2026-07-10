@@ -117,3 +117,21 @@ services:
         value: https://ecoloop-backend-s1vd.onrender.com
       - key: PORT
         value: "8000"
+
+  # ---------------------------------------------------------------------------
+  # Cron Job : keep-alive (empêche le cold start des services free tier)
+  # Ping les services backend et AI toutes les 10 minutes
+  # ---------------------------------------------------------------------------
+  - type: cron
+    name: ecoloop-keepalive
+    schedule: "*/10 * * * *"
+    env: docker
+    dockerfilePath: ./keep_alive/Dockerfile
+    dockerContext: ./keep_alive
+    plan: free
+    region: oregon
+    envVars:
+      - key: BACKEND_URL
+        value: https://ecoloop-backend-s1vd.onrender.com
+      - key: AI_URL
+        value: https://ecoloop-ai-s1vd.onrender.com

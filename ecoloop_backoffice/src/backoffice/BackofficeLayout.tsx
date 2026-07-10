@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  LayoutDashboard, Users, Truck, Receipt, Cpu, Server, Activity, LogOut,
+  LayoutDashboard, Users, Truck, Receipt, Cpu, Server, LogOut, Menu, X, Leaf,
 } from 'lucide-react';
 
 interface Props {
@@ -20,13 +20,54 @@ const NAV_ITEMS = [
 ];
 
 export default function BackofficeLayout({ activeTab, onTabChange, onLogout, children }: Props) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Fermer la sidebar quand on change d'onglet (mobile)
+  const handleTabChange = (tab: string) => {
+    onTabChange(tab);
+    setSidebarOpen(false);
+  };
+
+  // Fermer la sidebar si on redimensionne vers desktop
+  useEffect(() => {
+    const handler = () => { if (window.innerWidth > 768) setSidebarOpen(false); };
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
   return (
     <div className="bo-layout">
-      <aside className="bo-sidebar">
-        <div className="bo-logo">
-          <Activity size={24} />
-          <span>EcoLoop Admin</span>
+      {/* Overlay mobile */}
+      <div
+        className={`bo-overlay${sidebarOpen ? ' visible' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      {/* Header mobile */}
+      <header className="bo-mobile-header">
+        <button className="bo-hamburger" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Menu">
+          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+        <div className="bo-mobile-logo">
+          <Leaf size={18} color="#34d399" />
+          <span>EcoLoop</span>
         </div>
+        <div style={{ width: 36 }} />
+      </header>
+
+      {/* Sidebar */}
+      <aside className={`bo-sidebar${sidebarOpen ? ' open' : ''}`}>
+        <div className="bo-logo">
+          <div className="bo-logo-icon">
+            <Leaf size={18} color="#0a0b0d" />
+          </div>
+          <div className="bo-logo-text">
+            <strong>EcoLoop</strong>
+            <small>Admin Console</small>
+          </div>
+        </div>
+
+        <div className="bo-nav-section-label">Navigation</div>
         <nav className="bo-nav">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -34,21 +75,24 @@ export default function BackofficeLayout({ activeTab, onTabChange, onLogout, chi
               <button
                 key={item.id}
                 className={`bo-nav-item${activeTab === item.id ? ' active' : ''}`}
-                onClick={() => onTabChange(item.id)}
+                onClick={() => handleTabChange(item.id)}
               >
-                <Icon size={18} />
+                <Icon size={17} />
                 <span>{item.label}</span>
               </button>
             );
           })}
         </nav>
+
         <div className="bo-sidebar-footer">
           <button className="bo-nav-item" onClick={onLogout}>
-            <LogOut size={18} />
+            <LogOut size={17} />
             <span>Déconnexion</span>
           </button>
         </div>
       </aside>
+
+      {/* Contenu principal */}
       <main className="bo-main">
         {children}
       </main>
