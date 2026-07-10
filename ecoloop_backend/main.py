@@ -168,11 +168,14 @@ app.include_router(rewards.router, prefix=prefix)
 app.include_router(push.router, prefix=prefix)
 app.include_router(ai.router, prefix=f"{prefix}/ai", tags=["AI Engine"])
 
+from datetime import datetime
 
 @app.get("/health", tags=["Système"])
 async def health_check():
     return {
-        "status": "ok", 
+        "status": "healthy", 
+        "service": "ecoloop-backend",
         "version": "1.0.0", 
-        "environment": settings.environment
+        "environment": settings.environment,
+        "timestamp": datetime.now().isoformat()
     }
