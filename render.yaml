@@ -83,7 +83,7 @@ services:
         # Le backend appelle le service IA. Doit pointer vers le service
         # ecoloop-ai (et NON un ancien domaine orphelin comme ecolo-9zrn).
       - key: ALLOWED_HOSTS
-        value: ecoloop-backend.onrender.com,.onrender.com,*.vercel.app
+        value: localhost,ecoloop-backend.onrender.com,.onrender.com,*.vercel.app
       - key: API_V1_PREFIX
         value: /api/v1
       - key: APP_NAME
