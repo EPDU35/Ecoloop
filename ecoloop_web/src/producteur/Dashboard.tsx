@@ -25,7 +25,7 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={badgeClass}>{label}</span>;
 }
 
-function KpiCard({ label, value, icon, sub }: { label: string; value: string; icon: string; sub?: string }) {
+function KpiCard({ label, value, icon, sub }: { label: string; value: string; icon: React.ReactNode; sub?: string }) {
   return (
     <div className="el-card pd-kpi">
       <div className="pd-kpi-icon-wrap">{icon}</div>
