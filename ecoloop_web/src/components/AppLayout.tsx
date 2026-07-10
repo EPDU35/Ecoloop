@@ -80,9 +80,38 @@ export default function AppLayout({ children, activeKey, title, role }: AppLayou
           onOpenSidebar={() => setSidebarOpen(true)}
         />
 
-        <div className="el-content el-fade-in">
+        <div className="el-content el-fade-in" style={{ paddingBottom: '80px' }}>
           {children}
         </div>
+
+        {/* Mobile Bottom Navigation Bar */}
+        <nav className="el-bottom-nav">
+          {items.slice(0, 5).map((item) => (
+            <button
+              key={item.key}
+              className={`el-bottom-nav-item${activeKey === item.key ? ' active' : ''}`}
+              onClick={() => handleSelect(item.key)}
+            >
+              <div className="el-bottom-nav-icon">{item.icon}</div>
+              <span className="el-bottom-nav-label">{item.label.replace(' 📸', '')}</span>
+            </button>
+          ))}
+          {items.length > 5 && (
+            <button
+              className="el-bottom-nav-item"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <div className="el-bottom-nav-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="1" />
+                  <circle cx="12" cy="5" r="1" />
+                  <circle cx="12" cy="19" r="1" />
+                </svg>
+              </div>
+              <span className="el-bottom-nav-label">Plus</span>
+            </button>
+          )}
+        </nav>
       </div>
     </div>
   );
