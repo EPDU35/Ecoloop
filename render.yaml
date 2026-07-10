@@ -4,19 +4,26 @@
 # Frontend & Backoffice are deployed on Vercel
 # =============================================================================
 
-services:
-  # ---------------------------------------------------------------------------
-  # Base de données PostgreSQL
-  # ---------------------------------------------------------------------------
-  - type: pserv
-    name: ecoloop-db
+# -----------------------------------------------------------------------------
+# Base de données PostgreSQL
+# IMPORTANT : Render exige que les bases Postgres soient déclarées sous la clé
+# racine `databases:`, PAS dans `services:`. Un `type: pserv` dans `services:`
+# est un service applicatif privé (il attend un runtime/build) et n'a ni
+# `postgresMajorVersion` ni propriété `connectionString` exploitable via
+# `fromDatabase`. C'est pourquoi la base était ignorée / le blueprint échouait.
+# -----------------------------------------------------------------------------
+databases:
+  - name: ecoloop-db
     plan: free
     region: oregon
-    ipAllowList: []
     postgresMajorVersion: 16
+    ipAllowList: []
 
+services:
   # ---------------------------------------------------------------------------
   # Redis (cache + rate limiting)
+  # `redis` est un alias déprécié de `keyvalue` mais reste accepté. L'ipAllowList
+  # est requise pour ce type de service.
   # ---------------------------------------------------------------------------
   - type: redis
     name: ecoloop-redis
@@ -72,7 +79,9 @@ services:
         # *.vercel.app (previews) est géré côté code via allow_origin_regex
         # dans main.py, qui a été complété pour couvrir ce cas.
       - key: AI_SERVICE_URL
-        value: https://ecoloop-9zrn.onrender.com
+        value: https://ecoloop-ai.onrender.com
+        # Le backend appelle le service IA. Doit pointer vers le service
+        # ecoloop-ai (et NON un ancien domaine orphelin comme ecolo-9zrn).
       - key: ALLOWED_HOSTS
         value: ecoloop-backend.onrender.com,.onrender.com,*.vercel.app
       - key: API_V1_PREFIX
@@ -101,6 +110,8 @@ services:
       - key: MODEL_PATH
         value: /app/saved_models
       - key: ALLOWED_ORIGINS
-        value: https://ecoloop-backend-5pdb.onrender.com
+        value: https://ecoloop-backend.onrender.com
+        # Le service IA n'accepte que le backend courant. L'ancien domaine
+        # ecolo-backend-5pdb.onrender.com était obsolète et rejetait tout appel.
       - key: PORT
         value: "8000"
