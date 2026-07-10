@@ -1,0 +1,274 @@
+.dashboard-stats {
+  margin-bottom: var(--space-6);
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-primary-light {
+  background-color: var(--primary-light);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.dashboard-section {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.section-title {
+  font-size: 1.25rem;
+  color: var(--text-main);
+}
+
+/* Table styles */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th, .data-table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  background-color: var(--bg-main);
+}
+
+.data-table td {
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+/* Utilities */
+.mt-6 { margin-top: var(--space-6); }
+.mt-8 { margin-top: var(--space-8); }
+.w-full { width: 100%; }
+.text-center { text-align: center; }
+
+/* Municipality - Zones */
+.zone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-4);
+}
+
+.zone-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.zone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-2);
+}
+
+.zone-header h3 {
+  font-size: 1.1rem;
+}
+
+.zone-stats {
+  display: flex;
+  gap: var(--space-4);
+  background-color: var(--bg-main);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.z-stat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.z-stat span {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.z-stat strong {
+  font-size: 1.1rem;
+}
+
+.zone-reasons ul {
+  padding-left: var(--space-4);
+  margin-top: var(--space-1);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.zone-recommendation {
+  margin-top: auto;
+  padding: var(--space-3);
+  background-color: var(--primary-light);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--primary-dark);
+}
+
+/* Collector - Missions */
+.mission-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mission-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 768px) {
+  .mission-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.mission-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.mission-type {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mission-weight {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.mission-score {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.mission-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.mission-details p {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mission-reason {
+  color: var(--alert);
+  margin-top: var(--space-1);
+}
+
+.mission-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.mission-earnings {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Recycler - Marketplace */
+.marketplace-card {
+  text-align: center;
+}
+
+.mp-type {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: var(--space-2);
+}
+
+.mp-weight {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: var(--space-2);
+}
+
+.mp-location {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.mp-price {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--alert);
+}
