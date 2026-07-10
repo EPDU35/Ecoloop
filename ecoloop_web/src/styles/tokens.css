@@ -46,6 +46,21 @@
   --space-6: 2rem;
   --space-7: 3rem;
 
+  /* NOUVEAU DESIGN PREMIUM ECOLOOP (--el-*) */
+  --el-forest: #0B2B1B;        /* Vert très foncé, élégant (Sidebar) */
+  --el-forest-3: #14452C;      /* Hover state */
+  --el-paper: #FFFFFF;         /* Fond des cartes (Blanc pur) */
+  --el-paper-2: #F8FAFC;       /* Fond de l'application (Gris très léger) */
+  --el-ink: #111827;           /* Texte principal */
+  --el-ink-soft: #64748B;      /* Texte secondaire */
+  --el-line: #E2E8F0;          /* Lignes légères */
+  --el-line-dark: #CBD5E1;     /* Lignes plus marquées */
+  --el-amber: #F59E0B;         /* Couleur d'accentuation dynamique (Or/Ambre) */
+  --el-amber-dark: #D97706;    
+  --el-signal: #10B981;        /* Vert succès/action */
+  --el-rust: #EF4444;          /* Rouge alerte/danger */
+  --el-white: #FFFFFF;
+
   /* Typographie fluide */
   --fs-display: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
   --fs-title: clamp(1.1rem, 1rem + 0.5vw, 1.25rem);
@@ -60,9 +75,9 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 100%; -webkit-text-size-adjust: 100%; }
 body { 
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif; 
-  background: var(--background);
-  color: var(--text-primary);
+  font-family: 'Outfit', 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; 
+  background: var(--el-paper-2);
+  color: var(--el-ink);
   line-height: 1.5;
 }
 

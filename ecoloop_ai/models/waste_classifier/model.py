@@ -38,8 +38,9 @@ class WasteClassifier:
         Initialise le détecteur YOLO.
         """
         if model_path is None:
-            # Chemin par défaut pour le modèle final
-            model_path = os.path.join("saved_models", "ecoloop_yolo.pt")
+            # Chemin absolu basé sur l'emplacement de ce fichier
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            model_path = os.path.join(base_dir, "saved_models", "ecoloop_yolo.pt")
 
         if os.path.exists(model_path):
             self.model = YOLO(model_path)

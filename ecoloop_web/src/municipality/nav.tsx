@@ -39,7 +39,9 @@ export const NAV_ITEMS: NavItem[] = [
   { key: 'alertes', label: 'Signalements', icon: <AlertIcon /> },
   { key: 'impact', label: 'Impact RSE', icon: <ImpactIcon /> },
   { key: 'architecture', label: 'Architecture', icon: <MapIcon /> },
-  { key: 'ai-explain', label: 'Comment ça marche ?', icon: <PreventifIcon /> },
+  { key: 'ai-explain', label: 'Comment ça marche ?', icon: <MapIcon /> },
+  { key: 'business', label: 'Modèle Économique', icon: <ReportsIcon /> },
+  { key: 'preventif', label: 'Maintenance Préventive', icon: <PreventifIcon /> },
   { key: 'reports', label: 'Rapports', icon: <ReportsIcon /> },
 ];
 
@@ -50,6 +52,7 @@ export const NAV_PATHS: Record<string, string> = {
   impact: '/mairie/impact',
   architecture: '/mairie/architecture',
   'ai-explain': '/mairie/ai-explain',
-  reports: '/mairie/rapports',
+  business: '/mairie/business',
   preventif: '/mairie/preventif',
+  reports: '/mairie/rapports',
 };
