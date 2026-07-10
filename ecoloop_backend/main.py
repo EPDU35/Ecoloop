@@ -171,4 +171,8 @@ app.include_router(ai.router, prefix=f"{prefix}/ai", tags=["AI Engine"])
 
 @app.get("/health", tags=["Système"])
 async def health_check():
-    return {"status": "ok", "environment": settings.environment}
+    return {
+        "status": "ok", 
+        "version": "1.0.0", 
+        "environment": settings.environment
+    }
