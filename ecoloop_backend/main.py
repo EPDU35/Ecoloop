@@ -14,6 +14,7 @@ from slowapi.errors import RateLimitExceeded
 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.backends.inmemory import InMemoryBackend
 from redis import asyncio as aioredis
 
 from app.api.routes import (
@@ -122,8 +123,17 @@ async def keep_alive_task():
 
 @app.on_event("startup")
 async def startup_event():
-    redis = aioredis.from_url(settings.redis_url, encoding="utf8", decode_responses=True)
-    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+    if "localhost" in settings.redis_url or "127.0.0.1" in settings.redis_url:
+        logger.warning("Using InMemoryBackend for cache (Redis not configured in prod)")
+        FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+    else:
+        try:
+            redis = aioredis.from_url(settings.redis_url, encoding="utf8", decode_responses=True)
+            FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+        except Exception as e:
+            logger.error(f"Failed to connect to Redis: {e}. Falling back to InMemoryBackend.")
+            FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+            
     if os.environ.get("RENDER_EXTERNAL_URL"):
         asyncio.create_task(keep_alive_task())
 
