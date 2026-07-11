@@ -1,0 +1,8 @@
+# Pre-commit hooks — run `pip install pre-commit && pre-commit install` to activate
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+        name: gitleaks — detect secrets
+        description: Prevent committing secrets to git

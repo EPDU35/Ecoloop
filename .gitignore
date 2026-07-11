@@ -24,13 +24,18 @@ web_stage/
 .DS_Store
 Thumbs.db
 
-# Environment files
+# Environment files — NEVER commit secrets
 .env
+.env.*
 .env.local
+.env.production
+.env.development
+.env.staging
 .env.development.local
 .env.test.local
 .env.production.local
 *.env
+!*.env.example
 
 # Build outputs
 dist/
