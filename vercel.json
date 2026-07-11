@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd ecoloop_web && npm install && npm run build",
+  "outputDirectory": "ecoloop_web/dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
