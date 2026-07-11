@@ -54,14 +54,29 @@ export function NewLotPage() {
         setSelectedCategories([result.category]);
         setAiConfidence(result.confidence ? Math.round(result.confidence * 100) : 94);
         if (result.poids_estime_kg) setWeight(result.poids_estime_kg.toString());
+        
+        // Map category to standard price per kg in FCFA
+        const materialPrices: Record<string, number> = {
+          'PET': 150,
+          'Carton': 75,
+          'Aluminium': 500,
+          'Verre': 50,
+          'Plastique souple': 100,
+          'Papier': 60,
+          'Métal': 400
+        };
+        const basePrice = materialPrices[result.category] || 150;
+        setPrice(basePrice.toString());
       } else {
         setSelectedCategories(['PET']);
         setAiConfidence(94);
+        setPrice('150');
       }
     } catch (e) {
       console.error("AI Error", e);
       setSelectedCategories(['PET']);
       setAiConfidence(94);
+      setPrice('150');
     } finally {
       setStep('form');
     }

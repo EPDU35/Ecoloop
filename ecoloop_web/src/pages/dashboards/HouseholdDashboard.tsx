@@ -264,7 +264,21 @@ export function HouseholdDashboard() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-text-secondary">Valeur estimée</span>
-                      <span className="font-bold text-ecoloop-green">300 FCFA / kg</span>
+                      <span className="font-bold text-ecoloop-green">
+                        {(() => {
+                          const prices: Record<string, number> = {
+                            'PET': 150,
+                            'Carton': 75,
+                            'Aluminium': 500,
+                            'Verre': 50,
+                            'Plastique souple': 100,
+                            'Papier': 60,
+                            'Métal': 400,
+                            'Plastique PET': 150
+                          };
+                          return prices[detectedCategory] || 150;
+                        })()} FCFA / kg
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-text-secondary">Qualité</span>
