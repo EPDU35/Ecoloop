@@ -15,7 +15,6 @@ export function CollectorDashboard() {
   const { demoStep } = useDemo();
   const [availableLots, setAvailableLots] = useState<WasteLot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [reservingId, setReservingId] = useState<string | null>(null);
   const [showNavigationModal, setShowNavigationModal] = useState(false);
   const navigate = useNavigate();
 
@@ -34,18 +33,6 @@ export function CollectorDashboard() {
     };
     fetchData();
   }, []);
-
-  const handleReserve = async (lotId: string) => {
-    setReservingId(lotId);
-    try {
-      await wasteService.reserveCollection(lotId);
-      setAvailableLots(prev => prev.filter(l => l.id !== lotId));
-    } catch (err: any) {
-      console.error(err);
-    } finally {
-      setReservingId(null);
-    }
-  };
 
   if (isLoading) return <LoadingState fullPage message="Recherche de missions..." />;
 

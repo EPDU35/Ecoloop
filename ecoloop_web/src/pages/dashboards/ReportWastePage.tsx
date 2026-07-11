@@ -12,11 +12,6 @@ export function ReportWastePage() {
   const [description, setDescription] = useState('');
   const [locationName, setLocationName] = useState('');
 
-  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      simulateFlow();
-    }
-  };
 
   const simulateFlow = () => {
     // 1. Analyse IA

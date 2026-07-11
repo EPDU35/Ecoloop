@@ -112,6 +112,11 @@ function App() {
                 <CollectorDashboard />
               </ProtectedRoute>
             } />
+            <Route path="/collector/map" element={
+              <ProtectedRoute allowedRoles={['collecteur']}>
+                <CollectorMapPage />
+              </ProtectedRoute>
+            } />
             <Route path="/recycler/dashboard" element={
               <ProtectedRoute allowedRoles={['industriel']}>
                 <RecyclerDashboard />

@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useDemo } from '@/contexts/DemoContext';
-import { aiService, ZoneRiskAdapter } from '@/services/api/aiService';
+import { aiService, type ZoneRiskAdapter } from '@/services/api/aiService';
 
 export function MunicipalityDashboard() {
   const { demoStep } = useDemo();
