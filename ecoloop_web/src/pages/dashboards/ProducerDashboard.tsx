@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, BarChart3, Leaf, Recycle, TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { wasteService } from '@/services/api/wasteService';
-import { EmptyState, ErrorState } from '@/components/feedback/States';
+import { EmptyState, ErrorState, LoadingState } from '@/components/feedback/States';
 import './Dashboards.css';
 
 export function ProducerDashboard() {
@@ -36,11 +37,7 @@ export function ProducerDashboard() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="page-container text-center mt-8">
-        Chargement du tableau de bord producteur...
-      </div>
-    );
+    return <LoadingState fullPage message="Chargement de votre atelier..." />;
   }
 
   if (error) {
@@ -70,10 +67,11 @@ export function ProducerDashboard() {
           <button
             className="btn btn-outline bg-white border-gray-300 flex items-center gap-2"
             onClick={fetchData}
+            aria-label="Actualiser les données du tableau de bord"
           >
             Actualiser
           </button>
-          <Link to="/producer/new-waste" className="btn btn-primary bg-gray-900 text-white hover:bg-gray-800 flex items-center gap-2 shadow-sm">
+          <Link to="/producer/new-waste" className="btn btn-primary bg-gray-900 text-white hover:bg-gray-800 flex items-center gap-2 shadow-sm" aria-label="Signaler un nouveau déchet">
             <Plus size={20} /> Signaler un Déchet
           </Link>
         </div>
@@ -109,7 +107,13 @@ export function ProducerDashboard() {
 
       {/* TAB: Tableau de Bord */}
       {activeTab === 'tdb' && (
-        <div className="fade-in-up">
+        <motion.div 
+          className="fade-in-up"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div className="card p-6 border-l-4 border-primary rounded-xl shadow-sm bg-white">
               <h3 className="text-secondary font-medium mb-1">Mes Déchets</h3>
@@ -169,12 +173,18 @@ export function ProducerDashboard() {
               message="Commencez par signaler votre premier déchet pour le recyclage."
             />
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* TAB: Mes Déchets */}
       {activeTab === 'dechets' && (
-        <div className="fade-in-up">
+        <motion.div 
+          className="fade-in-up"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           <div className="flex justify-between items-center mb-6">
             <h2 className="section-title">Tous Mes Déchets</h2>
             <Link to="/producer/new-waste" className="btn btn-primary btn-sm flex items-center gap-1 bg-gray-900 text-white border-none">
@@ -210,12 +220,18 @@ export function ProducerDashboard() {
               message="Signalez votre premier déchet pour commencer."
             />
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* TAB: Impact Environnemental */}
       {activeTab === 'impact' && (
-        <div className="fade-in-up">
+        <motion.div 
+          className="fade-in-up"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           <h2 className="section-title mb-6">Mon Impact</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="card p-6 border rounded-xl shadow-sm bg-white text-center">
@@ -234,12 +250,18 @@ export function ProducerDashboard() {
               <p className="text-secondary text-sm">ÉcoScore moyen</p>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* TAB: Historique */}
       {activeTab === 'historique' && (
-        <div className="fade-in-up">
+        <motion.div 
+          className="fade-in-up"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           <h2 className="section-title mb-6">Historique de Production</h2>
           <div className="card p-6 rounded-xl border shadow-sm bg-white">
             <div className="flex flex-col md:flex-row gap-4 items-center mb-4">
@@ -282,7 +304,7 @@ export function ProducerDashboard() {
               />
             )}
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   );

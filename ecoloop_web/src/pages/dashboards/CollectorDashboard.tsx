@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Truck, Map as MapIcon, Star, Target, Navigation, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { wasteService } from '@/services/api/wasteService';
 import type { WasteLot } from '@/types';
-import { EmptyState, ErrorState } from '@/components/feedback/States';
+import { EmptyState, ErrorState, LoadingState } from '@/components/feedback/States';
 import './Dashboards.css';
 
 export function CollectorDashboard() {
@@ -44,7 +45,7 @@ export function CollectorDashboard() {
     }
   };
 
-  if (isLoading) return <div className="page-container text-center mt-8">Chargement...</div>;
+  if (isLoading) return <LoadingState fullPage message="Chargement des missions..." />;
 
   if (error) {
     return (
@@ -105,7 +106,13 @@ export function CollectorDashboard() {
 
       {/* TAB: Tableau de bord */}
       {activeTab === 'tdb' && (
-        <div className="fade-in-up">
+        <motion.div 
+          className="fade-in-up"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="card p-6 border-l-4 border-info rounded-xl shadow-sm">
               <h3 className="text-secondary font-medium mb-1">Missions disponibles</h3>
@@ -143,12 +150,18 @@ export function CollectorDashboard() {
               message="Aucun lot de déchets n'est actuellement disponible pour collecte. Revenez plus tard."
             />
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* TAB: Missions & Carte */}
       {activeTab === 'missions' && (
-        <div className="fade-in-up grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div 
+          className="fade-in-up grid grid-cols-1 lg:grid-cols-3 gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           <div className="lg:col-span-1 space-y-6">
             <h2 className="text-xl font-bold flex items-center gap-2">
               <ShieldCheck className="text-info" /> Missions disponibles
@@ -229,12 +242,18 @@ export function CollectorDashboard() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* TAB: Historique */}
       {activeTab === 'historique' && (
-        <div className="fade-in-up">
+        <motion.div 
+          className="fade-in-up"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           <div className="flex justify-between items-center mb-6">
             <h2 className="section-title">Historique des collectes</h2>
           </div>
@@ -260,12 +279,18 @@ export function CollectorDashboard() {
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* TAB: Performances */}
       {activeTab === 'performance' && (
-        <div className="fade-in-up">
+        <motion.div 
+          className="fade-in-up"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           <h2 className="section-title mb-6">Mes Performances</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -295,7 +320,7 @@ export function CollectorDashboard() {
               message="Vous n'avez pas encore de collectes terminées. Vos performances apparaîtront ici une fois vos missions complétées."
             />
           )}
-        </div>
+        </motion.div>
       )}
     </div>
   );

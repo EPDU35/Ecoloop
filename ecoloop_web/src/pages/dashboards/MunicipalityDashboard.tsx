@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Map as MapIcon, RefreshCw, TrendingUp, Users, AlertTriangle, FileText } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { dashboardService } from '@/services/api/dashboardService';
 import { aiService } from '@/services/api/aiService';
-import { EmptyState, ErrorState } from '@/components/feedback/States';
+import { EmptyState, ErrorState, LoadingState } from '@/components/feedback/States';
 import './Dashboards.css';
 
 export function MunicipalityDashboard() {
@@ -37,11 +38,7 @@ export function MunicipalityDashboard() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="page-container text-center mt-8">
-        Chargement du Centre de Commandement...
-      </div>
-    );
+    return <LoadingState fullPage message="Chargement du Centre de Commandement..." />;
   }
 
   if (error) {
@@ -70,6 +67,7 @@ export function MunicipalityDashboard() {
         <button
           className="btn btn-primary bg-gray-900 text-white hover:bg-gray-800 border-none flex items-center gap-2 shadow-sm"
           onClick={fetchData}
+          aria-label="Actualiser les données du territoire"
         >
           <RefreshCw size={18} /> Actualiser
         </button>
@@ -105,7 +103,13 @@ export function MunicipalityDashboard() {
 
       {/* TAB: Tableau de Bord */}
       {activeTab === 'tdb' && (
-        <div className="fade-in-up">
+        <motion.div 
+          className="fade-in-up"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           {/* KPI Global */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div className="card p-6 border-l-4 border-warning rounded-xl shadow-sm">
@@ -195,7 +199,13 @@ export function MunicipalityDashboard() {
 
       {/* TAB: Carte des Zones */}
       {activeTab === 'zones' && (
-        <div className="fade-in-up">
+        <motion.div 
+          className="fade-in-up"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           <div className="card h-[600px] rounded-xl overflow-hidden border shadow-sm relative bg-gray-100 flex items-center justify-center">
             <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%239C92AC\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
             <div className="text-center z-10 p-8 bg-white/90 backdrop-blur rounded-2xl border max-w-md">
@@ -207,12 +217,18 @@ export function MunicipalityDashboard() {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* TAB: Alertes */}
       {activeTab === 'alertes' && (
-        <div className="fade-in-up">
+        <motion.div 
+          className="fade-in-up"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           <h2 className="section-title mb-6">Alertes Territoriales</h2>
 
           {hasRisk && riskData.risk_percentage > 70 ? (
@@ -239,12 +255,18 @@ export function MunicipalityDashboard() {
               message="Toutes les zones sont dans les normes pour le moment."
             />
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* TAB: Rapports */}
       {activeTab === 'rapports' && (
-        <div className="fade-in-up">
+        <motion.div 
+          className="fade-in-up"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          aria-live="polite"
+        >
           <h2 className="section-title mb-6">Générer un Rapport</h2>
 
           <div className="card p-6 rounded-xl shadow-sm border">
@@ -268,7 +290,7 @@ export function MunicipalityDashboard() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   );
