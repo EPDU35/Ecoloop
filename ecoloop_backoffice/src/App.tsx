@@ -6,7 +6,7 @@ import Collections from './backoffice/Collections';
 import Transactions from './backoffice/Transactions';
 import AI from './backoffice/AI';
 import System from './backoffice/System';
-import { Reports } from './pages/Reports';
+import { Reports } from './backoffice/Reports';
 import Login from './Login';
 import './backoffice/backoffice.css';
 

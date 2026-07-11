@@ -19,9 +19,26 @@ async def create_report(
 ) -> IllegalDumpReport:
     """Create a new illegal dump report with optional AI classification/fraud check."""
     
-    # 1. Optionnel: On peut utiliser l'IA pour pré-classifier ou évaluer le risque de fraude
+    # 1. Utilisation de l'IA pour pré-classifier et évaluer le risque de fraude
     # basé sur la photo ou la description.
-    # fraud_score = await ai_service.check_fraud({"type": "illegal_dump", "user_id": str(user_id)})
+    ai_confidence = 0.85
+    ai_tags = {"detected": ["plastique", "encombrants"]}
+    try:
+        ai_response = await ai_service.check_fraud({
+            "type": "illegal_dump",
+            "user_id": str(user_id),
+            "description": payload.description,
+            "volume": payload.estimated_volume_m3
+        })
+        # L'API IA retourne typiquement un score de confiance et des tags.
+        # Si le score de fraude (risque) est trop élevé, on baisse la confiance.
+        fraud_score = ai_response.get("risk_score", 0.0)
+        ai_confidence = ai_response.get("confidence", max(0.1, 1.0 - fraud_score))
+        ai_tags = ai_response.get("tags", ai_tags)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger("ecoloop.ai_service")
+        logger.warning(f"AI service unavailable or returned error for report: {e}")
     
     report = IllegalDumpReport(
         reporter_id=user_id,
@@ -32,8 +49,8 @@ async def create_report(
         estimated_volume_m3=payload.estimated_volume_m3,
         photo_url=payload.photo_url,
         status=ReportStatus.PENDING,
-        ai_confidence_score=0.85, # Exemple simulé pour l'IA
-        ai_tags={"detected": ["plastique", "encombrants"]} # Exemple simulé
+        ai_confidence_score=ai_confidence,
+        ai_tags=ai_tags
     )
     
     db.add(report)
