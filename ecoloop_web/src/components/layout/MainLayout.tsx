@@ -8,17 +8,35 @@ export function MainLayout() {
 
   const userRole = user?.role.toLowerCase() || '';
 
+  // Determine the correct dashboard path per role
+  const dashboardPath = (() => {
+    switch (userRole) {
+      case 'collecteur': return '/collector/dashboard';
+      case 'producteur': return '/household/dashboard';
+      case 'industriel': return '/recycler/dashboard';
+      case 'mairie': return '/municipality/dashboard';
+      default: return '/dashboard';
+    }
+  })();
+
   const navItems = [
-    { label: 'Accueil', path: user ? `/dashboard` : '/', icon: <Home size={24} /> },
+    { label: 'Accueil', path: dashboardPath, icon: <Home size={24} /> },
     ...(userRole === 'producteur' ? [
       { label: 'Signaler', path: '/producer/new-lot', icon: <Camera size={24} /> }
     ] : []),
     ...(userRole === 'collecteur' ? [
-      { label: 'Carte', path: '/collector/dashboard', icon: <Map size={24} /> }
+      { label: 'Carte', path: '/collector/map', icon: <Map size={24} /> }
     ] : []),
     { label: 'Profil', path: '/profile', icon: <UserCircle size={24} /> },
     { label: 'Réglages', path: '/settings', icon: <Settings size={24} /> }
   ];
+
+  const isActive = (path: string) => {
+    if (path === dashboardPath) {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <div className="app-shell">
@@ -39,7 +57,7 @@ export function MainLayout() {
 
         <nav className="sidebar-nav">
           {navItems.map((item, idx) => (
-            <Link key={idx} to={item.path} className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}>
+            <Link key={idx} to={item.path} className={`nav-link ${isActive(item.path) ? 'active' : ''}`}>
               {item.icon}
               <span>{item.label}</span>
             </Link>
@@ -69,7 +87,7 @@ export function MainLayout() {
 
       <nav className="mobile-nav">
         {navItems.slice(0, 4).map((item, idx) => (
-          <Link key={idx} to={item.path} className={`mobile-nav-item ${location.pathname === item.path ? 'active' : ''}`}>
+          <Link key={idx} to={item.path} className={`mobile-nav-item ${isActive(item.path) ? 'active' : ''}`}>
             {item.icon}
             <span>{item.label}</span>
           </Link>
