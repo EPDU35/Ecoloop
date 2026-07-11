@@ -76,6 +76,41 @@ export function LoginPage() {
             )}
           </button>
         </form>
+
+        {/* SECTION DEMO HACKATHON */}
+        <div className="mt-8 pt-6 border-t border-gray-100">
+          <p className="text-sm text-gray-500 mb-4 text-center font-medium">Connexion rapide (Démo)</p>
+          <div className="grid grid-cols-2 gap-3">
+            <button 
+              type="button"
+              onClick={() => { setEmail('demo-producteur@ecoloop.ci'); setPassword('Demo2026Pass!'); }}
+              className="px-3 py-2 text-xs font-medium bg-emerald-50 text-emerald-700 rounded-md border border-emerald-200 hover:bg-emerald-100 transition-colors text-left"
+            >
+              🌱 Producteur
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setEmail('demo-collecteur@ecoloop.ci'); setPassword('Demo2026Pass!'); }}
+              className="px-3 py-2 text-xs font-medium bg-blue-50 text-blue-700 rounded-md border border-blue-200 hover:bg-blue-100 transition-colors text-left"
+            >
+              🚛 Collecteur
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setEmail('demo-industriel@ecoloop.ci'); setPassword('Demo2026Pass!'); }}
+              className="px-3 py-2 text-xs font-medium bg-purple-50 text-purple-700 rounded-md border border-purple-200 hover:bg-purple-100 transition-colors text-left"
+            >
+              🏭 Industriel
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setEmail('demo-mairie@ecoloop.ci'); setPassword('Demo2026Pass!'); }}
+              className="px-3 py-2 text-xs font-medium bg-orange-50 text-orange-700 rounded-md border border-orange-200 hover:bg-orange-100 transition-colors text-left"
+            >
+              🏛️ Mairie
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
