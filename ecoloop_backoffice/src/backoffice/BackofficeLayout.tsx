@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  LayoutDashboard, Users, Truck, Receipt, Cpu, Server, LogOut, Menu, X, Leaf,
+  LayoutDashboard, Users, Truck, Receipt, Cpu, Server, LogOut, Menu, X, Leaf, AlertTriangle
 } from 'lucide-react';
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'reports', label: 'Signalements', icon: AlertTriangle },
   { id: 'users', label: 'Utilisateurs', icon: Users },
   { id: 'collections', label: 'Collectes', icon: Truck },
   { id: 'transactions', label: 'Transactions', icon: Receipt },

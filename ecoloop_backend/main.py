@@ -29,6 +29,7 @@ from app.api.routes import (
     notifications,
     payments,
     push,
+    reports,
     reviews,
     rewards,
     transactions,
@@ -165,6 +166,7 @@ app.include_router(municipality.router, prefix=prefix)
 app.include_router(notifications.router, prefix=prefix)
 app.include_router(reviews.router, prefix=prefix)
 app.include_router(rewards.router, prefix=prefix)
+app.include_router(reports.router, prefix=prefix)
 app.include_router(push.router, prefix=prefix)
 app.include_router(ai.router, prefix=f"{prefix}/ai", tags=["AI Engine"])
 

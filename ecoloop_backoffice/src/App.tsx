@@ -6,6 +6,7 @@ import Collections from './backoffice/Collections';
 import Transactions from './backoffice/Transactions';
 import AI from './backoffice/AI';
 import System from './backoffice/System';
+import { Reports } from './pages/Reports';
 import Login from './Login';
 import './backoffice/backoffice.css';
 
@@ -29,6 +30,7 @@ export default function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard': return <Dashboard />;
+      case 'reports': return <Reports />;
       case 'users': return <Users />;
       case 'collections': return <Collections />;
       case 'transactions': return <Transactions />;

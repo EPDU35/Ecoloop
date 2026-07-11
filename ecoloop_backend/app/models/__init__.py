@@ -11,3 +11,4 @@ from app.models.transaction import PaymentMethod, Transaction, TransactionStatus
 from app.models.user import User, UserRole  # noqa: F401
 from app.models.waste import WasteCategory, LotStatus, WasteLot
 from app.models.ai_models import AIModel, Zone, WasteEvent, AIPrediction, Recommendation, EnvironmentalMetric
+from app.models.illegal_dump import IllegalDumpReport, ReportStatus
