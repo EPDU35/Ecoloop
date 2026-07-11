@@ -45,6 +45,16 @@ def upgrade() -> None:
                type_=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
                existing_nullable=True)
 
+    bind = op.get_bind()
+    if bind.dialect.name == 'postgresql':
+        for enum_name, enum_values in [
+            ('collectortype', ['COLLECTOR_INTERNAL', 'COLLECTOR_PARTNER']),
+            ('lotstatus', ['CREATED', 'DISPONIBLE', 'OFFER_RECEIVED', 'ACCEPTED', 'EN_MISSION', 'COLLECTE', 'QUALITY_CHECK', 'PAYE', 'ANNULE', 'EXPIRED'])
+        ]:
+            result = bind.execute(sa.text(f"SELECT 1 FROM pg_type WHERE typname = '{enum_name}'")).fetchone()
+            if not result:
+                sa.Enum(*enum_values, name=enum_name).create(bind)
+
     with op.batch_alter_table('collector_profiles', schema=None) as batch_op:
         batch_op.add_column(sa.Column('collector_type', sa.Enum('COLLECTOR_INTERNAL', 'COLLECTOR_PARTNER', name='collectortype'), nullable=False))
         batch_op.add_column(sa.Column('company_id', sa.Uuid(), nullable=True))
