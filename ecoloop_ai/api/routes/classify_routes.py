@@ -53,39 +53,38 @@ SUPPORTED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/jpg", "image/webp",
 # Valeurs empiriques pour des déchets triés en bac — utilisées pour
 # l'estimation de volume/poids côté frontend (poids_estime_kg).
 WEIGHTS_PER_ITEM_KG = {
-    "plastique": 0.035,
-    "metal":     0.018,
+    "plastique": 0.050,
+    "carton": 0.100,
+    "metal":     0.030,
     "verre":     0.350,
     "papier":    0.050,
-    "organique": 0.120,
-    "dangereux":  0.050,
-    "residuel":  0.030,
-    "autre":     0.050,
+    "non-recyclable": 0.100,
 }
 
-RECYCLABLE_CATEGORIES = {"plastique", "metal", "verre", "papier", "organique"}
+PRIX_MARCHE_FCFA = {
+    "plastique": 100,
+    "carton": 50,
+    "metal": 300,
+    "verre": 25,
+    "papier": 40,
+    "non-recyclable": 0,
+}
+
+RECYCLABLE_CATEGORIES = {"plastique", "carton", "metal", "verre", "papier"}
 
 CATEGORIES_DECHETS = [
     {"id": "plastique",  "nom": "Plastique",        "description": "Bouteilles, emballages, sacs plastiques",
      "couleur_poubelle": "Jaune", "recyclable": True},
-    {"id": "verre",      "nom": "Verre",            "description": "Bouteilles, pots, bocaux en verre",
-     "couleur_poubelle": "Vert",  "recyclable": True},
-    {"id": "papier",     "nom": "Papier / Carton",  "description": "Journaux, magazines, cartons d'emballage",
-     "couleur_poubelle": "Bleu",  "recyclable": True},
+    {"id": "carton",     "nom": "Carton",           "description": "Cartons d'emballage, boîtes",
+     "couleur_poubelle": "Jaune", "recyclable": True},
     {"id": "metal",      "nom": "Métal",            "description": "Canettes, conserves, aluminium",
      "couleur_poubelle": "Jaune", "recyclable": True},
-    {"id": "organique",  "nom": "Organique",        "description": "Restes alimentaires, épluchures, déchets verts",
-     "couleur_poubelle": "Marron","recyclable": False},
-    {"id": "textile",    "nom": "Textile",          "description": "Vêtements, tissus, chaussures",
-     "couleur_poubelle": "Conteneur spécifique", "recyclable": True},
-    {"id": "electronique","nom": "Électronique (DEEE)","description": "Appareils électriques, piles, batteries",
-     "couleur_poubelle": "Déchèterie", "recyclable": True},
-    {"id": "dangereux",   "nom": "Dangereux",        "description": "Produits chimiques, peintures, solvants",
-     "couleur_poubelle": "Déchèterie", "recyclable": False},
-    {"id": "residuel",    "nom": "Résiduel",         "description": "Déchets non recyclables, ordures ménagères",
+    {"id": "verre",      "nom": "Verre",            "description": "Bouteilles, pots, bocaux en verre",
+     "couleur_poubelle": "Vert",  "recyclable": True},
+    {"id": "papier",     "nom": "Papier",           "description": "Journaux, magazines, feuilles",
+     "couleur_poubelle": "Bleu",  "recyclable": True},
+    {"id": "non-recyclable", "nom": "Non Recyclable", "description": "Déchets organiques, dangereux ou résiduels",
      "couleur_poubelle": "Gris/Noir", "recyclable": False},
-    {"id": "autre",       "nom": "Autre / Inconnu",  "description": "Déchet non identifié avec certitude",
-     "couleur_poubelle": "À évaluer", "recyclable": False},
 ]
 
 
@@ -120,12 +119,13 @@ class AnalyzeResult(BaseModel):
     poids_estime_kg: float = Field(..., description="Poids total estimé (kg)")
     poids_par_categorie_kg: dict = Field(default_factory=dict,
                                          description="Poids estimé par catégorie")
+    volume_estime_m3: float = Field(0.0, description="Volume estimé du lot (m³)")
     collectable: bool = Field(..., description="Le lot est-il collectable/recyclable")
     raison_collectabilite: str = Field("", description="Explication de la collectabilité")
     details_collectabilite: dict = Field(default_factory=dict,
                                          description="Détails pour le collecteur")
     recommandations: list[str] = Field(default_factory=list,
-                                       description="Recommandations de tri")
+                                       description="Recommandations et instructions pour bien ranger")
     tips: list = Field(default_factory=list,
                        description="Conseils de recyclage pour la catégorie dominante")
     fallback_used: bool = Field(False, description="True si aucune détection nette")
@@ -171,16 +171,25 @@ def _compute_all_scores(items_trouves: list[dict]) -> dict:
     return {cat: round(sum(v) / len(v), 4) for cat, v in scores.items()}
 
 
-def _estimate_weights(resume_quantite: dict) -> tuple[float, dict]:
-    """Estime le poids total et par catégorie à partir des quantités détectées."""
+def _estimate_weights(resume_quantite: dict) -> tuple[float, dict, float]:
+    """Estime le poids total, le poids par catégorie, et le volume (m3)."""
     poids_par_cat = {}
-    total = 0.0
+    total_poids = 0.0
+    total_volume = 0.0
     for cat, qte in resume_quantite.items():
         unitaire = WEIGHTS_PER_ITEM_KG.get(cat, 0.05)
         poids_cat = round(unitaire * qte, 3)
         poids_par_cat[cat] = poids_cat
-        total += poids_cat
-    return round(total, 3), poids_par_cat
+        total_poids += poids_cat
+        
+        # Heuristique basique de volume par objet
+        vol_unitaire = 0.01 # 10 litres par défaut
+        if cat == "plastique": vol_unitaire = 0.015
+        elif cat == "verre": vol_unitaire = 0.002
+        elif cat == "carton": vol_unitaire = 0.03
+        total_volume += vol_unitaire * qte
+
+    return round(total_poids, 3), poids_par_cat, round(total_volume, 3)
 
 
 def _compute_score_qualite(items_trouves: list[dict],
@@ -335,7 +344,7 @@ def _analyze_bytes(contents: bytes, filename: Optional[str],
     all_scores = _compute_all_scores(items_trouves_raw)
     confidence_avg = (round(sum(it.confidence for it in items_trouves) / len(items_trouves), 4)
                       if items_trouves else 0.0)
-    poids_total, poids_par_cat = _estimate_weights(resume_quantite)
+    poids_total, poids_par_cat, volume_total = _estimate_weights(resume_quantite)
     score_qualite = _compute_score_qualite(items_trouves_raw, resume_quantite,
                                            type_dominant, fallback_used)
     etat = _compute_etat(resume_quantite, type_dominant, fallback_used, score_qualite)
@@ -356,6 +365,7 @@ def _analyze_bytes(contents: bytes, filename: Optional[str],
         score_qualite=score_qualite,
         poids_estime_kg=poids_total,
         poids_par_categorie_kg=poids_par_cat,
+        volume_estime_m3=volume_total,
         collectable=collectable,
         raison_collectabilite=raison,
         details_collectabilite=details,
