@@ -144,21 +144,24 @@ export function MunicipalityDashboard() {
               <div className="card border rounded-xl shadow-sm bg-white p-6">
                 <h3 className="font-bold text-lg mb-4">Prévisions par Zone</h3>
                 <p className="text-sm text-secondary mb-2">
-                  Zone : <span className="font-semibold">{riskData.zone}</span>
+                  Zone : <span className="font-semibold">{riskData?.zone ?? '—'}</span>
                 </p>
                 <p className="text-sm text-secondary">
-                  Risque estimé : <span className="font-semibold">{riskData.risk_percentage ?? '—'}%</span>
+                  Risque estimé : <span className="font-semibold">{riskData?.risk_score ?? '—'}%</span>
                 </p>
-                {riskData.recommendation && (
-                  <p className="text-sm mt-4 text-secondary">{riskData.recommendation}</p>
+                {riskData?.recommendation?.action && (
+                  <p className="text-sm mt-4 text-secondary">
+                    {riskData.recommendation.priority === 'URGENT' ? '🚨 ' : ''}
+                    {riskData.recommendation.action}
+                  </p>
                 )}
               </div>
 
               <div className="card border rounded-xl shadow-sm bg-white p-6">
                 <h3 className="font-bold text-lg mb-4">Détails du Risque</h3>
-                {riskData.factors && riskData.factors.length > 0 ? (
+                {riskData?.reasons && riskData.reasons.length > 0 ? (
                   <ul className="space-y-2">
-                    {riskData.factors.map((f: string, i: number) => (
+                    {riskData.reasons.map((f: string, i: number) => (
                       <li key={i} className="text-sm text-secondary">• {f}</li>
                     ))}
                   </ul>
@@ -215,21 +218,23 @@ export function MunicipalityDashboard() {
         <div className="fade-in-up">
           <h2 className="section-title mb-6">Alertes Territoriales</h2>
 
-          {hasRisk && riskData.risk_percentage > 70 ? (
+          {hasRisk && (riskData?.risk_score ?? 0) > 70 ? (
             <div className="space-y-4">
               <div className="card p-6 border-l-4 border-red-500 rounded-xl shadow-sm bg-red-50">
                 <div className="flex items-center gap-3 mb-2">
                   <AlertTriangle size={20} className="text-red-600" />
-                  <h3 className="font-bold text-red-800">Risque Élevé — {riskData.zone}</h3>
+                  <h3 className="font-bold text-red-800">Risque Élevé — {riskData?.zone}</h3>
                 </div>
                 <p className="text-sm text-red-700">
-                  Le risque de saturation est estimé à {riskData.risk_percentage}%. Une intervention est recommandée.
+                  Le risque de saturation est estimé à {riskData?.risk_score}%. Une intervention est recommandée.
                 </p>
               </div>
-              {riskData.recommendation && (
+              {riskData?.recommendation?.action && (
                 <div className="card p-6 border-l-4 border-warning rounded-xl shadow-sm">
                   <h3 className="font-bold mb-2">Recommandation</h3>
-                  <p className="text-sm text-secondary">{riskData.recommendation}</p>
+                  <p className="text-sm text-secondary">
+                    [{riskData.recommendation.priority}] {riskData.recommendation.action}
+                  </p>
                 </div>
               )}
             </div>
