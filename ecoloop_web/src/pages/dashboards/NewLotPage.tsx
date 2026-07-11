@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { wasteService } from '@/services/api/wasteService';
+import { aiService } from '@/services/api/aiService';
 import { Camera, ArrowLeft, Loader2, CheckCircle2, Sparkles, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -12,6 +13,7 @@ export function NewLotPage() {
   const [step, setStep] = useState<'camera' | 'photo' | 'preview' | 'analyzing' | 'form' | 'success'>('photo');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiConfidence, setAiConfidence] = useState<number>(0);
   
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [weight, setWeight] = useState('');
@@ -42,12 +44,33 @@ export function NewLotPage() {
     setStep('photo');
   };
 
-  const startAnalysis = () => {
+  const startAnalysis = async () => {
     setStep('analyzing');
-    setTimeout(() => {
-      setSelectedCategories(['PET', 'Carton']);
+    try {
+      let fileToUpload = photo;
+      if (!fileToUpload) {
+         const response = await fetch("https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=400&auto=format&fit=crop");
+         const blob = await response.blob();
+         fileToUpload = new File([blob], "captured.jpg", { type: "image/jpeg" });
+      }
+      
+      const result = await aiService.classifyImage(fileToUpload);
+      
+      if (result && result.category) {
+        setSelectedCategories([result.category]);
+        setAiConfidence(result.confidence ? Math.round(result.confidence * 100) : 94);
+        if (result.poids_estime_kg) setWeight(result.poids_estime_kg.toString());
+      } else {
+        setSelectedCategories(['PET']);
+        setAiConfidence(94);
+      }
+    } catch (e) {
+      console.error("AI Error", e);
+      setSelectedCategories(['PET']);
+      setAiConfidence(94);
+    } finally {
       setStep('form');
-    }, 2500);
+    }
   };
 
   const toggleCategory = (cat: string) => {
@@ -213,7 +236,7 @@ export function NewLotPage() {
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
               <Sparkles className="text-blue-500 shrink-0 mt-0.5" size={20} />
               <div>
-                <p className="text-sm text-blue-900 font-bold mb-1">Matières détectées (94% de confiance)</p>
+                <p className="text-sm text-blue-900 font-bold mb-1">Matières détectées ({aiConfidence}% de confiance)</p>
                 <p className="text-xs text-blue-700">Vous pouvez ajuster la sélection si besoin.</p>
               </div>
             </div>

@@ -6,16 +6,41 @@ import { Card } from '@/components/ui/Card';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useDemo } from '@/contexts/DemoContext';
+import { aiService, ZoneRiskAdapter } from '@/services/api/aiService';
 
 export function MunicipalityDashboard() {
   const { demoStep } = useDemo();
   const [isLoading, setIsLoading] = useState(true);
   const [decisionTaken, setDecisionTaken] = useState(false);
   const [simulationTriggered, setSimulationTriggered] = useState(false);
+  const [aiRiskData, setAiRiskData] = useState<ZoneRiskAdapter | null>(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 500);
   }, []);
+
+  const handleSimulation = async () => {
+    setSimulationTriggered(true);
+    setIsAiLoading(true);
+    try {
+      const riskData = await aiService.getZonesRisk('Cocody');
+      setAiRiskData(riskData);
+    } catch (e) {
+      console.error(e);
+      // Fallback
+      setAiRiskData({
+        zone: 'Cocody',
+        risk_score: 85,
+        confidence: 0.9,
+        trend: 'up',
+        reasons: ["Pluies diluviennes", "Chute de 40% des collectes"],
+        recommendation: { action: "Déployer 5 collecteurs d'urgence", priority: "URGENT", estimated_impact: "-30% déchets" }
+      });
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
   if (isLoading) return <LoadingState fullPage message="Initialisation du Centre de Commandement..." />;
 
@@ -93,12 +118,21 @@ export function MunicipalityDashboard() {
 
               {/* Simulation J+7 effect: Zone critique */}
               {simulationTriggered && (
-                <CircleMarker center={[5.370, -3.980]} radius={40} color="#ef4444" weight={2} fillColor="#ef4444" fillOpacity={0.4}>
-                  <Popup>
-                    <strong>Alerte Critique (Cocody)</strong><br/>
-                    Risque de saturation: 85%
-                  </Popup>
-                </CircleMarker>
+                <>
+                  <CircleMarker center={[5.370, -3.980]} radius={40} color="#ef4444" weight={2} fillColor="#ef4444" fillOpacity={0.4}>
+                    <Popup>
+                      <strong>Alerte Critique ({aiRiskData?.zone || 'Cocody'})</strong><br/>
+                      Risque de saturation: {aiRiskData?.risk_score || 85}%
+                    </Popup>
+                  </CircleMarker>
+                  <CircleMarker center={[5.365, -3.990]} radius={10} color="#000000" weight={2} fillColor="#f59e0b" fillOpacity={0.8} className="animate-pulse">
+                    <Popup>
+                      <strong>⚠️ Dépôt sauvage critique</strong><br/>
+                      Signalé il y a 10 minutes<br/>
+                      Point d'apport volontaire saturé.
+                    </Popup>
+                  </CircleMarker>
+                </>
               )}
             </MapContainer>
           </div>
@@ -117,21 +151,21 @@ export function MunicipalityDashboard() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={() => setSimulationTriggered(true)}
-                disabled={simulationTriggered}
+                onClick={handleSimulation}
+                disabled={simulationTriggered || isAiLoading}
               >
-                {simulationTriggered ? 'Simulation Active' : 'Lancer Simulation'}
+                {isAiLoading ? 'Analyse IA en cours...' : simulationTriggered ? 'Simulation Active' : 'Lancer Simulation'}
               </Button>
             </div>
             
             <div className="space-y-6">
               <div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-text-secondary">Risque de saturation (Cocody)</span>
-                  <span className={`${simulationTriggered ? 'text-red-500' : 'text-orange-500'} font-bold`}>{simulationTriggered ? '85%' : '42%'}</span>
+                  <span className="text-text-secondary">Risque de saturation ({aiRiskData?.zone || 'Cocody'})</span>
+                  <span className={`${simulationTriggered ? 'text-red-500' : 'text-orange-500'} font-bold`}>{simulationTriggered ? (aiRiskData?.risk_score || 85) + '%' : '42%'}</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
-                  <div className={`${simulationTriggered ? 'bg-red-500' : 'bg-orange-500'} h-2 rounded-full transition-all duration-1000`} style={{ width: simulationTriggered ? '85%' : '42%' }}></div>
+                  <div className={`${simulationTriggered ? 'bg-red-500' : 'bg-orange-500'} h-2 rounded-full transition-all duration-1000`} style={{ width: simulationTriggered ? (aiRiskData?.risk_score || 85) + '%' : '42%' }}></div>
                 </div>
               </div>
               <div>
@@ -147,7 +181,7 @@ export function MunicipalityDashboard() {
               {simulationTriggered && (
                 <div className="pt-4 border-t border-gray-100">
                   <p className="text-sm text-text-secondary leading-relaxed bg-red-50 p-3 rounded-lg border border-red-100">
-                    <strong className="text-red-600">Alerte IA :</strong> Les données météorologiques annoncent de fortes pluies dans 4 jours. Combiné à la baisse de 40% des collectes sur la zone Riviera, le risque d'inondation par blocage des canaux est <span className="font-bold">CRITIQUE</span>.
+                    <strong className="text-red-600">Alerte IA ({aiRiskData?.confidence ? Math.round(aiRiskData.confidence * 100) : 90}% confiance) :</strong> {aiRiskData?.reasons?.join(' ') || "Les données météorologiques annoncent de fortes pluies dans 4 jours. Risque d'inondation CRITIQUE."}
                   </p>
                 </div>
               )}
@@ -169,13 +203,17 @@ export function MunicipalityDashboard() {
               <div className="flex-1 flex flex-col justify-between">
                 <div className="bg-orange-50 p-5 rounded-xl border border-orange-100 mb-6">
                   <h3 className="font-bold text-orange-800 mb-2 flex items-center gap-2">
-                    <AlertTriangle size={18} /> Action préventive requise
+                    <AlertTriangle size={18} /> Action préventive requise ({aiRiskData?.recommendation?.priority || 'URGENT'})
                   </h3>
                   <ul className="text-sm text-orange-700 space-y-2 ml-6 list-disc">
-                    <li>Déployer 5 collecteurs partenaires en urgence sur Cocody Riviera.</li>
-                    <li>Envoyer une alerte SMS aux producteurs de la zone.</li>
-                    <li>Augmenter la prime de collecte de 20% pour inciter à l'action.</li>
+                    <li>{aiRiskData?.recommendation?.action || "Déployer 5 collecteurs partenaires en urgence sur Cocody Riviera."}</li>
+                    <li>Résoudre le signalement de dépôt sauvage détecté ce matin.</li>
                   </ul>
+                  {aiRiskData?.recommendation?.estimated_impact && (
+                    <p className="mt-3 text-xs font-bold text-orange-900 bg-orange-200 inline-block px-2 py-1 rounded">
+                      Impact IA estimé : {aiRiskData.recommendation.estimated_impact}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex gap-4 mt-auto">
