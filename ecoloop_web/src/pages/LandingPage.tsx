@@ -2,12 +2,14 @@ import { Link } from 'react-router-dom';
 import { 
   ArrowRight, Leaf, ShieldCheck, Factory, BrainCircuit, 
   CheckCircle2, TrendingUp, Truck,
-  Building2, AlertTriangle, XCircle, Droplets, Banknote, Plus
+  Building2, AlertTriangle, XCircle, Droplets, Banknote, Plus,
+  Menu, X
 } from 'lucide-react';
 import { useState } from 'react';
 
 export function LandingPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const faqs = [
     { question: "Le service est-il gratuit pour les producteurs ?", answer: "Oui, la collecte est entièrement gratuite pour les producteurs, et vous êtes même récompensés pour vos déchets triés." },
@@ -35,7 +37,27 @@ export function LandingPage() {
               Créer un compte
             </Link>
           </div>
+          {/* Mobile menu button */}
+          <button 
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Menu"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
+        {/* Mobile menu overlay */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-4 shadow-lg">
+            <a href="#solution" className="block text-sm font-medium text-gray-700 py-2" onClick={() => setMobileMenuOpen(false)}>Notre Solution</a>
+            <a href="#acteurs" className="block text-sm font-medium text-gray-700 py-2" onClick={() => setMobileMenuOpen(false)}>Les Acteurs</a>
+            <a href="#impact" className="block text-sm font-medium text-gray-700 py-2" onClick={() => setMobileMenuOpen(false)}>Impact</a>
+            <div className="pt-2 border-t border-gray-100 flex flex-col gap-3">
+              <Link to="/login" className="text-sm font-medium text-center py-2.5 rounded-lg border border-gray-200 text-gray-700" onClick={() => setMobileMenuOpen(false)}>Connexion</Link>
+              <Link to="/register" className="btn-primary py-2.5 text-sm" onClick={() => setMobileMenuOpen(false)}>Créer un compte</Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* 1. Hero Section */}
