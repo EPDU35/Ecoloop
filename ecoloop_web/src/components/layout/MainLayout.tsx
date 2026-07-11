@@ -131,7 +131,7 @@ export function MainLayout() {
         </div>
       </aside>
 
-      <main className="w-full relative z-0 flex-1">
+      <main className="main-content w-full relative z-0 flex-1">
         {/* Top bar + notifications */}
         <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-40 pointer-events-none" ref={notifRef}>
           <div className="pointer-events-auto mt-2 md:mt-0">
