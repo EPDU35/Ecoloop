@@ -5,9 +5,12 @@ import { MainLayout } from './components/layout/MainLayout';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { MunicipalityDashboard } from './pages/dashboards/MunicipalityDashboard';
-import { ProducerDashboard } from './pages/dashboards/ProducerDashboard';
+import { HouseholdDashboard } from './pages/dashboards/HouseholdDashboard';
 import { CollectorDashboard } from './pages/dashboards/CollectorDashboard';
 import { RecyclerDashboard } from './pages/dashboards/RecyclerDashboard';
+import { ImpactPage } from './pages/dashboards/ImpactPage';
+import { ProfilePage } from './pages/dashboards/ProfilePage';
+import { SettingsPage } from './pages/dashboards/SettingsPage';
 import { NewLotPage } from './pages/dashboards/NewLotPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
@@ -16,6 +19,8 @@ import { LegalPage } from './pages/LegalPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { PlaceholderPage } from './pages/PlaceholderPage';
+import { AboutPage } from './pages/AboutPage';
+import { StatusPage } from './pages/StatusPage';
 
 function DashboardRedirect() {
   const { user } = useAuth();
@@ -26,7 +31,7 @@ function DashboardRedirect() {
     case 'admin':
       return <Navigate to="/municipality/dashboard" replace />;
     case 'producteur':
-      return <Navigate to="/producer/dashboard" replace />;
+      return <Navigate to="/household/dashboard" replace />;
     case 'collecteur':
       return <Navigate to="/collector/dashboard" replace />;
     case 'industriel':
@@ -49,14 +54,8 @@ function App() {
           <Route path="/legal" element={<LegalPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           
-          {/* Pages institutionnelles (Placeholders) */}
-          <Route path="/about" element={<PlaceholderPage title="À propos d'EcoLoop" description="Découvrez notre mission, notre vision et l'équipe derrière le projet." />} />
-          <Route path="/careers" element={<PlaceholderPage title="Carrières" description="Rejoignez l'équipe EcoLoop et contribuez à l'économie circulaire." />} />
-          <Route path="/press" element={<PlaceholderPage title="Espace Presse" description="Retrouvez nos communiqués et kit média." />} />
-          <Route path="/blog" element={<PlaceholderPage title="Blog EcoLoop" description="Actualités, conseils et insights sur le recyclage en Afrique." />} />
-          <Route path="/help" element={<PlaceholderPage title="Centre d'aide" description="Trouvez les réponses à vos questions pour bien utiliser la plateforme." />} />
-          <Route path="/docs" element={<PlaceholderPage title="Documentation API" description="Intégrez les services EcoLoop dans votre propre SI." />} />
-          <Route path="/status" element={<PlaceholderPage title="Statut du service" description="Tous nos systèmes sont opérationnels à 100%." />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/status" element={<StatusPage />} />
           <Route path="/terms" element={<PlaceholderPage title="Conditions d'utilisation" description="Règles générales d'utilisation de la plateforme." />} />
           
           {/* Dashboard interne */}
@@ -68,9 +67,14 @@ function App() {
                 <MunicipalityDashboard />
               </ProtectedRoute>
             } />
-            <Route path="/producer/dashboard" element={
+            <Route path="/household/dashboard" element={
               <ProtectedRoute allowedRoles={['producteur']}>
-                <ProducerDashboard />
+                <HouseholdDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/producer/impact" element={
+              <ProtectedRoute allowedRoles={['producteur']}>
+                <ImpactPage />
               </ProtectedRoute>
             } />
             <Route path="/producer/new-lot" element={
@@ -86,6 +90,16 @@ function App() {
             <Route path="/recycler/dashboard" element={
               <ProtectedRoute allowedRoles={['industriel']}>
                 <RecyclerDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <SettingsPage />
               </ProtectedRoute>
             } />
             

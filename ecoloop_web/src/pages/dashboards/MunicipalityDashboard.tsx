@@ -1,297 +1,201 @@
 import { useEffect, useState } from 'react';
-import { Map as MapIcon, RefreshCw, TrendingUp, Users, AlertTriangle, FileText } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { dashboardService } from '@/services/api/dashboardService';
-import { aiService } from '@/services/api/aiService';
-import { EmptyState, ErrorState, LoadingState } from '@/components/feedback/States';
-import './Dashboards.css';
+import { Activity, AlertTriangle, BrainCircuit, Target, CheckCircle2, Navigation } from 'lucide-react';
+import { LoadingState } from '@/components/feedback';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 export function MunicipalityDashboard() {
-  const [activeTab, setActiveTab] = useState<'tdb' | 'zones' | 'alertes' | 'rapports'>('tdb');
-
-  const [stats, setStats] = useState<any>(null);
-  const [riskData, setRiskData] = useState<any>(null);
-
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const [dashStats, risks] = await Promise.all([
-        dashboardService.getMunicipalityOverview(),
-        aiService.getZonesRisk('Abobo'),
-      ]);
-      setStats(dashStats);
-      setRiskData(risks);
-    } catch (err: any) {
-      setError("Impossible de charger les données du territoire.");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [decisionTaken, setDecisionTaken] = useState(false);
+  const [simulationTriggered, setSimulationTriggered] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  if (isLoading) {
-    return <LoadingState fullPage message="Chargement du Centre de Commandement..." />;
-  }
+  if (isLoading) return <LoadingState fullPage message="Initialisation du Centre de Commandement..." />;
 
-  if (error) {
-    return (
-      <div className="page-container theme-municipality">
-        <ErrorState title="Erreur réseau" message={error} />
-      </div>
-    );
-  }
-
-  const hasStats = !!stats;
-  const hasRisk = !!riskData;
+  const abidjanCenter: [number, number] = [5.3364, -4.0267];
 
   return (
-    <div className="page-container theme-municipality">
-      <div className="page-header-actions mb-8">
-        <div>
-          <h1 className="page-title text-3xl font-bold flex items-center gap-3">
-            <MapIcon className="text-warning" size={32} />
-            EcoLoop Intelligence Center
-          </h1>
-          <p className="page-subtitle text-secondary text-lg mt-2">
-            Supervision territoriale et prévisions analytiques
-          </p>
-        </div>
-        <button
-          className="btn btn-primary bg-gray-900 text-white hover:bg-gray-800 border-none flex items-center gap-2 shadow-sm"
-          onClick={fetchData}
-          aria-label="Actualiser les données du territoire"
-        >
-          <RefreshCw size={18} /> Actualiser
-        </button>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-4 border-b mb-8 overflow-x-auto pb-2">
-        <button
-          className={`px-4 py-2 font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'tdb' ? 'border-warning text-warning' : 'border-transparent text-secondary hover:text-warning'}`}
-          onClick={() => setActiveTab('tdb')}
-        >
-          Tableau de Bord
-        </button>
-        <button
-          className={`px-4 py-2 font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'zones' ? 'border-warning text-warning' : 'border-transparent text-secondary hover:text-warning'}`}
-          onClick={() => setActiveTab('zones')}
-        >
-          Carte des Zones
-        </button>
-        <button
-          className={`px-4 py-2 font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'alertes' ? 'border-warning text-warning' : 'border-transparent text-secondary hover:text-warning'}`}
-          onClick={() => setActiveTab('alertes')}
-        >
-          Alertes
-        </button>
-        <button
-          className={`px-4 py-2 font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'rapports' ? 'border-warning text-warning' : 'border-transparent text-secondary hover:text-warning'}`}
-          onClick={() => setActiveTab('rapports')}
-        >
-          Rapports
-        </button>
-      </div>
-
-      {/* TAB: Tableau de Bord */}
-      {activeTab === 'tdb' && (
-        <motion.div 
-          className="fade-in-up"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          aria-live="polite"
-        >
-          {/* KPI Global */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="card p-6 border-l-4 border-warning rounded-xl shadow-sm">
-              <h3 className="text-secondary font-medium mb-1">Tonnes Recyclées</h3>
-              <div className="flex items-end justify-between">
-                <span className="text-3xl font-bold">{stats?.total_lots ?? 0}</span>
-                <TrendingUp className="text-warning opacity-50" size={24} />
+    <div className="min-h-screen bg-bg font-body text-text-main pb-24">
+      {/* Header Centre de Commandement */}
+      <div className="bg-orange-500 text-white pt-12 pb-24 px-6 rounded-b-[2rem] shadow-sm">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> En Ligne
+            </div>
+            <h1 className="font-heading text-4xl font-black tracking-tight">Centre de Commandement</h1>
+          </div>
+          <div className="flex gap-4">
+            <div className="bg-white/10 p-4 rounded-xl border border-white/20 backdrop-blur-sm">
+              <span className="text-xs font-medium uppercase tracking-widest block mb-1 opacity-80">Index de propreté globale</span>
+              <div className="flex items-center gap-2">
+                <Activity className="text-green-300" />
+                <span className="font-heading text-2xl font-bold">88<span className="text-sm opacity-80">/100</span></span>
               </div>
             </div>
-            <div className="card p-6 border-l-4 border-primary rounded-xl shadow-sm">
-              <h3 className="text-secondary font-medium mb-1">Acteurs Actifs</h3>
-              <div className="flex items-end justify-between">
-                <span className="text-3xl font-bold">{stats?.active_collectors ?? 0}</span>
-                <Users className="text-primary opacity-50" size={24} />
-              </div>
-            </div>
-            <div className="card p-6 border-l-4 border-accent rounded-xl shadow-sm">
-              <h3 className="text-secondary font-medium mb-1">ÉcoScore Moyen</h3>
-              <div className="flex items-end justify-between">
-                <span className="text-3xl font-bold">{stats?.avg_ecoscore ?? '—'}</span>
-                <span className="text-accent opacity-50 text-xl">pts</span>
-              </div>
-            </div>
-            <div className="card p-6 border-l-4 border-info rounded-xl shadow-sm">
-              <h3 className="text-secondary font-medium mb-1">Taux de Collecte</h3>
-              <div className="flex items-end justify-between">
-                <span className="text-3xl font-bold">{stats?.collection_rate ?? '—'}</span>
-                <span className="text-info opacity-50 text-xl">%</span>
+            <div className="bg-white/10 p-4 rounded-xl border border-white/20 backdrop-blur-sm">
+              <span className="text-xs font-medium uppercase tracking-widest block mb-1 opacity-80">Collecteurs actifs</span>
+              <div className="flex items-center gap-2">
+                <Navigation className="text-blue-300" />
+                <span className="font-heading text-2xl font-bold">128</span>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Risk Preview */}
-          {hasRisk ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <div className="card border rounded-xl shadow-sm bg-white p-6">
-                <h3 className="font-bold text-lg mb-4">Prévisions par Zone</h3>
-                <p className="text-sm text-secondary mb-2">
-                  Zone : <span className="font-semibold">{riskData.zone}</span>
-                </p>
-                <p className="text-sm text-secondary">
-                  Risque estimé : <span className="font-semibold">{riskData.risk_percentage ?? '—'}%</span>
-                </p>
-                {riskData.recommendation && (
-                  <p className="text-sm mt-4 text-secondary">{riskData.recommendation}</p>
-                )}
+      <div className="max-w-6xl mx-auto px-6 -mt-10">
+        
+        {/* CARTE INTERACTIVE */}
+        <Card padding="none" className="mb-8 overflow-hidden border-orange-100 relative">
+          <div className="absolute top-4 right-4 z-[400] bg-white p-3 rounded-xl shadow-lg border border-gray-100">
+            <h3 className="font-bold text-sm mb-2">Légende</h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-500"></div> Zone Stable</div>
+              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-blue-500"></div> Collecteur Actif</div>
+              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500"></div> Risque / Décharge</div>
+            </div>
+          </div>
+          <div className="h-[400px] w-full z-0 relative">
+            <MapContainer center={abidjanCenter} zoom={12} style={{ height: '100%', width: '100%', zIndex: 0 }}>
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {/* Producteurs / Zones stables */}
+              <CircleMarker center={[5.345, -4.015]} radius={10} color="transparent" fillColor="#22c55e" fillOpacity={0.7}>
+                <Popup>Zone Stable (Marcory)</Popup>
+              </CircleMarker>
+              <CircleMarker center={[5.320, -4.005]} radius={15} color="transparent" fillColor="#22c55e" fillOpacity={0.6}>
+                <Popup>Zone Stable (Treichville)</Popup>
+              </CircleMarker>
+              
+              {/* Collecteurs */}
+              <CircleMarker center={[5.350, -4.030]} radius={6} color="#ffffff" weight={2} fillColor="#3b82f6" fillOpacity={1}>
+                <Popup>Collecteur: Amadou</Popup>
+              </CircleMarker>
+              <CircleMarker center={[5.330, -3.990]} radius={6} color="#ffffff" weight={2} fillColor="#3b82f6" fillOpacity={1}>
+                <Popup>Collecteur: Sarah</Popup>
+              </CircleMarker>
+
+              {/* Simulation J+7 effect: Zone critique */}
+              {simulationTriggered && (
+                <CircleMarker center={[5.370, -3.980]} radius={40} color="#ef4444" weight={2} fillColor="#ef4444" fillOpacity={0.4}>
+                  <Popup>
+                    <strong>Alerte Critique (Cocody)</strong><br/>
+                    Risque de saturation: 85%
+                  </Popup>
+                </CircleMarker>
+              )}
+            </MapContainer>
+          </div>
+        </Card>
+
+        {/* PRÉVISION J+7 & IA */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          
+          {/* PRÉVISION */}
+          <Card className="relative overflow-hidden border-gray-200 shadow-sm">
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-3">
+                <Target className="text-orange-500" size={28} />
+                <h2 className="font-heading text-2xl font-bold text-deep-forest">Prévision J+7</h2>
               </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setSimulationTriggered(true)}
+                disabled={simulationTriggered}
+              >
+                {simulationTriggered ? 'Simulation Active' : 'Lancer Simulation'}
+              </Button>
+            </div>
+            
+            <div className="space-y-6">
+              <div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-text-secondary">Risque de saturation (Cocody)</span>
+                  <span className={`${simulationTriggered ? 'text-red-500' : 'text-orange-500'} font-bold`}>{simulationTriggered ? '85%' : '42%'}</span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-2">
+                  <div className={`${simulationTriggered ? 'bg-red-500' : 'bg-orange-500'} h-2 rounded-full transition-all duration-1000`} style={{ width: simulationTriggered ? '85%' : '42%' }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-text-secondary">Taux de collecte estimé (Globale)</span>
+                  <span className="text-ecoloop-green font-bold">92%</span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-2">
+                  <div className="bg-ecoloop-green h-2 rounded-full" style={{ width: '92%' }}></div>
+                </div>
+              </div>
+              
+              {simulationTriggered && (
+                <div className="pt-4 border-t border-gray-100">
+                  <p className="text-sm text-text-secondary leading-relaxed bg-red-50 p-3 rounded-lg border border-red-100">
+                    <strong className="text-red-600">Alerte IA :</strong> Les données météorologiques annoncent de fortes pluies dans 4 jours. Combiné à la baisse de 40% des collectes sur la zone Riviera, le risque d'inondation par blocage des canaux est <span className="font-bold">CRITIQUE</span>.
+                  </p>
+                </div>
+              )}
+            </div>
+          </Card>
 
-              <div className="card border rounded-xl shadow-sm bg-white p-6">
-                <h3 className="font-bold text-lg mb-4">Détails du Risque</h3>
-                {riskData.factors && riskData.factors.length > 0 ? (
-                  <ul className="space-y-2">
-                    {riskData.factors.map((f: string, i: number) => (
-                      <li key={i} className="text-sm text-secondary">• {f}</li>
-                    ))}
+          {/* RECOMMANDATION IA & DÉCISION */}
+          <Card className="relative overflow-hidden flex flex-col shadow-sm border-gray-200">
+            <div className="flex items-center gap-3 mb-6">
+              <BrainCircuit className="text-purple-600" size={28} />
+              <h2 className="font-heading text-2xl font-bold text-deep-forest">Recommandation IA</h2>
+            </div>
+
+            {!simulationTriggered ? (
+              <div className="flex-1 flex items-center justify-center text-center text-text-secondary p-8 bg-gray-50 rounded-xl border border-gray-100 border-dashed">
+                Lancez la simulation J+7 pour générer des recommandations prédictives.
+              </div>
+            ) : !decisionTaken ? (
+              <div className="flex-1 flex flex-col justify-between">
+                <div className="bg-orange-50 p-5 rounded-xl border border-orange-100 mb-6">
+                  <h3 className="font-bold text-orange-800 mb-2 flex items-center gap-2">
+                    <AlertTriangle size={18} /> Action préventive requise
+                  </h3>
+                  <ul className="text-sm text-orange-700 space-y-2 ml-6 list-disc">
+                    <li>Déployer 5 collecteurs partenaires en urgence sur Cocody Riviera.</li>
+                    <li>Envoyer une alerte SMS aux producteurs de la zone.</li>
+                    <li>Augmenter la prime de collecte de 20% pour inciter à l'action.</li>
                   </ul>
-                ) : (
-                  <p className="text-sm text-secondary">Aucun facteur de risque disponible.</p>
-                )}
-              </div>
-            </div>
-          ) : (
-            <EmptyState
-              title="Aucune donnée de risque"
-              message="Les prévisions analytiques ne sont pas encore disponibles."
-            />
-          )}
+                </div>
 
-          {hasStats && stats?.recent_activity && (
-            <div className="card border rounded-xl shadow-sm bg-white p-6 mt-6">
-              <h3 className="font-bold text-lg mb-4">Activité Récente</h3>
-              {stats.recent_activity.length > 0 ? (
-                <ul className="space-y-2">
-                  {stats.recent_activity.map((item: any, i: number) => (
-                    <li key={i} className="text-sm text-secondary">
-                      {item.description ?? JSON.stringify(item)}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-secondary">Aucune activité récente.</p>
-              )}
-            </div>
-          )}
+                <div className="flex gap-4 mt-auto">
+                  <Button variant="outline" className="flex-1">
+                    Ignorer
+                  </Button>
+                  <Button 
+                    variant="primary"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700"
+                    onClick={() => setDecisionTaken(true)}
+                  >
+                    Appliquer la décision
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+                <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4">
+                  <CheckCircle2 size={40} className="text-ecoloop-green" />
+                </div>
+                <h3 className="font-heading text-2xl font-bold text-deep-forest mb-2">Décision Prise</h3>
+                <p className="text-text-secondary">Les collecteurs partenaires ont été notifiés et la prime a été augmentée automatiquement. La zone devrait être sécurisée d'ici 24h.</p>
+              </div>
+            )}
+          </Card>
+
         </div>
-      )}
-
-      {/* TAB: Carte des Zones */}
-      {activeTab === 'zones' && (
-        <motion.div 
-          className="fade-in-up"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          aria-live="polite"
-        >
-          <div className="card h-[600px] rounded-xl overflow-hidden border shadow-sm relative bg-gray-100 flex items-center justify-center">
-            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%239C92AC\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
-            <div className="text-center z-10 p-8 bg-white/90 backdrop-blur rounded-2xl border max-w-md">
-              <MapIcon size={48} className="text-warning mx-auto mb-4 opacity-50" />
-              <h3 className="font-bold text-xl mb-2">Carte Thermique (Heatmap)</h3>
-              <p className="text-secondary text-sm">
-                En mode production, Leaflet affichera ici une heatmap dynamique des dépôts
-                sauvages et de la fréquence de collecte par secteur.
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* TAB: Alertes */}
-      {activeTab === 'alertes' && (
-        <motion.div 
-          className="fade-in-up"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          aria-live="polite"
-        >
-          <h2 className="section-title mb-6">Alertes Territoriales</h2>
-
-          {hasRisk && riskData.risk_percentage > 70 ? (
-            <div className="space-y-4">
-              <div className="card p-6 border-l-4 border-red-500 rounded-xl shadow-sm bg-red-50">
-                <div className="flex items-center gap-3 mb-2">
-                  <AlertTriangle size={20} className="text-red-600" />
-                  <h3 className="font-bold text-red-800">Risque Élevé — {riskData.zone}</h3>
-                </div>
-                <p className="text-sm text-red-700">
-                  Le risque de saturation est estimé à {riskData.risk_percentage}%. Une intervention est recommandée.
-                </p>
-              </div>
-              {riskData.recommendation && (
-                <div className="card p-6 border-l-4 border-warning rounded-xl shadow-sm">
-                  <h3 className="font-bold mb-2">Recommandation</h3>
-                  <p className="text-sm text-secondary">{riskData.recommendation}</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <EmptyState
-              title="Aucune alerte active"
-              message="Toutes les zones sont dans les normes pour le moment."
-            />
-          )}
-        </motion.div>
-      )}
-
-      {/* TAB: Rapports */}
-      {activeTab === 'rapports' && (
-        <motion.div 
-          className="fade-in-up"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          aria-live="polite"
-        >
-          <h2 className="section-title mb-6">Générer un Rapport</h2>
-
-          <div className="card p-6 rounded-xl shadow-sm border">
-            <div className="flex flex-col md:flex-row gap-4 items-center">
-              <select className="input flex-1 bg-white">
-                <option>Toutes les périodes</option>
-                <option>Cette semaine</option>
-                <option>Ce mois</option>
-                <option>Cette année</option>
-              </select>
-              <select className="input flex-1 bg-white">
-                <option>Toutes les zones</option>
-                <option>Abobo</option>
-                <option>Plateau</option>
-                <option>Cocody</option>
-              </select>
-              <div className="flex gap-2 w-full md:w-auto">
-                <button className="btn btn-primary flex-1 md:flex-none flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white border-none">
-                  <FileText size={18} /> Exporter PDF
-                </button>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
+      </div>
     </div>
   );
 }

@@ -1,199 +1,256 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, UserCheck, Leaf, Truck, Factory, Map } from 'lucide-react';
+import { Leaf, CheckCircle2, Recycle, AlertCircle, Truck, Info } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthContext';
-import './LoginPage.css';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function RegisterPage() {
-  const [step, setStep] = useState(1);
-  const [role, setRole] = useState<'producteur' | 'collecteur' | 'industriel' | 'mairie' | ''>('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [step, setStep] = useState(1); // 1: Welcome, 2: Phone, 3: OTP, 4: Intent/Role
   const [phone, setPhone] = useState('');
-  
-  const [error, setError] = useState<string | null>(null);
+  const [otpCode, setOtpCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [error, setError] = useState<string | null>(null);
+
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const cleanPhone = phone.replace(/\s+/g, '');
+  const isValidPhone = cleanPhone.length >= 8 && cleanPhone.match(/^[0-9+]+$/);
+
+  const slideIn = {
+    hidden: { opacity: 0, x: 20 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.3 } },
+    exit: { opacity: 0, x: -20, transition: { duration: 0.2 } }
+  };
+
+  const handlePhoneSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!role) {
-      setError("Veuillez sélectionner un profil.");
-      return;
+    if (isValidPhone) {
+      setStep(3);
     }
-    
+  };
+
+  const handleOtpSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otpCode.length >= 4) {
+      setStep(4);
+    }
+  };
+
+  const handleRoleSelection = async (selectedRole: string) => {
     setIsSubmitting(true);
     setError(null);
-
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ full_name: fullName, email, phone, password, role }),
+        body: JSON.stringify({ 
+          full_name: "Utilisateur", 
+          email: `${cleanPhone}@ecoloop.com`, 
+          phone: cleanPhone, 
+          password: 'DefaultPassword123', 
+          role: selectedRole,
+          metadata: {}
+        }),
       });
 
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || "Erreur d'inscription.");
+        throw new Error("Impossible de créer le compte, veuillez vérifier votre connexion.");
       }
 
       const { access_token, refresh_token } = await response.json();
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('refresh_token', refresh_token);
 
-      await login(email, password);
+      await login(`${cleanPhone}@ecoloop.com`, 'DefaultPassword123');
       navigate('/dashboard');
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Erreur d'inscription.";
-      setError(message);
+      setError("Erreur technique, veuillez réessayer.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="login-page">
-      <nav className="landing-nav" style={{ position: 'absolute', top: 0, width: '100%', background: 'transparent', border: 'none' }}>
-        <div className="nav-container">
-          <Link to="/" className="logo">EcoLoop</Link>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-bg flex flex-col justify-center py-12 px-6 sm:px-6 lg:px-8 font-body text-text-main">
+      <div className="absolute top-6 left-6">
+        <Link to="/" className="flex items-center gap-2">
+          <Leaf className="text-ecoloop-green" size={28} />
+          <span className="font-heading font-bold text-xl text-deep-forest">EcoLoop</span>
+        </Link>
+      </div>
 
-      <div className="login-container" style={{ maxWidth: step === 1 ? '700px' : '450px' }}>
-        <div className="login-header">
-          <h2>Créer un compte</h2>
-          <p>{step === 1 ? 'Choisissez votre profil pour commencer' : 'Renseignez vos informations'}</p>
-        </div>
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <AnimatePresence mode="wait">
+          
+          {/* STEP 1: WELCOME */}
+          {step === 1 && (
+            <motion.div key="step1" variants={slideIn} initial="hidden" animate="visible" exit="exit" className="text-center">
+              <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8">
+                <Leaf size={40} className="text-ecoloop-green" />
+              </div>
+              <h2 className="font-heading text-3xl font-bold text-deep-forest mb-4">Bienvenue sur EcoLoop</h2>
+              <p className="text-xl text-text-secondary mb-12">
+                Vos déchets peuvent devenir une ressource.
+              </p>
+              <button 
+                onClick={() => setStep(2)}
+                className="btn-primary w-full text-lg py-4"
+              >
+                Commencer
+              </button>
+            </motion.div>
+          )}
 
-        {error && (
-          <div className="demo-alert" style={{ backgroundColor: '#fee2e2', borderColor: '#fca5a5', marginBottom: '24px' }}>
-            <div style={{ color: 'var(--critical)', fontSize: '0.9rem' }}>{error}</div>
-          </div>
-        )}
-
-        {step === 1 && (
-          <div className="grid-cols-2 gap-4 mb-8">
-            <button 
-              className={`p-6 border rounded-xl flex flex-col items-center gap-3 transition hover:border-primary hover:bg-primary-light ${role === 'producteur' ? 'border-primary bg-primary-light ring-2 ring-primary' : 'bg-white'}`}
-              onClick={() => setRole('producteur')}
-            >
-              <Leaf size={32} className={role === 'producteur' ? 'text-primary' : 'text-gray-400'} />
-              <span className="font-bold">Producteur</span>
-              <span className="text-sm text-secondary text-center">Je génère des déchets à valoriser</span>
-            </button>
-
-            <button 
-              className={`p-6 border rounded-xl flex flex-col items-center gap-3 transition hover:border-info hover:bg-blue-50 ${role === 'collecteur' ? 'border-info bg-blue-50 ring-2 ring-info' : 'bg-white'}`}
-              onClick={() => setRole('collecteur')}
-            >
-              <Truck size={32} className={role === 'collecteur' ? 'text-info' : 'text-gray-400'} />
-              <span className="font-bold">Collecteur</span>
-              <span className="text-sm text-secondary text-center">Je transporte et gère des collectes</span>
-            </button>
-
-            <button 
-              className={`p-6 border rounded-xl flex flex-col items-center gap-3 transition hover:border-accent hover:bg-purple-50 ${role === 'industriel' ? 'border-accent bg-purple-50 ring-2 ring-accent' : 'bg-white'}`}
-              onClick={() => setRole('industriel')}
-            >
-              <Factory size={32} className={role === 'industriel' ? 'text-accent' : 'text-gray-400'} />
-              <span className="font-bold">Industriel / Recycleur</span>
-              <span className="text-sm text-secondary text-center">J'achète de la matière première</span>
-            </button>
-
-            <button 
-              className={`p-6 border rounded-xl flex flex-col items-center gap-3 transition hover:border-warning hover:bg-orange-50 ${role === 'mairie' ? 'border-warning bg-orange-50 ring-2 ring-warning' : 'bg-white'}`}
-              onClick={() => setRole('mairie')}
-            >
-              <Map size={32} className={role === 'mairie' ? 'text-warning' : 'text-gray-400'} />
-              <span className="font-bold">Mairie / État</span>
-              <span className="text-sm text-secondary text-center">Je supervise mon territoire</span>
-            </button>
-          </div>
-        )}
-
-        {step === 2 && (
-          <form onSubmit={handleRegister} className="login-form">
-            <div className="form-group">
-              <label>Nom complet ou Raison sociale</label>
-              <input 
-                type="text" 
-                className="input" 
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Ex: Restaurant La Terrasse"
-                required 
-              />
-            </div>
-            <div className="form-group">
-              <label>Adresse email</label>
-              <input 
-                type="email" 
-                className="input" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="nom@exemple.com"
-                required 
-              />
-            </div>
-            <div className="form-group">
-              <label>Téléphone</label>
-              <input 
-                type="tel" 
-                className="input"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+225 07 00 00 00 00"
-                required 
-              />
-            </div>
-            <div className="form-group">
-              <label>Mot de passe</label>
-              <input 
-                type="password" 
-                className="input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min. 10 caractères, majuscule, chiffre"
-                required 
-              />
-            </div>
-          </form>
-        )}
-
-        <div className="flex justify-between mt-8">
+          {/* STEP 2: PHONE */}
           {step === 2 && (
-            <button className="btn btn-secondary" onClick={() => setStep(1)}>Retour</button>
+            <motion.div key="step2" variants={slideIn} initial="hidden" animate="visible" exit="exit" className="bg-white py-8 px-6 shadow-sm rounded-2xl border border-gray-100">
+              <h2 className="font-heading text-2xl font-bold text-deep-forest mb-6">Votre numéro</h2>
+              <form onSubmit={handlePhoneSubmit}>
+                <div className="mb-6 relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span className="text-gray-500 font-medium">+225</span>
+                  </div>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className={`block w-full pl-16 pr-4 py-4 border ${phone && isValidPhone ? 'border-ecoloop-green bg-green-50/30' : 'border-gray-200'} rounded-xl focus:ring-ecoloop-green focus:border-ecoloop-green font-medium text-lg outline-none transition-colors`}
+                    placeholder="05 00 00 00 00"
+                    autoFocus
+                  />
+                  {phone && isValidPhone && (
+                    <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="mt-3 text-sm text-ecoloop-green font-medium flex items-center gap-1">
+                      <CheckCircle2 size={16} /> ✓ Format valide
+                    </motion.p>
+                  )}
+                  {phone && !isValidPhone && phone.length > 3 && (
+                    <p className="mt-3 text-sm text-gray-500 font-medium flex items-center gap-1">
+                      En attente d'un numéro complet...
+                    </p>
+                  )}
+                </div>
+                <button 
+                  type="submit" 
+                  disabled={!isValidPhone}
+                  className={`btn-primary w-full py-4 ${!isValidPhone ? 'opacity-50 cursor-not-allowed hover:scale-100 active:scale-100' : ''}`}
+                >
+                  Recevoir le code
+                </button>
+                <button type="button" onClick={() => setStep(1)} className="w-full mt-4 py-4 text-text-secondary font-medium hover:text-deep-forest">
+                  Retour
+                </button>
+              </form>
+            </motion.div>
           )}
-          {step === 1 ? (
-            <button 
-              className="btn btn-primary ml-auto" 
-              onClick={() => {
-                if (role) setStep(2);
-                else setError("Veuillez sélectionner un profil");
-              }}
-            >
-              Continuer <ArrowRight size={18} className="ml-2" />
-            </button>
-          ) : (
-            <button 
-              className="btn btn-primary flex-1 ml-4 justify-center" 
-              onClick={handleRegister}
-              disabled={isSubmitting || !fullName || !email || !phone || !password}
-            >
-              {isSubmitting ? 'Création...' : (
-                <>S'inscrire <UserCheck size={18} className="ml-2" /></>
-              )}
-            </button>
-          )}
-        </div>
 
-        <div className="text-center mt-8 text-secondary text-sm">
-          Déjà un compte ? <Link to="/login" className="text-primary hover:underline font-bold">Connectez-vous</Link>
-        </div>
+          {/* STEP 3: OTP */}
+          {step === 3 && (
+            <motion.div key="step3" variants={slideIn} initial="hidden" animate="visible" exit="exit" className="bg-white py-8 px-6 shadow-sm rounded-2xl border border-gray-100">
+              <h2 className="font-heading text-2xl font-bold text-deep-forest mb-2">Code envoyé</h2>
+              <p className="text-text-secondary mb-6">Au +225 {phone}</p>
+              <form onSubmit={handleOtpSubmit}>
+                <div className="mb-8">
+                  <input
+                    type="text"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').substring(0, 4))}
+                    className="block w-full px-4 py-4 text-center tracking-[1em] text-2xl border border-gray-200 rounded-xl focus:ring-ecoloop-green focus:border-ecoloop-green font-bold outline-none"
+                    placeholder="••••"
+                    autoFocus
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  disabled={otpCode.length < 4}
+                  className={`btn-primary w-full py-4 ${otpCode.length < 4 ? 'opacity-50 cursor-not-allowed hover:scale-100 active:scale-100' : ''}`}
+                >
+                  Vérifier
+                </button>
+                <button type="button" onClick={() => setStep(2)} className="w-full mt-4 py-4 text-text-secondary font-medium hover:text-deep-forest">
+                  Modifier le numéro
+                </button>
+              </form>
+            </motion.div>
+          )}
+
+          {/* STEP 4: INTENT */}
+          {step === 4 && (
+            <motion.div key="step4" variants={slideIn} initial="hidden" animate="visible" exit="exit">
+              <h2 className="font-heading text-2xl font-bold text-deep-forest mb-6 text-center">Que souhaitez-vous faire ?</h2>
+              
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl flex items-start gap-3">
+                  <AlertCircle size={20} className="flex-shrink-0 mt-0.5" />
+                  <span className="font-medium text-sm">{error}</span>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <button 
+                  onClick={() => handleRoleSelection('producteur')}
+                  disabled={isSubmitting}
+                  className="w-full p-6 bg-white border border-gray-100 rounded-2xl flex items-center gap-4 text-left hover:border-ecoloop-green hover:shadow-sm transition-all group"
+                >
+                  <div className="w-12 h-12 bg-green-50 text-ecoloop-green rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <Recycle size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-deep-forest">Recycler mes déchets</h3>
+                  </div>
+                </button>
+
+                <button 
+                  onClick={() => handleRoleSelection('producteur')}
+                  disabled={isSubmitting}
+                  className="w-full p-6 bg-white border border-gray-100 rounded-2xl flex items-center gap-4 text-left hover:border-ecoloop-green hover:shadow-sm transition-all group"
+                >
+                  <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <AlertCircle size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-deep-forest">Signaler un dépôt</h3>
+                  </div>
+                </button>
+
+                <button 
+                  onClick={() => handleRoleSelection('collecteur')}
+                  disabled={isSubmitting}
+                  className="w-full p-6 bg-white border border-gray-100 rounded-2xl flex items-center gap-4 text-left hover:border-ecoloop-green hover:shadow-sm transition-all group"
+                >
+                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <Truck size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-deep-forest">Trouver un collecteur</h3>
+                  </div>
+                </button>
+
+                <button 
+                  onClick={() => handleRoleSelection('mairie')}
+                  disabled={isSubmitting}
+                  className="w-full p-6 bg-white border border-gray-100 rounded-2xl flex items-center gap-4 text-left hover:border-ecoloop-green hover:shadow-sm transition-all group"
+                >
+                  <div className="w-12 h-12 bg-gray-50 text-gray-600 rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <Info size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-deep-forest">Simplement découvrir</h3>
+                  </div>
+                </button>
+              </div>
+              
+              {isSubmitting && (
+                <p className="text-center mt-6 text-ecoloop-green font-medium animate-pulse">
+                  Préparation de votre espace...
+                </p>
+              )}
+            </motion.div>
+          )}
+
+        </AnimatePresence>
       </div>
     </div>
   );
 }
+

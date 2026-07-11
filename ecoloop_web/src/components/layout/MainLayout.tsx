@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, Map, Camera, UserCircle, LogOut } from 'lucide-react';
+import { Home, Map, Camera, UserCircle, LogOut, Settings, Bell } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthContext';
 
 export function MainLayout() {
@@ -16,7 +16,8 @@ export function MainLayout() {
     ...(userRole === 'collecteur' ? [
       { label: 'Carte', path: '/collector/dashboard', icon: <Map size={24} /> }
     ] : []),
-    { label: 'Profil', path: '#', icon: <UserCircle size={24} /> }
+    { label: 'Profil', path: '/profile', icon: <UserCircle size={24} /> },
+    { label: 'Réglages', path: '/settings', icon: <Settings size={24} /> }
   ];
 
   return (
@@ -53,12 +54,21 @@ export function MainLayout() {
         </div>
       </aside>
 
-      <main className="main-content">
+      <main className="main-content relative">
+        {/* Top bar mobile + notifications */}
+        <div className="md:hidden absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10 pointer-events-none">
+          <div className="w-10 h-10"></div>
+          <button className="relative p-2 bg-white/20 backdrop-blur-md rounded-full text-white pointer-events-auto">
+            <Bell size={24} />
+            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+          </button>
+        </div>
+
         <Outlet />
       </main>
 
       <nav className="mobile-nav">
-        {navItems.map((item, idx) => (
+        {navItems.slice(0, 4).map((item, idx) => (
           <Link key={idx} to={item.path} className={`mobile-nav-item ${location.pathname === item.path ? 'active' : ''}`}>
             {item.icon}
             <span>{item.label}</span>
