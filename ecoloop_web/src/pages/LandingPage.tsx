@@ -3,7 +3,7 @@ import {
   ArrowRight, Leaf, ShieldCheck, Factory, BrainCircuit, 
   CheckCircle2, TrendingUp, Truck,
   Building2, AlertTriangle, XCircle, Droplets, Banknote, Plus,
-  Menu, X
+  Menu, X, Activity
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -22,9 +22,21 @@ export function LandingPage() {
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Leaf className="text-ecoloop-green" size={28} />
-            <span className="font-heading font-bold text-xl tracking-tight text-deep-forest">EcoLoop</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Leaf className="text-ecoloop-green" size={28} />
+              <span className="font-heading font-bold text-xl tracking-tight text-deep-forest">EcoLoop</span>
+            </div>
+            <div 
+              className="hidden sm:flex items-center gap-1.5 bg-green-50 text-ecoloop-green px-2.5 py-1 rounded-full text-xs font-bold border border-green-200 cursor-help" 
+              title="EcoLoop Demo Environment: Certaines données sont simulées afin de présenter le fonctionnement complet du produit."
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              Demo Live
+            </div>
           </div>
           <div className="hidden md:flex space-x-8 text-sm font-medium text-text-secondary">
             <a href="#solution" className="hover:text-ecoloop-green transition-colors">Notre Solution</a>
@@ -74,6 +86,34 @@ export function LandingPage() {
             <Link to="/register" className="btn-primary text-lg px-8 py-4 w-full sm:w-auto">
               Demander une collecte <ArrowRight size={20} />
             </Link>
+            <Link to="/ai-center" className="bg-white border-2 border-gray-200 text-deep-forest hover:border-ecoloop-green font-bold rounded-xl text-lg px-8 py-4 w-full sm:w-auto flex items-center justify-center gap-2 transition-colors">
+              <BrainCircuit size={20} /> Explorer l'IA EcoLoop
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 1.5 EcoLoop en chiffres */}
+      <section className="py-12 bg-deep-forest text-white">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <h2 className="font-heading text-2xl font-bold mb-8 text-green-50">EcoLoop en chiffres</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="flex flex-col items-center">
+              <span className="text-4xl md:text-5xl font-black text-ecoloop-green mb-2 tracking-tighter">126</span>
+              <span className="text-sm font-bold text-gray-300 uppercase tracking-widest">Collectes</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-4xl md:text-5xl font-black text-ecoloop-green mb-2 tracking-tighter">24</span>
+              <span className="text-sm font-bold text-gray-300 uppercase tracking-widest">Collecteurs</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-4xl md:text-5xl font-black text-ecoloop-green mb-2 tracking-tighter">18 <span className="text-2xl">t</span></span>
+              <span className="text-sm font-bold text-gray-300 uppercase tracking-widest">Valorisées</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-4xl md:text-5xl font-black text-ecoloop-green mb-2 tracking-tighter">6</span>
+              <span className="text-sm font-bold text-gray-300 uppercase tracking-widest">Communes</span>
+            </div>
           </div>
         </div>
       </section>
@@ -351,6 +391,19 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* 10.5 Écosystème EcoLoop */}
+      <section className="py-16 bg-white border-t border-gray-100 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <h2 className="text-sm font-bold tracking-widest text-gray-400 uppercase mb-8">Écosystème EcoLoop (Partenaires de démonstration)</h2>
+          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+            <div className="flex items-center gap-2 font-black text-xl text-gray-600"><Building2 size={24} /> Commune Pilote</div>
+            <div className="flex items-center gap-2 font-black text-xl text-gray-600"><Factory size={24} /> Centre de Recyclage</div>
+            <div className="flex items-center gap-2 font-black text-xl text-gray-600"><BrainCircuit size={24} /> Université (Hackathon)</div>
+            <div className="flex items-center gap-2 font-black text-xl text-gray-600"><Activity size={24} /> Vortexon</div>
+          </div>
+        </div>
+      </section>
+
       {/* 11. FAQ */}
       <section className="py-20 bg-gray-50 border-t border-gray-200">
         <div className="max-w-3xl mx-auto px-6">
@@ -412,16 +465,18 @@ export function LandingPage() {
               <h4 className="text-white font-bold mb-4">Légal & Sécurité</h4>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/security" className="hover:text-white transition-colors">Sécurité</Link></li>
-                <li><Link to="/privacy" className="hover:text-white transition-colors">Confidentialité</Link></li>
+                <li><Link to="/privacy" className="hover:text-white transition-colors">Politique de confidentialité</Link></li>
                 <li><Link to="/terms" className="hover:text-white transition-colors">Conditions d'utilisation</Link></li>
+                <li><Link to="/legal" className="hover:text-white transition-colors">Mentions légales</Link></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-white font-bold mb-4">Contact</h4>
+              <h4 className="text-white font-bold mb-4">Support</h4>
               <ul className="space-y-2 text-sm">
+                <li><Link to="/help" className="hover:text-white transition-colors">Centre d'aide</Link></li>
+                <li><Link to="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
                 <li><a href="mailto:contact@ecoloop.africa" className="hover:text-white transition-colors">contact@ecoloop.africa</a></li>
-                <li><a href="https://linkedin.com/company/ecoloop" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">LinkedIn</a></li>
               </ul>
             </div>
           </div>

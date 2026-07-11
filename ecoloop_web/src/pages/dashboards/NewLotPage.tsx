@@ -1,43 +1,88 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { wasteService } from '@/services/api/wasteService';
-import { Camera } from 'lucide-react';
-import './Dashboards.css';
+import { Camera, ArrowLeft, Loader2, CheckCircle2, Sparkles, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const CATEGORIES = ['PET', 'Carton', 'Aluminium', 'Verre', 'Plastique souple', 'Papier', 'Métal'];
 
 export function NewLotPage() {
   const navigate = useNavigate();
+  
+  const [step, setStep] = useState<'camera' | 'photo' | 'preview' | 'analyzing' | 'form' | 'success'>('photo');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const [formData, setFormData] = useState({
-    category: 'PLASTIQUE',
-    weight_kg: '',
-    price_per_kg: '',
-    description: '',
-    latitude: 5.30966, // Abidjan par defaut
-    longitude: -4.01266
-  });
-
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [weight, setWeight] = useState('');
+  const [price, setPrice] = useState('');
+  const [description, setDescription] = useState('');
+  
   const [photo, setPhoto] = useState<File | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPhoto(file);
+      setPhotoUrl(URL.createObjectURL(file));
+      setStep('preview');
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  const removePhoto = () => {
+    setPhoto(null);
+    setPhotoUrl(null);
+    setStep('photo');
+  };
+
+  const startAnalysis = () => {
+    setStep('analyzing');
+    setTimeout(() => {
+      setSelectedCategories(['PET', 'Carton']);
+      setStep('form');
+    }, 2500);
+  };
+
+  const toggleCategory = (cat: string) => {
+    if (selectedCategories.includes(cat)) {
+      setSelectedCategories(selectedCategories.filter(c => c !== cat));
+    } else {
+      setSelectedCategories([...selectedCategories, cat]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (selectedCategories.length === 0) {
+      setError("Veuillez sélectionner au moins une catégorie.");
+      return;
+    }
+    
     setIsSubmitting(true);
     setError(null);
 
     try {
       const lot = await wasteService.createLot({
-        ...formData,
-        weight_kg: parseFloat(formData.weight_kg),
-        price_per_kg: parseFloat(formData.price_per_kg),
+        category: selectedCategories.join(', ') as any,
+        weight_kg: parseFloat(weight) || 1,
+        price_per_kg: parseFloat(price) || 0,
+        description: description,
+        latitude: 5.30966, 
+        longitude: -4.01266
       });
 
       if (photo) {
         await wasteService.uploadPhoto(lot.id, photo);
       }
 
-      alert("Lot créé avec succès !");
-      navigate('/producer/dashboard');
+      setStep('success');
     } catch (err: any) {
       setError(err.response?.data?.detail || "Erreur lors de la création du lot.");
     } finally {
@@ -46,92 +91,225 @@ export function NewLotPage() {
   };
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Déclarer un nouveau lot</h1>
-        <p className="page-subtitle">Ajoutez un lot de déchets pour qu'il soit collecté</p>
+    <div className="min-h-screen bg-bg font-body text-text-main pb-[100px]">
+      <div className="bg-white border-b border-gray-100 pt-12 pb-4 px-4 sticky top-0 z-10">
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="p-2 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors focus:outline-none">
+            <ArrowLeft size={24} className="text-deep-forest" />
+          </button>
+          <h1 className="font-heading text-xl font-bold text-deep-forest">Vendre mes déchets</h1>
+        </div>
       </div>
 
-      <div className="card mt-6" style={{ maxWidth: '600px' }}>
-        {error && <div className="alert alert-error" style={{ marginBottom: '16px', color: 'red' }}>{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Catégorie de déchets</label>
-            <select 
-              className="input" 
-              value={formData.category} 
-              onChange={e => setFormData({...formData, category: e.target.value})}
-            >
-              <option value="PLASTIQUE">Plastique</option>
-              <option value="CARTON">Carton</option>
-              <option value="VERRE">Verre</option>
-              <option value="METAL">Métal</option>
-              <option value="ORGANIQUE">Organique</option>
-              <option value="ELECTRONIQUE">Électronique</option>
-            </select>
-          </div>
-
-          <div className="grid-cols-2">
-            <div className="form-group">
-              <label>Poids estimé (kg)</label>
-              <input 
-                type="number" 
-                className="input" 
-                min="0.1" 
-                step="0.1" 
-                required
-                value={formData.weight_kg}
-                onChange={e => setFormData({...formData, weight_kg: e.target.value})}
-              />
+      <div className="max-w-md mx-auto px-4 mt-6">
+        
+        {step === 'photo' && (
+          <div className="animate-in fade-in zoom-in-95 duration-300 flex flex-col items-center justify-center py-12">
+            <div className="w-full aspect-[4/3] bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-6 text-center mb-8 relative hover:bg-gray-200 transition-colors cursor-pointer" onClick={() => setStep('camera')}>
+              <Camera size={48} className="text-gray-400 mb-4" />
+              <h3 className="font-bold text-deep-forest text-lg mb-2">Photographier vos déchets</h3>
+              <p className="text-sm text-text-secondary">L'IA détectera automatiquement les matières pour vous faire gagner du temps.</p>
             </div>
-            <div className="form-group">
-              <label>Prix par kg (FCFA)</label>
-              <input 
-                type="number" 
-                className="input" 
-                min="1" 
-                required
-                value={formData.price_per_kg}
-                onChange={e => setFormData({...formData, price_per_kg: e.target.value})}
-              />
+            <button className="btn-primary w-full py-4 text-lg" onClick={() => setStep('camera')}>
+              Ouvrir l'appareil photo
+            </button>
+          </div>
+        )}
+
+        {step === 'camera' && (
+          <div className="animate-in fade-in duration-300 flex flex-col py-6">
+            <h3 className="font-bold text-lg text-deep-forest mb-4">Cadrez votre déchet</h3>
+            <div className="w-full aspect-[4/3] bg-gray-800 rounded-2xl overflow-hidden mb-6 relative">
+              <img src="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=400&auto=format&fit=crop" alt="Camera feed" className="w-full h-full object-cover opacity-60" />
+              <div className="absolute inset-0 border-2 border-white/50 m-8 rounded-xl border-dashed"></div>
+            </div>
+            <div className="flex flex-col gap-3 pb-24">
+              <button 
+                onClick={() => {
+                  setPhotoUrl("https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=400&auto=format&fit=crop");
+                  setStep('preview');
+                }} 
+                className="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2"
+              >
+                <Camera size={24} />
+                Capturer la photo
+              </button>
+              <button onClick={() => setStep('photo')} className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-deep-forest font-bold rounded-xl transition-colors">
+                Annuler
+              </button>
             </div>
           </div>
+        )}
 
-          <div className="form-group">
-            <label>Description (Optionnel)</label>
-            <textarea 
-              className="input" 
-              rows={3}
-              value={formData.description}
-              onChange={e => setFormData({...formData, description: e.target.value})}
-            ></textarea>
+        {step === 'preview' && (
+          <div className="animate-in fade-in duration-300 flex flex-col py-6">
+            <h3 className="font-bold text-lg text-deep-forest mb-4">Aperçu de la photo</h3>
+            
+            <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden mb-6 shadow-sm border border-gray-100 relative bg-black">
+              {photoUrl && <img src={photoUrl} alt="Aperçu" className="w-full h-full object-contain" />}
+            </div>
+
+            <div className="flex justify-between mb-8 gap-3">
+              <button onClick={triggerFileInput} className="flex-1 flex flex-col items-center justify-center py-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                <RefreshCw size={20} className="text-blue-600 mb-1" />
+                <span className="text-xs font-bold text-gray-700">Changer</span>
+              </button>
+              <button onClick={() => window.open(photoUrl || '', '_blank')} className="flex-1 flex flex-col items-center justify-center py-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                <ImageIcon size={20} className="text-gray-600 mb-1" />
+                <span className="text-xs font-bold text-gray-700">Voir</span>
+              </button>
+              <button onClick={removePhoto} className="flex-1 flex flex-col items-center justify-center py-3 bg-red-50 rounded-xl hover:bg-red-100 transition-colors">
+                <Trash2 size={20} className="text-red-600 mb-1" />
+                <span className="text-xs font-bold text-red-700">Supprimer</span>
+              </button>
+              <input 
+                type="file" accept="image/*" className="hidden"
+                ref={fileInputRef} onChange={handlePhotoCapture}
+              />
+            </div>
+
+            <div className="pb-24">
+              <button onClick={startAnalysis} className="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2">
+                <Sparkles size={20} />
+                Valider et analyser
+              </button>
+            </div>
           </div>
+        )}
 
-          <div className="form-group">
-            <label>Photo du lot (Optionnel)</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <label className="btn btn-secondary" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Camera size={20} />
-                <span>{photo ? photo.name : 'Prendre une photo'}</span>
+        {step === 'analyzing' && (
+          <div className="animate-in fade-in duration-300 flex flex-col items-center justify-center py-12 text-center w-full">
+            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6 relative">
+              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }} className="absolute inset-0 border-4 border-blue-200 border-t-blue-500 rounded-full" />
+              <Sparkles className="text-blue-500" size={32} />
+            </div>
+            <h3 className="font-bold text-2xl text-deep-forest mb-2">Analyse EcoLoop AI</h3>
+            <p className="text-blue-600 font-medium mb-12">Détection des matières en cours...</p>
+
+            {/* Skeleton Loading */}
+            <div className="w-full space-y-4 text-left">
+              <div className="h-4 bg-gray-200 rounded-full w-1/3 animate-pulse"></div>
+              <div className="flex gap-2">
+                <div className="h-10 bg-gray-200 rounded-full w-24 animate-pulse"></div>
+                <div className="h-10 bg-gray-200 rounded-full w-24 animate-pulse"></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                <div>
+                  <div className="h-4 bg-gray-200 rounded-full w-1/2 animate-pulse mb-2"></div>
+                  <div className="h-12 bg-gray-200 rounded-xl w-full animate-pulse"></div>
+                </div>
+                <div>
+                  <div className="h-4 bg-gray-200 rounded-full w-1/2 animate-pulse mb-2"></div>
+                  <div className="h-12 bg-gray-200 rounded-xl w-full animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 'form' && (
+          <form onSubmit={handleSubmit} className="animate-in fade-in slide-in-from-bottom-4 duration-300 space-y-6">
+            
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
+              <Sparkles className="text-blue-500 shrink-0 mt-0.5" size={20} />
+              <div>
+                <p className="text-sm text-blue-900 font-bold mb-1">Matières détectées (94% de confiance)</p>
+                <p className="text-xs text-blue-700">Vous pouvez ajuster la sélection si besoin.</p>
+              </div>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-bold">
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <label className="font-bold text-deep-forest text-sm">Que contient votre lot ?</label>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map(cat => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => toggleCategory(cat)}
+                    className={`px-4 py-2 rounded-full text-sm font-bold border transition-colors ${
+                      selectedCategories.includes(cat) 
+                        ? 'bg-ecoloop-green text-white border-ecoloop-green' 
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    {selectedCategories.includes(cat) && <CheckCircle2 size={14} className="inline mr-1 -mt-0.5" />}
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="font-bold text-deep-forest text-sm">Poids estimé (kg)</label>
                 <input 
-                  type="file" 
-                  accept="image/jpeg, image/png, image/webp" 
-                  style={{ display: 'none' }}
-                  onChange={e => {
-                    if (e.target.files && e.target.files[0]) {
-                      setPhoto(e.target.files[0]);
-                    }
-                  }}
+                  type="number" 
+                  className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-ecoloop-green focus:bg-white transition-colors font-medium text-deep-forest"
+                  min="0.1" step="0.1" required
+                  value={weight} onChange={e => setWeight(e.target.value)}
+                  placeholder="Ex: 15"
                 />
-              </label>
+              </div>
+              <div className="space-y-2">
+                <label className="font-bold text-deep-forest text-sm">Prix / kg (FCFA)</label>
+                <input 
+                  type="number" 
+                  className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-ecoloop-green focus:bg-white transition-colors font-medium text-deep-forest"
+                  min="0" required
+                  value={price} onChange={e => setPrice(e.target.value)}
+                  placeholder="Ex: 300"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="font-bold text-deep-forest text-sm">Description (Optionnel)</label>
+              <textarea 
+                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-ecoloop-green focus:bg-white transition-colors resize-none h-24 font-medium text-deep-forest"
+                value={description} onChange={e => setDescription(e.target.value)}
+                placeholder="Précisions utiles pour le collecteur..."
+              />
+            </div>
+
+            <div className="pt-4 flex gap-3">
+              <button type="button" onClick={() => navigate(-1)} className="flex-1 py-4 font-bold text-text-secondary bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors">
+                Annuler
+              </button>
+              <button type="submit" disabled={isSubmitting} className="flex-[2] btn-primary py-4 text-lg flex items-center justify-center gap-2">
+                {isSubmitting ? (
+                  <><Loader2 className="animate-spin" size={20} /> Publication...</>
+                ) : (
+                  'Publier le lot'
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {step === 'success' && (
+          <div className="animate-in zoom-in-95 duration-300 flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-6">
+              <span className="text-4xl">🎉</span>
+            </div>
+            <h3 className="font-bold text-2xl text-deep-forest mb-2">Votre lot est publié</h3>
+            <p className="text-text-secondary mb-8">Le collecteur le plus proche vient d'être notifié. Vous recevrez une alerte dès qu'il acceptera la mission.</p>
+            
+            <div className="w-full space-y-3">
+              <button onClick={() => navigate('/producer/collections')} className="btn-primary w-full py-4 text-lg">
+                Suivre ma collecte
+              </button>
+              <button onClick={() => navigate('/household/dashboard')} className="w-full py-4 text-lg font-bold text-deep-forest bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors">
+                Retour à l'accueil
+              </button>
             </div>
           </div>
-
-          <button type="submit" className="btn btn-primary mt-4" disabled={isSubmitting}>
-            {isSubmitting ? 'Publication en cours...' : 'Publier le lot'}
-          </button>
-        </form>
+        )}
       </div>
     </div>
   );

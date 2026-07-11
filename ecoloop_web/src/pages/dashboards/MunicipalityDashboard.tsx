@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useDemo } from '@/contexts/DemoContext';
 
 export function MunicipalityDashboard() {
+  const { demoStep } = useDemo();
   const [isLoading, setIsLoading] = useState(true);
   const [decisionTaken, setDecisionTaken] = useState(false);
   const [simulationTriggered, setSimulationTriggered] = useState(false);
@@ -35,8 +37,14 @@ export function MunicipalityDashboard() {
               <span className="text-xs font-medium uppercase tracking-widest block mb-1 opacity-80">Index de propreté globale</span>
               <div className="flex items-center gap-2">
                 <Activity className="text-green-300" />
-                <span className="font-heading text-2xl font-bold">88<span className="text-sm opacity-80">/100</span></span>
+                <span className="font-heading text-2xl font-bold">{demoStep >= 5 ? 89 : 88}<span className="text-sm opacity-80">/100</span></span>
+                {demoStep >= 5 && (
+                  <span className="ml-2 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-bold animate-bounce">
+                    +1
+                  </span>
+                )}
               </div>
+              {demoStep >= 5 && <span className="text-xs text-green-200 mt-1 block">Suite à 4 collectes terminées</span>}
             </div>
             <div className="bg-white/10 p-4 rounded-xl border border-white/20 backdrop-blur-sm">
               <span className="text-xs font-medium uppercase tracking-widest block mb-1 opacity-80">Collecteurs actifs</span>
@@ -195,6 +203,35 @@ export function MunicipalityDashboard() {
           </Card>
 
         </div>
+
+        {/* EXPORTS & REPORTING */}
+        <h2 className="font-heading text-xl font-bold text-deep-forest mb-4">Rapports & Exports (ESG)</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <button className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center group hover:border-orange-300 hover:bg-orange-50 transition-colors">
+            <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <span className="font-black text-lg">PDF</span>
+            </div>
+            <h3 className="font-bold text-deep-forest">Exporter en PDF</h3>
+            <p className="text-xs text-text-secondary mt-1">Rapport synthétique pour présentation</p>
+          </button>
+          
+          <button className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center group hover:border-orange-300 hover:bg-orange-50 transition-colors">
+            <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <span className="font-black text-lg">XLS</span>
+            </div>
+            <h3 className="font-bold text-deep-forest">Exporter en Excel</h3>
+            <p className="text-xs text-text-secondary mt-1">Données brutes pour analyse approfondie</p>
+          </button>
+
+          <button className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center group hover:border-orange-300 hover:bg-orange-50 transition-colors">
+            <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            </div>
+            <h3 className="font-bold text-deep-forest">Télécharger le Rapport</h3>
+            <p className="text-xs text-text-secondary mt-1">Dossier complet (Impact & ESG)</p>
+          </button>
+        </div>
+
       </div>
     </div>
   );

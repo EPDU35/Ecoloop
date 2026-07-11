@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react';
-import { PackageOpen, ArrowRight, FileText, Clock, TrendingUp } from 'lucide-react';
+import { PackageOpen, FileText, Clock, TrendingUp, MapPin, CheckCircle2, Factory } from 'lucide-react';
 import { LoadingState } from '@/components/feedback';
+import { useDemo } from '@/contexts/DemoContext';
 
 export function RecyclerDashboard() {
+  const { demoStep } = useDemo();
   const [isLoading, setIsLoading] = useState(true);
+  const [purchaseLotId, setPurchaseLotId] = useState<string | null>(null);
+  const [collectionDay, setCollectionDay] = useState('');
+  const [purchaseStep, setPurchaseStep] = useState(1);
 
   useEffect(() => {
-    // Simulate loading
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
   if (isLoading) return <LoadingState fullPage message="Chargement du stock en temps réel..." />;
 
-  // Mock data for impact/demo
   const stocks = [
     { name: 'Plastique PET', quantity: '12.5 T', trend: '+18%' },
     { name: 'Plastique HDPE', quantity: '4.2 T', trend: '+5%' },
@@ -21,9 +24,27 @@ export function RecyclerDashboard() {
     { name: 'Verre', quantity: '8.4 T', trend: '+0%' }
   ];
 
+  const baseLots = [
+    { id: 'LOT-902', type: 'PET Clair (Balles)', purity: '98%', humidity: '< 2%', origin: 'Abidjan Sud', distance: '12 km', price: '250F/kg', available: 'Immédiate', weight: '2.5 T' },
+    { id: 'LOT-903', type: 'Carton Ondulé', purity: '95%', humidity: '4%', origin: 'Zone Industrielle Yopougon', distance: '5 km', price: '75F/kg', available: 'Dans 24h', weight: '5.0 T' },
+  ];
+
+  const demoLot = {
+    id: 'ECO-00094',
+    type: 'PET transparent',
+    purity: '98%',
+    humidity: '1%',
+    origin: 'Cocody Riviera',
+    distance: '3 km',
+    price: '120F/kg',
+    available: 'Immédiatement disponible',
+    weight: '100 kg'
+  };
+
+  const marketplaceLots = demoStep >= 4 ? [demoLot, ...baseLots] : baseLots;
+
   return (
     <div className="min-h-screen bg-bg font-body text-text-main pb-24">
-      {/* Header Impactful */}
       <div className="bg-purple-600 text-white pt-12 pb-24 px-6 rounded-b-[2rem] shadow-sm">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div>
@@ -38,15 +59,10 @@ export function RecyclerDashboard() {
 
       <div className="max-w-4xl mx-auto px-6 -mt-16">
         
-        {/* STOCK DISPONIBLE AUJOURD'HUI */}
         <h2 className="font-heading text-xl font-bold text-white mb-4">Stock disponible aujourd'hui</h2>
-        
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
           {stocks.map((stock) => (
-            <div 
-              key={stock.name}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col justify-between"
-            >
+            <div key={stock.name} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col justify-between">
               <span className="text-sm font-bold text-text-secondary mb-2">{stock.name}</span>
               <div>
                 <span className="font-heading text-2xl font-extrabold text-purple-900 block">{stock.quantity}</span>
@@ -58,26 +74,67 @@ export function RecyclerDashboard() {
           ))}
         </div>
 
-        {/* GROS BOUTON COMMANDER */}
-        <button 
-          className="w-full bg-purple-900 text-white rounded-2xl shadow-sm p-8 flex flex-col md:flex-row items-center justify-between gap-4 mb-6 relative overflow-hidden group hover:bg-purple-800 transition-colors"
-        >
-          <div className="relative z-10 flex items-center gap-6">
-            <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center">
-              <PackageOpen size={32} className="text-white" />
+        <h2 className="font-heading text-xl font-bold text-deep-forest mb-4 flex items-center gap-2">
+          <Factory size={24} className="text-purple-600" />
+          Marketplace B2B
+        </h2>
+
+        <div className="space-y-4 mb-8">
+          {marketplaceLots.map(lot => (
+            <div key={lot.id} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:border-purple-300 transition-colors">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded-full">{lot.id}</span>
+                    <span className="text-xs font-bold bg-green-50 text-ecoloop-green px-2 py-1 rounded-full flex items-center gap-1"><CheckCircle2 size={12} /> Vérifié</span>
+                  </div>
+                  <h3 className="font-heading text-xl font-bold text-deep-forest">{lot.type}</h3>
+                  <p className="text-sm text-text-secondary flex items-center gap-1 mt-1">
+                    <MapPin size={14} /> {lot.origin} • à {lot.distance}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="block text-2xl font-black text-purple-600">{lot.weight}</span>
+                  <span className="text-sm font-bold text-text-secondary">{lot.price}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 bg-gray-50 rounded-xl p-4 mb-4">
+                <div>
+                  <span className="block text-xs text-text-secondary mb-1">Pureté</span>
+                  <span className="font-bold text-deep-forest">{lot.purity}</span>
+                </div>
+                <div>
+                  <span className="block text-xs text-text-secondary mb-1">Humidité</span>
+                  <span className="font-bold text-deep-forest">{lot.humidity}</span>
+                </div>
+                <div>
+                  <span className="block text-xs text-text-secondary mb-1">Disponibilité</span>
+                  <span className="font-bold text-deep-forest">{lot.available}</span>
+                </div>
+              </div>
+
+              {lot.id === 'ECO-00094' && (
+                <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-bold text-purple-900">Valeur marché estimée</span>
+                    <span className="font-heading text-xl font-black text-purple-700">12 000 FCFA</span>
+                  </div>
+                  <p className="text-xs text-purple-600 italic">"EcoLoop crée une économie circulaire où chaque acteur possède une source de valeur."</p>
+                </div>
+              )}
+
+              <button 
+                onClick={() => setPurchaseLotId(lot.id)}
+                className="w-full btn-primary bg-purple-600 hover:bg-purple-700 py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <PackageOpen size={20} /> Acheter ce lot
+              </button>
             </div>
-            <div className="text-left">
-              <h2 className="font-heading text-2xl font-extrabold tracking-tight">Commander de la matière</h2>
-              <p className="text-purple-200">Accéder à la marketplace B2B</p>
-            </div>
-          </div>
-          <div className="relative z-10 bg-white/10 p-3 rounded-full group-hover:bg-white group-hover:text-purple-900 transition-colors">
-            <ArrowRight size={24} />
-          </div>
-        </button>
+          ))}
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* CERTIFICATS ESG */}
           <button className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center group hover:border-purple-300 transition-colors">
             <div className="w-16 h-16 bg-green-50 text-ecoloop-green rounded-full flex items-center justify-center mb-4 transition-transform">
               <FileText size={32} />
@@ -86,7 +143,6 @@ export function RecyclerDashboard() {
             <p className="text-sm text-text-secondary">Téléchargez vos rapports d'impact et de traçabilité</p>
           </button>
 
-          {/* HISTORIQUE */}
           <button className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center group hover:border-purple-300 transition-colors">
             <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4 transition-transform">
               <Clock size={32} />
@@ -97,6 +153,72 @@ export function RecyclerDashboard() {
         </div>
 
       </div>
+
+      {/* PURCHASE MODAL */}
+      {purchaseLotId && (
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl animate-in zoom-in-95 duration-200">
+            {purchaseStep === 1 && (
+              <>
+                <h3 className="font-bold text-2xl text-deep-forest mb-2">Confirmer l'achat</h3>
+                <p className="text-text-secondary mb-6">Sélectionnez un jour pour la collecte de ce lot.</p>
+                
+                <div className="space-y-4 mb-8">
+                  <label className="font-bold text-deep-forest text-sm">Jour de collecte souhaité</label>
+                  <select 
+                    value={collectionDay} 
+                    onChange={e => setCollectionDay(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-medium text-deep-forest focus:outline-none focus:border-purple-500"
+                  >
+                    <option value="">Sélectionner un jour...</option>
+                    <option value="Aujourd'hui">Aujourd'hui</option>
+                    <option value="Demain">Demain</option>
+                    <option value="Lundi">Lundi prochain</option>
+                    <option value="Mardi">Mardi prochain</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-3">
+                  <button onClick={() => setPurchaseLotId(null)} className="flex-1 py-3 font-bold text-text-secondary bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors">
+                    Annuler
+                  </button>
+                  <button 
+                    disabled={!collectionDay}
+                    onClick={() => {
+                      setPurchaseStep(2);
+                      setTimeout(() => {
+                        setPurchaseStep(1);
+                        setPurchaseLotId(null);
+                        // Move demo step to trigger Collector mission visibility
+                        if (purchaseLotId === 'ECO-00094') {
+                          // Note: In demo, producer publishes (1), then recycler buys -> Collector alerted. 
+                          // The demo step for collector alert could be 1 or 1.5. In our V7 flow, step 1 is "Lot published (Collector alerted)".
+                          // If we are at step 0, we can jump to 1.
+                        }
+                        alert("Le producteur et le collecteur ont été notifiés de cette collecte prévue pour " + collectionDay);
+                      }, 2000);
+                    }} 
+                    className="flex-[2] py-3 font-bold text-white bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 disabled:cursor-not-allowed rounded-xl transition-colors"
+                  >
+                    Confirmer la collecte
+                  </button>
+                </div>
+              </>
+            )}
+
+            {purchaseStep === 2 && (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="text-ecoloop-green" size={32} />
+                </div>
+                <h3 className="font-bold text-2xl text-deep-forest mb-2">Achat confirmé</h3>
+                <p className="text-text-secondary mb-2">Les notifications ont été envoyées au producteur et au réseau de collecteurs.</p>
+                <p className="text-purple-600 font-bold text-sm">Collecte prévue : {collectionDay}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,19 +1,28 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './features/auth/AuthContext';
+import { DemoProvider } from './contexts/DemoContext';
 import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { MainLayout } from './components/layout/MainLayout';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { MunicipalityDashboard } from './pages/dashboards/MunicipalityDashboard';
+import { CollectorMapPage } from './pages/dashboards/CollectorMapPage';
 import { HouseholdDashboard } from './pages/dashboards/HouseholdDashboard';
 import { CollectorDashboard } from './pages/dashboards/CollectorDashboard';
 import { RecyclerDashboard } from './pages/dashboards/RecyclerDashboard';
+import { TraceabilityPage } from './pages/dashboards/TraceabilityPage';
 import { ImpactPage } from './pages/dashboards/ImpactPage';
 import { ProfilePage } from './pages/dashboards/ProfilePage';
 import { SettingsPage } from './pages/dashboards/SettingsPage';
 import { NewLotPage } from './pages/dashboards/NewLotPage';
+import { ReportWastePage } from './pages/dashboards/ReportWastePage';
+import { MyCollectionsPage } from './pages/dashboards/MyCollectionsPage';
+import { MyReportsPage } from './pages/dashboards/MyReportsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
+import { AiCenterPage } from './pages/AiCenterPage';
+import { InvestorDashboard } from './pages/InvestorDashboard';
+import { VisionPage } from './pages/VisionPage';
 import { ContactPage } from './pages/ContactPage';
 import { LegalPage } from './pages/LegalPage';
 import { PrivacyPage } from './pages/PrivacyPage';
@@ -44,8 +53,9 @@ function DashboardRedirect() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
+      <DemoProvider>
+        <Router>
+          <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -82,6 +92,21 @@ function App() {
                 <NewLotPage />
               </ProtectedRoute>
             } />
+            <Route path="/producer/report" element={
+              <ProtectedRoute allowedRoles={['producteur']}>
+                <ReportWastePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/producer/collections" element={
+              <ProtectedRoute allowedRoles={['producteur']}>
+                <MyCollectionsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/producer/reports" element={
+              <ProtectedRoute allowedRoles={['producteur']}>
+                <MyReportsPage />
+              </ProtectedRoute>
+            } />
             <Route path="/collector/dashboard" element={
               <ProtectedRoute allowedRoles={['collecteur']}>
                 <CollectorDashboard />
@@ -103,10 +128,19 @@ function App() {
               </ProtectedRoute>
             } />
             
+            {/* Pages publiques / Showcase */}
+            <Route path="ai-center" element={<AiCenterPage />} />
+            <Route path="investor" element={<InvestorDashboard />} />
+            <Route path="vision" element={<VisionPage />} />
+            
+            {/* Traçabilité (Demo) */}
+            <Route path="traceability" element={<TraceabilityPage />} />
+            
             <Route path="*" element={<NotFoundPage />} />
           </Route>
-        </Routes>
-      </Router>
+          </Routes>
+        </Router>
+      </DemoProvider>
     </AuthProvider>
   );
 }

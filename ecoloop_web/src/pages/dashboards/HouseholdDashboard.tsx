@@ -54,7 +54,8 @@ export function HouseholdDashboard() {
 
   // AI Scanner state
   const [showScanner, setShowScanner] = useState(false);
-  const [scanStep, setScanStep] = useState<'idle'|'scanning'|'analyzing'|'result'>('idle');
+  const [scanStep, setScanStep] = useState<'idle'|'camera'|'preview'|'analyzing'|'result'>('idle');
+  const [analysisText, setAnalysisText] = useState('Analyse...');
 
   if (isLoading) {
     return <LoadingState fullPage message="Chargement de votre espace..." />;
@@ -65,9 +66,16 @@ export function HouseholdDashboard() {
 
   const handleScan = () => {
     setShowScanner(true);
-    setScanStep('scanning');
-    setTimeout(() => setScanStep('analyzing'), 1500);
-    setTimeout(() => setScanStep('result'), 3500);
+    setScanStep('camera');
+  };
+
+  const startAnalysis = () => {
+    setScanStep('analyzing');
+    setAnalysisText('Analyse...');
+    setTimeout(() => setAnalysisText('Identification...'), 800);
+    setTimeout(() => setAnalysisText('Classification...'), 1600);
+    setTimeout(() => setAnalysisText('Estimation...'), 2400);
+    setTimeout(() => setScanStep('result'), 3200);
   };
 
   const closeScanner = () => {
@@ -132,7 +140,7 @@ export function HouseholdDashboard() {
           </button>
 
           {/* 3. Mes collectes */}
-          <button className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between group hover:border-gray-300 transition-colors">
+          <button onClick={() => navigate('/traceability')} className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between group hover:border-gray-300 transition-colors">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center">
                 <Clock size={24} />
@@ -169,34 +177,66 @@ export function HouseholdDashboard() {
         {showScanner && (
           <div className="fixed inset-0 bg-gray-900/90 z-50 flex items-center justify-center p-6">
             <div className="bg-white w-full max-w-sm rounded-2xl p-6 text-center relative overflow-hidden">
-              {scanStep === 'scanning' && (
+              {scanStep === 'camera' && (
                 <div className="py-8">
-                  <div className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-xl mx-auto mb-6 flex items-center justify-center relative">
-                    <Camera className="text-gray-400" size={40} />
-                    <motion.div 
-                      className="absolute inset-0 bg-blue-500/20"
-                      animate={{ y: ['-100%', '100%'] }}
-                      transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
-                    />
+                  <div className="w-full aspect-[4/3] bg-gray-100 rounded-xl mx-auto mb-6 flex flex-col items-center justify-center relative border-2 border-dashed border-gray-300">
+                    <Camera className="text-gray-400 mb-2" size={40} />
+                    <span className="text-sm text-gray-500 font-medium">Cadrez votre déchet</span>
                   </div>
-                  <h3 className="font-bold text-xl text-deep-forest mb-2">Prise de photo...</h3>
+                  <button onClick={() => setScanStep('preview')} className="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2">
+                    <Camera size={24} />
+                    Prendre la photo
+                  </button>
+                  <button onClick={closeScanner} className="mt-4 text-text-secondary hover:text-deep-forest font-bold transition-colors">
+                    Annuler
+                  </button>
+                </div>
+              )}
+
+              {scanStep === 'preview' && (
+                <div className="py-8">
+                  <div className="w-full aspect-[4/3] bg-gray-800 rounded-xl mx-auto mb-6 flex items-center justify-center relative overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=400&auto=format&fit=crop" alt="Captured waste" className="w-full h-full object-cover opacity-80" />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <button onClick={startAnalysis} className="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2">
+                      ✅ Utiliser cette photo
+                    </button>
+                    <button onClick={() => setScanStep('camera')} className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-deep-forest font-bold rounded-xl transition-colors flex items-center justify-center gap-2">
+                      🔄 Reprendre
+                    </button>
+                  </div>
                 </div>
               )}
 
               {scanStep === 'analyzing' && (
-                <div className="py-8">
-                  <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
-                      <Recycle className="text-blue-500" size={32} />
-                    </motion.div>
+                <div className="py-12">
+                  <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }} className="absolute inset-0 border-4 border-blue-200 border-t-blue-500 rounded-full" />
+                    <Recycle className="text-blue-500" size={40} />
                   </div>
-                  <h3 className="font-bold text-xl text-deep-forest mb-2">Analyse EcoLoop AI</h3>
-                  <p className="text-text-secondary text-sm">Identification de la matière en cours...</p>
+                  <h3 className="font-bold text-2xl text-deep-forest mb-2">EcoLoop AI</h3>
+                  <motion.p 
+                    key={analysisText}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-blue-600 font-medium text-lg"
+                  >
+                    {analysisText}
+                  </motion.p>
+                  <div className="w-48 h-2 bg-gray-100 rounded-full mx-auto mt-6 overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-blue-500"
+                      initial={{ width: "0%" }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: 3.2, ease: "linear" }}
+                    />
+                  </div>
                 </div>
               )}
 
               {scanStep === 'result' && (
-                <div className="py-6 text-left">
+                <div className="py-6 text-left mb-[100px] md:mb-0">
                   <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-green-100">
                     <CheckCircle2 className="text-ecoloop-green" size={32} />
                   </div>
@@ -212,17 +252,24 @@ export function HouseholdDashboard() {
                       <span className="font-bold text-ecoloop-green">300 FCFA / kg</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-text-secondary">Demande</span>
-                      <span className="font-bold text-orange-500">Très élevée</span>
+                      <span className="text-text-secondary">Qualité</span>
+                      <span className="font-bold text-blue-500">Excellente</span>
+                    </div>
+                    <div className="flex justify-between border-t border-gray-200 pt-2 mt-2">
+                      <span className="text-text-secondary font-medium">Impact</span>
+                      <span className="font-bold text-deep-forest flex items-center gap-1"><Leaf size={14} className="text-ecoloop-green"/> -0.5 kg CO₂</span>
                     </div>
                   </div>
 
-                  <div className="flex gap-3">
-                    <button onClick={closeScanner} className="px-4 py-3 font-bold text-text-secondary hover:bg-gray-50 rounded-xl transition-colors">
-                      Fermer
+                  <div className="flex flex-col gap-3">
+                    <button onClick={() => { closeScanner(); setShowRecycleModal(true); setRecycleType('Plastique'); }} className="btn-primary w-full py-4 text-lg">
+                      Publier le lot
                     </button>
-                    <button onClick={() => { closeScanner(); setShowRecycleModal(true); setRecycleType('Plastique'); }} className="btn-primary flex-1 py-3">
-                      Demander la collecte
+                    <button onClick={() => setScanStep('camera')} className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-deep-forest font-bold rounded-xl transition-colors">
+                      Reprendre une photo
+                    </button>
+                    <button onClick={closeScanner} className="mt-2 text-text-secondary hover:text-deep-forest font-bold transition-colors text-center w-full">
+                      Fermer
                     </button>
                   </div>
                 </div>
@@ -289,8 +336,25 @@ export function HouseholdDashboard() {
                   <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
                     <CheckCircle2 size={32} className="text-ecoloop-green" />
                   </div>
-                  <h3 className="font-heading text-2xl font-bold text-deep-forest mb-2">Demande envoyée !</h3>
-                  <p className="text-text-secondary">Un collecteur vous sera attribué sous peu.</p>
+                  <h3 className="font-heading text-2xl font-bold text-deep-forest mb-2">Lot publié avec succès 🎉</h3>
+                  
+                  <div className="bg-gray-50 rounded-xl p-4 my-6 text-left border border-gray-100">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-bold text-deep-forest">{recycleType === 'Plastique' ? 'PET plastique' : recycleType}</span>
+                      <span className="text-sm font-bold bg-white px-2 py-1 rounded shadow-sm">12 kg</span>
+                    </div>
+                    <div className="border-t border-gray-200 my-3"></div>
+                    <p className="text-sm text-text-secondary mb-1">Valeur estimée</p>
+                    <div className="flex justify-between items-end mb-4">
+                      <span className="text-sm font-medium text-gray-500">12 × 150 FCFA</span>
+                      <span className="font-heading text-2xl font-black text-ecoloop-green">= 1 800 FCFA</span>
+                    </div>
+                    <div className="bg-green-100 text-green-800 text-sm font-bold p-3 rounded-lg flex justify-between items-center">
+                      <span>Récompense :</span>
+                      <span>+50 EcoPoints</span>
+                    </div>
+                  </div>
+                  <p className="text-sm font-medium text-text-secondary mb-4 italic">"EcoLoop crée une économie circulaire où chaque acteur possède une source de valeur."</p>
                 </div>
               )}
             </div>
