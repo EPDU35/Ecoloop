@@ -44,8 +44,9 @@ async def create_transaction(db: AsyncSession, current_user: User, payload: Tran
             )
     except HTTPException:
         raise
-    except Exception:
-        pass  # AI service unavailable - proceed without fraud check
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning("AI fraud check unavailable, proceeding without: %s", e)
 
     try:
         transaction = await create_transaction_for_collection(db, collection, lot, payload.payment_method)

@@ -83,8 +83,8 @@ async def admin_stats(
     try:
         ai_health = await ai_service.health()
         ai_healthy = ai_health.get("status") == "ok"
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("AI health check failed: %s", e)
 
     return {
         "users": {
@@ -445,8 +445,8 @@ async def admin_system(
         await r.ping()
         redis_ok = True
         await r.aclose()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Redis health check failed: %s", e)
 
     ai_healthy = False
     ai_models = {}
@@ -454,8 +454,8 @@ async def admin_system(
         health = await ai_service.health()
         ai_healthy = health.get("status") == "ok"
         ai_models = health.get("models_loaded", {})
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("AI health check failed: %s", e)
 
     return {
         "database": {"status": "healthy" if db_ok else "unhealthy"},

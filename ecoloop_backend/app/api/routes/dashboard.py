@@ -80,8 +80,8 @@ async def producer_dashboard(
             pred = await ai_service.predict_price(cat.value.lower(), periods=7)
             if pred and pred.get("predictions"):
                 price_predictions[cat.value] = pred["predictions"][:7]
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("AI price prediction failed for %s: %s", cat.value, e)
 
     return {
         "total_revenue_fcfa": total_revenue,

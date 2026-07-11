@@ -1,4 +1,7 @@
+import logging
 import uuid
+
+logger = logging.getLogger(__name__)
 
 import cloudinary
 import cloudinary.uploader
@@ -86,8 +89,8 @@ async def price_suggestion(
                 "suggested_price_per_kg": round(suggested_price, 2),
                 "source": "ai",
             }
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("AI price suggestion failed for %s: %s", category.value, e)
 
     fallback_prices = {
         "PLASTIQUE": 150, "CARTON": 80, "METAL": 300,
@@ -166,7 +169,7 @@ async def upload_lot_photo(
         classify_result = await ai_service.classify_image(classify_file)
         if classify_result and classify_result.get("type_dominant"):
             pass  # Classification logged for analytics
-    except Exception:
-        pass  # AI classification is non-blocking
+    except Exception as e:
+        logger.debug("AI classification unavailable: %s", e)
 
     return updated_lot
