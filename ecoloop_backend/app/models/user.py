@@ -18,6 +18,7 @@ class UserRole(str, enum.Enum):
     INDUSTRIEL = "INDUSTRIEL"
     MAIRIE = "MAIRIE"
     ADMIN = "ADMIN"
+    ADMIN_ARBITER = "ADMIN_ARBITER"
 
 
 class User(Base):
@@ -27,7 +28,10 @@ class User(Base):
 
     full_name: Mapped[str] = mapped_column(String(150), nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
-    phone: Mapped[str] = mapped_column(String(20), unique=True, index=True, nullable=False)
+    phone: Mapped[str | None] = mapped_column(String(20), index=True, nullable=True)
+    phone_encrypted: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    phone_hash: Mapped[str | None] = mapped_column(String(255), unique=True, index=True, nullable=True)
+    encryption_key_version: Mapped[int | None] = mapped_column(Integer, default=1, nullable=True)
 
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
 
@@ -49,6 +53,7 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     def is_locked(self) -> bool:
         return self.locked_until is not None and self.locked_until > datetime.now(self.locked_until.tzinfo)

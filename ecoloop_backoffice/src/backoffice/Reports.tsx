@@ -7,7 +7,7 @@ import {
   MapPin,
   ExternalLink 
 } from 'lucide-react';
-import api from '../../services/api';
+import api from '../services/api';
 
 interface Report {
   id: string;

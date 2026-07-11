@@ -35,6 +35,7 @@ from app.api.routes import (
     transactions,
     users,
     wastes,
+    v2_routes,
 )
 from app.config.settings import settings
 from app.services.ai_service import ai_service
@@ -169,6 +170,7 @@ app.include_router(rewards.router, prefix=prefix)
 app.include_router(reports.router, prefix=prefix)
 app.include_router(push.router, prefix=prefix)
 app.include_router(ai.router, prefix=f"{prefix}/ai", tags=["AI Engine"])
+app.include_router(v2_routes.router)
 
 from datetime import datetime
 

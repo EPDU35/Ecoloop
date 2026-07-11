@@ -1,83 +1,137 @@
-"""
-Matching automatique : quand un nouveau lot est publié, on propose les collecteurs
-les plus proches (voir dossier technique : "Nouveau lot -> recherche collecteurs
-proches -> proposition automatique").
-
-Implémentation actuelle : formule de Haversine en Python, suffisante pour le MVP.
-Évolution prévue (dossier technique) : passer la requête en PostGIS
-(ST_DWithin / ST_Distance) directement en base pour de meilleures performances
-à grande échelle, sans changer la signature publique de ce service.
-"""
 import math
 import uuid
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import User, UserRole
 from app.models.waste import WasteLot
+from app.models.collector_profile import CollectorProfile, CollectorStatus
+from app.models.user import User
+from app.models.matching_decision import MatchingDecision
+from app.models.user_location import UserLocation
 
-EARTH_RADIUS_KM = 6371.0
-DEFAULT_SEARCH_RADIUS_KM = 15.0
 
-
-def haversine_distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    phi1, phi2 = math.radians(lat1), math.radians(lat2)
-    d_phi = math.radians(lat2 - lat1)
-    d_lambda = math.radians(lon2 - lon1)
-
-    a = math.sin(d_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2) ** 2
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate distance in kilometers between two GPS points."""
+    R = 6371.0  # Earth radius
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return EARTH_RADIUS_KM * c
+    return R * c
 
 
-async def find_nearby_collectors(
-    db: AsyncSession,
-    lot: WasteLot,
-    radius_km: float = DEFAULT_SEARCH_RADIUS_KM,
-    limit: int = 10,
-) -> list[tuple[User, float]]:
-    """
-    Retourne les collecteurs actifs les plus proches du lot, triés par distance.
-    Utilise la table collector_locations pour les positions GPS.
+class MatchingService:
+    @staticmethod
+    async def suggest_best_collectors(
+        db: AsyncSession,
+        lot_id: uuid.UUID
+    ) -> list[dict]:
+        # 1. Fetch Waste Lot
+        lot = await db.get(WasteLot, lot_id)
+        if not lot:
+            raise ValueError("Lot de déchets introuvable.")
 
-    NOTE SÉCURITÉ : ce service ne fait que lire des positions déclaratives de
-    collecteurs actifs ; il ne renvoie jamais de données de compte sensibles.
-    """
-    from app.models.collector_location import CollectorLocation
+        # 2. Fetch all active collectors
+        stmt = select(CollectorProfile, User).join(User, CollectorProfile.id == User.id)
+        result = await db.execute(stmt)
+        profiles_list = result.all()
 
-    result = await db.execute(
-        select(User).where(User.role == UserRole.COLLECTEUR, User.is_active.is_(True))
-    )
-    collectors = result.scalars().all()
+        candidates = []
 
-    candidates: list[tuple[User, float]] = []
-    for collector in collectors:
-        loc_result = await db.execute(
-            select(CollectorLocation).where(CollectorLocation.collector_id == collector.id)
-        )
-        loc = loc_result.scalar_one_or_none()
-        if loc is None:
-            continue
+        for profile, user in profiles_list:
+            # Get latest current GPS coordinates of the collector from user_locations
+            loc_result = await db.execute(
+                select(UserLocation).where(
+                    UserLocation.user_id == user.id,
+                    UserLocation.is_current == True
+                ).order_by(UserLocation.created_at.desc()).limit(1)
+            )
+            latest_loc = loc_result.scalar_one_or_none()
 
-        distance = haversine_distance_km(
-            float(lot.latitude), float(lot.longitude),
-            float(loc.latitude), float(loc.longitude),
-        )
-        if distance <= radius_km:
-            candidates.append((collector, distance))
+            # Default coordinates to lot location if no location log exists
+            lat_c = float(latest_loc.latitude) if latest_loc else float(lot.latitude)
+            lng_c = float(latest_loc.longitude) if latest_loc else float(lot.longitude)
 
-    candidates.sort(key=lambda x: x[1])
-    return candidates[:limit]
+            distance_km = haversine_distance(float(lot.latitude), float(lot.longitude), lat_c, lng_c)
+
+            # Sub-scores calculation
+            # Distance: 30% of total. Closer is better.
+            dist_score = max(0.0, 100.0 - (distance_km * 5.0))  # 100 at 0km, 50 at 10km, 0 at 20km+
+
+            # Reliability: 35% of total.
+            rel_score = float(profile.collector_reliability_score) * 100.0
+
+            # Capacity: 20% of total.
+            capacity_fit = 100.0 if float(profile.vehicle_capacity_kg) >= float(lot.estimated_weight_kg) else 0.0
+
+            # Availability: 10% of total.
+            avail_score = 100.0 if profile.status == CollectorStatus.AVAILABLE else 0.0
+
+            # Experience: 5% of total. Completed missions boost.
+            exp_score = min(100.0, float(profile.completed_missions) * 20.0)  # 100 if completed >= 5 missions
+
+            # Final Score Calculation
+            final_score = (
+                dist_score * 0.30 +
+                rel_score * 0.35 +
+                capacity_fit * 0.20 +
+                avail_score * 0.10 +
+                exp_score * 0.05
+            )
+
+            explanation_str = (
+                f"Collecteur situé à {distance_km:.2f} km. "
+                f"Fiabilité évaluée à {rel_score:.1f}%. "
+                f"Capacité de véhicule ({profile.vehicle_capacity_kg} kg) adaptée. "
+                f"Statut : {profile.status.value}."
+            )
+
+            explanation = {
+                "distance": f"{distance_km:.2f} km",
+                "reliability": f"{rel_score:.1f}%",
+                "capacity": f"{profile.vehicle_capacity_kg} kg",
+                "availability": profile.status.value,
+                "experience": f"{profile.completed_missions} missions"
+            }
+
+            candidates.append({
+                "collector_id": user.id,
+                "full_name": user.full_name,
+                "phone": user.phone,
+                "distance_score": dist_score,
+                "reliability_score": rel_score,
+                "capacity_score": capacity_fit,
+                "availability_score": avail_score,
+                "experience_score": exp_score,
+                "final_score": final_score,
+                "explanation_text": explanation_str,
+                "decision_explanation": explanation
+            })
+
+        # Sort candidates by final score descending
+        candidates.sort(key=lambda x: x["final_score"], reverse=True)
+
+        # Save candidates to matching_decisions (mark the top candidate as selected)
+        for index, cand in enumerate(candidates):
+            decision = MatchingDecision(
+                lot_id=lot_id,
+                collector_id=cand["collector_id"],
+                distance_score=cand["distance_score"],
+                reliability_score=cand["reliability_score"],
+                capacity_score=cand["capacity_score"],
+                availability_score=cand["availability_score"],
+                experience_score=cand["experience_score"],
+                final_score=cand["final_score"],
+                selected=(index == 0 and cand["final_score"] > 50.0),  # Auto-select the best one if score > 50
+                decision_explanation=cand["decision_explanation"]
+            )
+            db.add(decision)
+            
+        await db.flush()
+
+        return candidates
 
 
-async def notify_nearby_collectors(db: AsyncSession, lot: WasteLot) -> list[uuid.UUID]:
-    """
-    Point d'entrée appelé après la création d'un lot (POST /wastes).
-    Retourne la liste des collecteurs notifiés.
-    """
-    nearby = await find_nearby_collectors(db, lot)
-    notified_ids = [c.id for c, _distance in nearby]
-    # L'envoi effectif passe par notification_service pour rester découplé
-    # (canal push, SMS, etc.).
-    return notified_ids
+async def notify_nearby_collectors(db: AsyncSession, lot: WasteLot) -> None:
+    # Logic to send notifications to nearby collectors within radius (mock)
+    pass

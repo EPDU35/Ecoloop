@@ -8,12 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from app.config.database import Base
 from app.config.settings import settings
 
-# Import de tous les modèles pour qu'Alembic détecte le schéma complet lors de
-# l'autogénération des migrations.
-from app.models import (  # noqa: F401
-    audit_log, collection, collector_location, collector_profile,
-    notification, reward, reward_transaction, review, transaction, user, waste,
-)
+from app.models import *  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
@@ -30,13 +25,18 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        render_as_batch=True,
     )
     with context.begin_transaction():
         context.run_migrations()
 
 
 def do_run_migrations(connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        render_as_batch=True,
+    )
     with context.begin_transaction():
         context.run_migrations()
 
