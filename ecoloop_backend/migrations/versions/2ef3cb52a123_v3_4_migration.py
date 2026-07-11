@@ -35,8 +35,9 @@ def upgrade() -> None:
                existing_nullable=True,
                postgresql_using='new_value::json')
 
-    with op.batch_alter_table('collection_missions', schema=None) as batch_op:
-        batch_op.create_unique_constraint(batch_op.f('uq_collection_missions_idempotency_key'), ['idempotency_key'])
+    if 'collection_missions' in inspector.get_table_names():
+        with op.batch_alter_table('collection_missions', schema=None) as batch_op:
+            batch_op.create_unique_constraint(batch_op.f('uq_collection_missions_idempotency_key'), ['idempotency_key'])
 
     with op.batch_alter_table('collections', schema=None) as batch_op:
         batch_op.alter_column('weight_verified_by',
@@ -303,8 +304,11 @@ def downgrade() -> None:
                type_=sa.VARCHAR(length=10),
                existing_nullable=True)
 
-    with op.batch_alter_table('collection_missions', schema=None) as batch_op:
-        batch_op.drop_constraint(batch_op.f('uq_collection_missions_idempotency_key'), type_='unique')
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    if 'collection_missions' in inspector.get_table_names():
+        with op.batch_alter_table('collection_missions', schema=None) as batch_op:
+            batch_op.drop_constraint(batch_op.f('uq_collection_missions_idempotency_key'), type_='unique')
 
     with op.batch_alter_table('audit_logs', schema=None) as batch_op:
         batch_op.alter_column('new_value',
