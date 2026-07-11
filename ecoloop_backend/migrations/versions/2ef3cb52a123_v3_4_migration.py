@@ -27,11 +27,13 @@ def upgrade() -> None:
         batch_op.alter_column('old_value',
                existing_type=sa.TEXT(),
                type_=sa.JSON(),
-               existing_nullable=True)
+               existing_nullable=True,
+               postgresql_using='old_value::json')
         batch_op.alter_column('new_value',
                existing_type=sa.TEXT(),
                type_=sa.JSON(),
-               existing_nullable=True)
+               existing_nullable=True,
+               postgresql_using='new_value::json')
 
     with op.batch_alter_table('collection_missions', schema=None) as batch_op:
         batch_op.create_unique_constraint(batch_op.f('uq_collection_missions_idempotency_key'), ['idempotency_key'])
