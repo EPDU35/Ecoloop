@@ -36,8 +36,7 @@ export function CollectorDashboard() {
 
   if (isLoading) return <LoadingState fullPage message="Recherche de missions..." />;
 
-  const todayRevenue = 18500; // Mock from user requirement
-  const missionsCount = 12; // Mock
+  const missionsCount = demoStep >= 3 ? 5 : 4; 
   
   const demoLot = {
     id: 'ECO-00094',
@@ -85,8 +84,8 @@ export function CollectorDashboard() {
               </div>
               <div className="border-t border-gray-200 my-2"></div>
               <div className="flex justify-between items-center bg-green-100 p-3 rounded-lg">
-                <span className="text-sm font-bold text-green-800">Gain net :</span>
-                <span className="font-heading text-xl font-black text-ecoloop-green">+2 500 FCFA</span>
+                <span className="text-sm font-bold text-green-800">Points récoltés :</span>
+                <span className="font-heading text-xl font-black text-ecoloop-green">+250 pts</span>
               </div>
             </div>
             <p className="text-sm font-medium text-text-secondary italic">"EcoLoop crée une économie circulaire où chaque acteur possède une source de valeur."</p>
@@ -102,12 +101,6 @@ export function CollectorDashboard() {
                   <h3 className="font-heading text-3xl font-extrabold text-deep-forest mb-1">{topLot.category}</h3>
                   <span className="inline-flex items-center gap-1 bg-green-50 text-ecoloop-green text-xs font-bold px-2 py-1 rounded-md">
                     <ShieldCheck size={14} /> Producteur vérifié
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="block text-sm text-text-secondary mb-1">Gain net</span>
-                  <span className="font-heading text-3xl font-extrabold text-blue-600">
-                    {(topLot.weight_kg * topLot.price_per_kg).toLocaleString()} FCFA
                   </span>
                 </div>
               </div>
@@ -192,8 +185,8 @@ export function CollectorDashboard() {
             colorClass="text-deep-forest"
           />
           <StatCard 
-            title="Gains" 
-            value={`${todayRevenue.toLocaleString()} FCFA`} 
+            title="Volume collecté" 
+            value="185 kg" 
             colorClass="text-blue-600"
           />
         </div>
@@ -215,9 +208,6 @@ export function CollectorDashboard() {
                         <MapIcon size={12} /> 4.2 km • {lot.weight_kg} kg
                       </p>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold text-blue-600 block">{(lot.weight_kg * lot.price_per_kg).toLocaleString()} FCFA</span>
                   </div>
                 </Card>
               ))}

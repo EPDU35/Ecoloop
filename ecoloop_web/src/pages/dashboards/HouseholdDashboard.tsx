@@ -262,25 +262,7 @@ export function HouseholdDashboard() {
                       <span className="text-text-secondary">Indice de confiance</span>
                       <span className="font-bold text-deep-forest">{detectedConfidence}%</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-text-secondary">Valeur estimée</span>
-                      <span className="font-bold text-ecoloop-green">
-                        {(() => {
-                          const prices: Record<string, number> = {
-                            'PET': 150,
-                            'Carton': 75,
-                            'Aluminium': 500,
-                            'Verre': 50,
-                            'Plastique souple': 100,
-                            'Papier': 60,
-                            'Métal': 400,
-                            'Plastique PET': 150
-                          };
-                          return prices[detectedCategory] || 150;
-                        })()} FCFA / kg
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
+                     <div className="flex justify-between">
                       <span className="text-text-secondary">Qualité</span>
                       <span className="font-bold text-blue-500">Excellente</span>
                     </div>
@@ -373,11 +355,6 @@ export function HouseholdDashboard() {
                       <span className="text-sm font-bold bg-white px-2 py-1 rounded shadow-sm">12 kg</span>
                     </div>
                     <div className="border-t border-gray-200 my-3"></div>
-                    <p className="text-sm text-text-secondary mb-1">Valeur estimée</p>
-                    <div className="flex justify-between items-end mb-4">
-                      <span className="text-sm font-medium text-gray-500">12 × 150 FCFA</span>
-                      <span className="font-heading text-2xl font-black text-ecoloop-green">= 1 800 FCFA</span>
-                    </div>
                     <div className="bg-green-100 text-green-800 text-sm font-bold p-3 rounded-lg flex justify-between items-center">
                       <span>Récompense :</span>
                       <span>+50 EcoPoints</span>

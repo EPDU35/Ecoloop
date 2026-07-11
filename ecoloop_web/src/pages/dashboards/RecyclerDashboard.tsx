@@ -95,7 +95,6 @@ export function RecyclerDashboard() {
                 </div>
                 <div className="text-right">
                   <span className="block text-2xl font-black text-purple-600">{lot.weight}</span>
-                  <span className="text-sm font-bold text-text-secondary">{lot.price}</span>
                 </div>
               </div>
 
@@ -113,16 +112,6 @@ export function RecyclerDashboard() {
                   <span className="font-bold text-deep-forest">{lot.available}</span>
                 </div>
               </div>
-
-              {lot.id === 'ECO-00094' && (
-                <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-4">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-bold text-purple-900">Valeur marché estimée</span>
-                    <span className="font-heading text-xl font-black text-purple-700">12 000 FCFA</span>
-                  </div>
-                  <p className="text-xs text-purple-600 italic">"EcoLoop crée une économie circulaire où chaque acteur possède une source de valeur."</p>
-                </div>
-              )}
 
               <button 
                 onClick={() => setPurchaseLotId(lot.id)}

@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck, Award, MapPin } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Award, MapPin, LogOut } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthContext';
 
 export function ProfilePage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-bg font-body text-text-main pb-24">
@@ -52,6 +52,14 @@ export function ProfilePage() {
               <span className="text-sm text-text-secondary">Abidjan, Cocody</span>
             </div>
           </div>
+          
+          <button 
+            onClick={logout} 
+            className="w-full bg-red-50 text-red-600 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors cursor-pointer mt-6"
+          >
+            <LogOut size={20} />
+            Se déconnecter
+          </button>
         </div>
       </div>
     </div>

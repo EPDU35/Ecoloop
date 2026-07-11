@@ -17,7 +17,6 @@ export function NewLotPage() {
   
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [weight, setWeight] = useState('');
-  const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   
   const [photo, setPhoto] = useState<File | null>(null);
@@ -54,29 +53,14 @@ export function NewLotPage() {
         setSelectedCategories([result.category]);
         setAiConfidence(result.confidence ? Math.round(result.confidence * 100) : 94);
         if (result.poids_estime_kg) setWeight(result.poids_estime_kg.toString());
-        
-        // Map category to standard price per kg in FCFA
-        const materialPrices: Record<string, number> = {
-          'PET': 150,
-          'Carton': 75,
-          'Aluminium': 500,
-          'Verre': 50,
-          'Plastique souple': 100,
-          'Papier': 60,
-          'Métal': 400
-        };
-        const basePrice = materialPrices[result.category] || 150;
-        setPrice(basePrice.toString());
       } else {
         setSelectedCategories(['PET']);
         setAiConfidence(94);
-        setPrice('150');
       }
     } catch (e) {
       console.error("AI Error", e);
       setSelectedCategories(['PET']);
       setAiConfidence(94);
-      setPrice('150');
     } finally {
       setStep('form');
     }
@@ -104,7 +88,7 @@ export function NewLotPage() {
       const lot = await wasteService.createLot({
         category: selectedCategories.join(', ') as any,
         weight_kg: parseFloat(weight) || 1,
-        price_per_kg: parseFloat(price) || 0,
+        price_per_kg: 0,
         description: description,
         latitude: 5.30966, 
         longitude: -4.01266
@@ -248,27 +232,15 @@ export function NewLotPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="font-bold text-deep-forest text-sm">Poids estimé (kg)</label>
-                <input 
-                  type="number" 
-                  className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-ecoloop-green focus:bg-white transition-colors font-medium text-deep-forest"
-                  min="0.1" step="0.1" required
-                  value={weight} onChange={e => setWeight(e.target.value)}
-                  placeholder="Ex: 15"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="font-bold text-deep-forest text-sm">Prix / kg (FCFA)</label>
-                <input 
-                  type="number" 
-                  className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-ecoloop-green focus:bg-white transition-colors font-medium text-deep-forest"
-                  min="0" required
-                  value={price} onChange={e => setPrice(e.target.value)}
-                  placeholder="Ex: 300"
-                />
-              </div>
+            <div className="space-y-2">
+              <label className="font-bold text-deep-forest text-sm">Poids estimé (kg)</label>
+              <input 
+                type="number" 
+                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-ecoloop-green focus:bg-white transition-colors font-medium text-deep-forest"
+                min="0.1" step="0.1" required
+                value={weight} onChange={e => setWeight(e.target.value)}
+                placeholder="Ex: 15"
+              />
             </div>
 
             <div className="space-y-2">

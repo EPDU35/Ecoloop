@@ -146,17 +146,25 @@ export function MainLayout() {
               Demo Live
             </div>
           </div>
-          <div className="relative pointer-events-auto">
+          <div className="flex gap-2 pointer-events-auto">
             <button 
-              onClick={() => setIsNotifOpen(!isNotifOpen)}
-              className="p-2.5 bg-white shadow-sm border border-gray-100 rounded-full text-deep-forest hover:bg-gray-50 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-ecoloop-green"
-              aria-label="Notifications"
+              onClick={logout}
+              className="p-2.5 bg-white shadow-sm border border-gray-100 rounded-full text-red-500 hover:bg-red-50 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 md:hidden"
+              aria-label="Déconnexion"
             >
-              <Bell size={24} />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
-              )}
+              <LogOut size={24} />
             </button>
+            <div className="relative">
+              <button 
+                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                className="p-2.5 bg-white shadow-sm border border-gray-100 rounded-full text-deep-forest hover:bg-gray-50 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-ecoloop-green"
+                aria-label="Notifications"
+              >
+                <Bell size={24} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
+                )}
+              </button>
 
             {isNotifOpen && (
               <div className="fixed inset-0 md:absolute md:inset-auto md:right-0 md:top-14 md:w-96 md:rounded-2xl bg-white shadow-2xl md:border md:border-gray-100 flex flex-col z-50 animate-in fade-in slide-in-from-top-2 duration-200">
@@ -217,6 +225,7 @@ export function MainLayout() {
                 )}
               </div>
             )}
+            </div>
           </div>
         </div>
 
