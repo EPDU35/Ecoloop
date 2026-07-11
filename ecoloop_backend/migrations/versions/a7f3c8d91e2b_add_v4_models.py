@@ -22,7 +22,7 @@ def upgrade() -> None:
     op.create_table('collector_profiles',
         sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('status', sa.Enum('AVAILABLE', 'BUSY', 'OFFLINE', 'SUSPENDED', name='collectorstatus'), nullable=False),
-        sa.Column('status_updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+        sa.Column('status_updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.Column('verification_status', sa.Enum('PENDING', 'VERIFIED', 'REJECTED', name='verificationstatus'), nullable=False),
         sa.Column('vehicle_capacity_kg', sa.Float(), nullable=False),
         sa.Column('vehicle_type', sa.String(length=50), nullable=True),
@@ -41,7 +41,7 @@ def upgrade() -> None:
         sa.Column('latitude', sa.Numeric(precision=9, scale=6), nullable=False),
         sa.Column('longitude', sa.Numeric(precision=9, scale=6), nullable=False),
         sa.Column('accuracy_meters', sa.Float(), nullable=True),
-        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.ForeignKeyConstraint(['collector_id'], ['users.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('collector_id')
     )
@@ -56,7 +56,7 @@ def upgrade() -> None:
         sa.Column('action', sa.Enum('COLLECTION_COMPLETED', 'SIGNUP_BONUS', 'REFERRAL', 'PENALTY', 'ADMIN_ADJUSTMENT', name='rewardaction'), nullable=False),
         sa.Column('points', sa.Integer(), nullable=False),
         sa.Column('balance_after', sa.Integer(), nullable=False),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.ForeignKeyConstraint(['collection_id'], ['collections.id'], ondelete='SET NULL'),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
@@ -81,7 +81,7 @@ def upgrade() -> None:
         sa.Column('reviewer_role', sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', name='userrole', create_type=False), nullable=False),
         sa.Column('rating', sa.Integer(), nullable=False),
         sa.Column('comment', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.ForeignKeyConstraint(['collection_id'], ['collections.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['reviewed_id'], ['users.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['reviewer_id'], ['users.id'], ondelete='CASCADE'),
@@ -103,7 +103,7 @@ def upgrade() -> None:
         sa.Column('entity_id', sa.Uuid(), nullable=True),
         sa.Column('is_read', sa.Boolean(), nullable=False),
         sa.Column('read_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
     )
@@ -118,7 +118,7 @@ def upgrade() -> None:
         sa.Column('entity_id', sa.Uuid(), nullable=False),
         sa.Column('old_value', sa.Text(), nullable=True),
         sa.Column('new_value', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='SET NULL'),
         sa.PrimaryKeyConstraint('id')
     )

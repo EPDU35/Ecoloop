@@ -23,27 +23,29 @@ def upgrade() -> None:
     inspector = sa.inspect(conn)
     if '_alembic_tmp_audit_logs' in inspector.get_table_names():
         op.drop_table('_alembic_tmp_audit_logs')
-    with op.batch_alter_table('audit_logs', schema=None) as batch_op:
-        batch_op.alter_column('old_value',
-               existing_type=sa.TEXT(),
-               type_=sa.JSON(),
-               existing_nullable=True,
-               postgresql_using='old_value::json')
-        batch_op.alter_column('new_value',
-               existing_type=sa.TEXT(),
-               type_=sa.JSON(),
-               existing_nullable=True,
-               postgresql_using='new_value::json')
+    if 'audit_logs' in inspector.get_table_names():
+        with op.batch_alter_table('audit_logs', schema=None) as batch_op:
+            batch_op.alter_column('old_value',
+                   existing_type=sa.TEXT(),
+                   type_=sa.JSON(),
+                   existing_nullable=True,
+                   postgresql_using='old_value::json')
+            batch_op.alter_column('new_value',
+                   existing_type=sa.TEXT(),
+                   type_=sa.JSON(),
+                   existing_nullable=True,
+                   postgresql_using='new_value::json')
 
     if 'collection_missions' in inspector.get_table_names():
         with op.batch_alter_table('collection_missions', schema=None) as batch_op:
             batch_op.create_unique_constraint(batch_op.f('uq_collection_missions_idempotency_key'), ['idempotency_key'])
 
-    with op.batch_alter_table('collections', schema=None) as batch_op:
-        batch_op.alter_column('weight_verified_by',
-               existing_type=sa.VARCHAR(length=10),
-               type_=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
-               existing_nullable=True)
+    if 'collections' in inspector.get_table_names():
+        with op.batch_alter_table('collections', schema=None) as batch_op:
+            batch_op.alter_column('weight_verified_by',
+                   existing_type=sa.VARCHAR(length=10),
+                   type_=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
+                   existing_nullable=True)
 
     bind = op.get_bind()
     if bind.dialect.name == 'postgresql':
@@ -55,264 +57,287 @@ def upgrade() -> None:
             if not result:
                 sa.Enum(*enum_values, name=enum_name).create(bind)
 
-    with op.batch_alter_table('collector_profiles', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('collector_type', sa.Enum('COLLECTOR_INTERNAL', 'COLLECTOR_PARTNER', name='collectortype'), nullable=False))
-        batch_op.add_column(sa.Column('company_id', sa.Uuid(), nullable=True))
-        batch_op.add_column(sa.Column('identity_verified', sa.Boolean(), nullable=False))
-        batch_op.add_column(sa.Column('coverage_zone', sa.String(length=255), nullable=True))
-        batch_op.add_column(sa.Column('collector_reliability_score', sa.Float(), nullable=False))
-        batch_op.add_column(sa.Column('reputation_score', sa.Float(), nullable=False))
-        batch_op.add_column(sa.Column('completed_missions', sa.Integer(), nullable=False))
-        batch_op.add_column(sa.Column('partner_since', sa.DateTime(timezone=True), nullable=False))
-        batch_op.add_column(sa.Column('new_partner_boost', sa.Boolean(), nullable=False))
-        batch_op.add_column(sa.Column('earnings_history', sa.String(length=2000), nullable=True))
-        batch_op.add_column(sa.Column('created_at', sa.DateTime(timezone=True), nullable=False))
-        batch_op.add_column(sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False))
-        batch_op.add_column(sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True))
-        batch_op.create_foreign_key(batch_op.f('fk_collector_profiles_company_id_users'), 'users', ['company_id'], ['id'], ondelete='SET NULL')
+    if 'collector_profiles' in inspector.get_table_names():
+        with op.batch_alter_table('collector_profiles', schema=None) as batch_op:
+            batch_op.add_column(sa.Column('collector_type', sa.Enum('COLLECTOR_INTERNAL', 'COLLECTOR_PARTNER', name='collectortype'), nullable=False))
+            batch_op.add_column(sa.Column('company_id', sa.Uuid(), nullable=True))
+            batch_op.add_column(sa.Column('identity_verified', sa.Boolean(), nullable=False))
+            batch_op.add_column(sa.Column('coverage_zone', sa.String(length=255), nullable=True))
+            batch_op.add_column(sa.Column('collector_reliability_score', sa.Float(), nullable=False))
+            batch_op.add_column(sa.Column('reputation_score', sa.Float(), nullable=False))
+            batch_op.add_column(sa.Column('completed_missions', sa.Integer(), nullable=False))
+            batch_op.add_column(sa.Column('partner_since', sa.DateTime(timezone=True), nullable=False))
+            batch_op.add_column(sa.Column('new_partner_boost', sa.Boolean(), nullable=False))
+            batch_op.add_column(sa.Column('earnings_history', sa.String(length=2000), nullable=True))
+            batch_op.add_column(sa.Column('created_at', sa.DateTime(timezone=True), nullable=False))
+            batch_op.add_column(sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False))
+            batch_op.add_column(sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True))
+            batch_op.create_foreign_key(batch_op.f('fk_collector_profiles_company_id_users'), 'users', ['company_id'], ['id'], ondelete='SET NULL')
 
-    with op.batch_alter_table('device_tokens', schema=None) as batch_op:
-        batch_op.alter_column('id',
-               existing_type=sa.NUMERIC(),
-               type_=sa.UUID(),
-               existing_nullable=False)
-        batch_op.alter_column('user_id',
-               existing_type=sa.NUMERIC(),
-               type_=sa.UUID(),
-               existing_nullable=False)
+    if 'device_tokens' in inspector.get_table_names():
+        with op.batch_alter_table('device_tokens', schema=None) as batch_op:
+            batch_op.alter_column('id',
+                   existing_type=sa.NUMERIC(),
+                   type_=sa.UUID(),
+                   existing_nullable=False)
+            batch_op.alter_column('user_id',
+                   existing_type=sa.NUMERIC(),
+                   type_=sa.UUID(),
+                   existing_nullable=False)
 
-    with op.batch_alter_table('eco_point_transactions', schema=None) as batch_op:
-        batch_op.create_unique_constraint(batch_op.f('uq_eco_point_transactions_idempotency_key'), ['idempotency_key'])
+    if 'eco_point_transactions' in inspector.get_table_names():
+        with op.batch_alter_table('eco_point_transactions', schema=None) as batch_op:
+            batch_op.create_unique_constraint(batch_op.f('uq_eco_point_transactions_idempotency_key'), ['idempotency_key'])
 
-    with op.batch_alter_table('notifications', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('priority', sa.String(length=50), nullable=False))
-        batch_op.add_column(sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False))
+    if 'notifications' in inspector.get_table_names():
+        with op.batch_alter_table('notifications', schema=None) as batch_op:
+            batch_op.add_column(sa.Column('priority', sa.String(length=50), nullable=False))
+            batch_op.add_column(sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False))
 
-    with op.batch_alter_table('purchase_offers', schema=None) as batch_op:
-        batch_op.create_unique_constraint(batch_op.f('uq_purchase_offers_idempotency_key'), ['idempotency_key'])
+    if 'purchase_offers' in inspector.get_table_names():
+        with op.batch_alter_table('purchase_offers', schema=None) as batch_op:
+            batch_op.create_unique_constraint(batch_op.f('uq_purchase_offers_idempotency_key'), ['idempotency_key'])
 
-    with op.batch_alter_table('reviews', schema=None) as batch_op:
-        batch_op.alter_column('reviewer_role',
-               existing_type=sa.VARCHAR(length=10),
-               type_=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
-               existing_nullable=False)
+    if 'reviews' in inspector.get_table_names():
+        with op.batch_alter_table('reviews', schema=None) as batch_op:
+            batch_op.alter_column('reviewer_role',
+                   existing_type=sa.VARCHAR(length=10),
+                   type_=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
+                   existing_nullable=False)
 
-    with op.batch_alter_table('transactions', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('lot_id', sa.Uuid(), nullable=True))
-        batch_op.add_column(sa.Column('company_id', sa.Uuid(), nullable=True))
-        batch_op.add_column(sa.Column('household_id', sa.Uuid(), nullable=True))
-        batch_op.add_column(sa.Column('pricing_rule_id', sa.Uuid(), nullable=True))
-        batch_op.add_column(sa.Column('material', sa.String(length=50), nullable=True))
-        batch_op.add_column(sa.Column('price_per_kg_applied', sa.Numeric(precision=10, scale=2), nullable=True))
-        batch_op.add_column(sa.Column('weight_applied', sa.Numeric(precision=10, scale=2), nullable=True))
-        batch_op.add_column(sa.Column('amount_paid_by_company', sa.Numeric(precision=12, scale=2), nullable=True))
-        batch_op.add_column(sa.Column('ecoloop_commission', sa.Numeric(precision=12, scale=2), nullable=True))
-        batch_op.add_column(sa.Column('household_reward', sa.Numeric(precision=12, scale=2), nullable=True))
-        batch_op.add_column(sa.Column('guarantee_status', sa.String(length=50), nullable=True))
-        batch_op.add_column(sa.Column('guarantee_provider', sa.String(length=50), nullable=True))
-        batch_op.add_column(sa.Column('payment_provider', sa.String(length=100), nullable=True))
-        batch_op.add_column(sa.Column('payment_reference', sa.String(length=255), nullable=True))
-        batch_op.add_column(sa.Column('payment_status', sa.String(length=50), nullable=True))
-        batch_op.add_column(sa.Column('idempotency_key', sa.String(length=255), nullable=True))
-        batch_op.add_column(sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False))
-        batch_op.alter_column('collection_id',
-               existing_type=sa.CHAR(length=32),
-               nullable=True)
-        batch_op.alter_column('producer_id',
-               existing_type=sa.CHAR(length=32),
-               nullable=True)
-        batch_op.alter_column('collector_id',
-               existing_type=sa.CHAR(length=32),
-               nullable=True)
-        batch_op.alter_column('gross_amount',
-               existing_type=sa.NUMERIC(precision=12, scale=2),
-               nullable=True)
-        batch_op.alter_column('commission_amount',
-               existing_type=sa.NUMERIC(precision=12, scale=2),
-               nullable=True)
-        batch_op.alter_column('net_amount',
-               existing_type=sa.NUMERIC(precision=12, scale=2),
-               nullable=True)
-        batch_op.alter_column('payment_method',
-               existing_type=sa.VARCHAR(length=12),
-               nullable=True)
-        batch_op.create_index(batch_op.f('ix_transactions_company_id'), ['company_id'], unique=False)
-        batch_op.create_index(batch_op.f('ix_transactions_household_id'), ['household_id'], unique=False)
-        batch_op.create_index(batch_op.f('ix_transactions_lot_id'), ['lot_id'], unique=False)
-        batch_op.create_index(batch_op.f('ix_transactions_pricing_rule_id'), ['pricing_rule_id'], unique=False)
-        batch_op.create_unique_constraint(batch_op.f('uq_transactions_idempotency_key'), ['idempotency_key'])
-        batch_op.create_foreign_key(batch_op.f('fk_transactions_company_id_users'), 'users', ['company_id'], ['id'], ondelete='RESTRICT')
-        batch_op.create_foreign_key(batch_op.f('fk_transactions_lot_id_waste_lots'), 'waste_lots', ['lot_id'], ['id'], ondelete='CASCADE')
-        batch_op.create_foreign_key(batch_op.f('fk_transactions_pricing_rule_id_pricing_rules'), 'pricing_rules', ['pricing_rule_id'], ['id'], ondelete='SET NULL')
-        batch_op.create_foreign_key(batch_op.f('fk_transactions_household_id_users'), 'users', ['household_id'], ['id'], ondelete='RESTRICT')
+    if 'transactions' in inspector.get_table_names():
+        with op.batch_alter_table('transactions', schema=None) as batch_op:
+            batch_op.add_column(sa.Column('lot_id', sa.Uuid(), nullable=True))
+            batch_op.add_column(sa.Column('company_id', sa.Uuid(), nullable=True))
+            batch_op.add_column(sa.Column('household_id', sa.Uuid(), nullable=True))
+            batch_op.add_column(sa.Column('pricing_rule_id', sa.Uuid(), nullable=True))
+            batch_op.add_column(sa.Column('material', sa.String(length=50), nullable=True))
+            batch_op.add_column(sa.Column('price_per_kg_applied', sa.Numeric(precision=10, scale=2), nullable=True))
+            batch_op.add_column(sa.Column('weight_applied', sa.Numeric(precision=10, scale=2), nullable=True))
+            batch_op.add_column(sa.Column('amount_paid_by_company', sa.Numeric(precision=12, scale=2), nullable=True))
+            batch_op.add_column(sa.Column('ecoloop_commission', sa.Numeric(precision=12, scale=2), nullable=True))
+            batch_op.add_column(sa.Column('household_reward', sa.Numeric(precision=12, scale=2), nullable=True))
+            batch_op.add_column(sa.Column('guarantee_status', sa.String(length=50), nullable=True))
+            batch_op.add_column(sa.Column('guarantee_provider', sa.String(length=50), nullable=True))
+            batch_op.add_column(sa.Column('payment_provider', sa.String(length=100), nullable=True))
+            batch_op.add_column(sa.Column('payment_reference', sa.String(length=255), nullable=True))
+            batch_op.add_column(sa.Column('payment_status', sa.String(length=50), nullable=True))
+            batch_op.add_column(sa.Column('idempotency_key', sa.String(length=255), nullable=True))
+            batch_op.add_column(sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False))
+            batch_op.alter_column('collection_id',
+                   existing_type=sa.CHAR(length=32),
+                   nullable=True)
+            batch_op.alter_column('producer_id',
+                   existing_type=sa.CHAR(length=32),
+                   nullable=True)
+            batch_op.alter_column('collector_id',
+                   existing_type=sa.CHAR(length=32),
+                   nullable=True)
+            batch_op.alter_column('gross_amount',
+                   existing_type=sa.NUMERIC(precision=12, scale=2),
+                   nullable=True)
+            batch_op.alter_column('commission_amount',
+                   existing_type=sa.NUMERIC(precision=12, scale=2),
+                   nullable=True)
+            batch_op.alter_column('net_amount',
+                   existing_type=sa.NUMERIC(precision=12, scale=2),
+                   nullable=True)
+            batch_op.alter_column('payment_method',
+                   existing_type=sa.VARCHAR(length=12),
+                   nullable=True)
+            batch_op.create_index(batch_op.f('ix_transactions_company_id'), ['company_id'], unique=False)
+            batch_op.create_index(batch_op.f('ix_transactions_household_id'), ['household_id'], unique=False)
+            batch_op.create_index(batch_op.f('ix_transactions_lot_id'), ['lot_id'], unique=False)
+            batch_op.create_index(batch_op.f('ix_transactions_pricing_rule_id'), ['pricing_rule_id'], unique=False)
+            batch_op.create_unique_constraint(batch_op.f('uq_transactions_idempotency_key'), ['idempotency_key'])
+            batch_op.create_foreign_key(batch_op.f('fk_transactions_company_id_users'), 'users', ['company_id'], ['id'], ondelete='RESTRICT')
+            batch_op.create_foreign_key(batch_op.f('fk_transactions_lot_id_waste_lots'), 'waste_lots', ['lot_id'], ['id'], ondelete='CASCADE')
+            batch_op.create_foreign_key(batch_op.f('fk_transactions_pricing_rule_id_pricing_rules'), 'pricing_rules', ['pricing_rule_id'], ['id'], ondelete='SET NULL')
+            batch_op.create_foreign_key(batch_op.f('fk_transactions_household_id_users'), 'users', ['household_id'], ['id'], ondelete='RESTRICT')
 
-    with op.batch_alter_table('user_invitations', schema=None) as batch_op:
-        batch_op.alter_column('role',
-               existing_type=sa.VARCHAR(length=10),
-               type_=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
-               existing_nullable=False)
+    if 'user_invitations' in inspector.get_table_names():
+        with op.batch_alter_table('user_invitations', schema=None) as batch_op:
+            batch_op.alter_column('role',
+                   existing_type=sa.VARCHAR(length=10),
+                   type_=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
+                   existing_nullable=False)
 
-    with op.batch_alter_table('users', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True))
-        batch_op.alter_column('role',
-               existing_type=sa.VARCHAR(length=10),
-               type_=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
-               existing_nullable=False)
+    if 'users' in inspector.get_table_names():
+        with op.batch_alter_table('users', schema=None) as batch_op:
+            batch_op.add_column(sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True))
+            batch_op.alter_column('role',
+                   existing_type=sa.VARCHAR(length=10),
+                   type_=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
+                   existing_nullable=False)
 
-    with op.batch_alter_table('waste_lots', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('estimated_weight_kg', sa.Numeric(precision=10, scale=2), nullable=False))
-        batch_op.add_column(sa.Column('actual_weight_kg', sa.Numeric(precision=10, scale=2), nullable=True))
-        batch_op.add_column(sa.Column('quality_status', sa.String(length=50), nullable=True))
-        batch_op.add_column(sa.Column('quality_verified_by_id', sa.Uuid(), nullable=True))
-        batch_op.add_column(sa.Column('quality_verified_at', sa.DateTime(timezone=True), nullable=True))
-        batch_op.add_column(sa.Column('verification_method', sa.String(length=50), nullable=True))
-        batch_op.add_column(sa.Column('weight_verified_by', sa.Uuid(), nullable=True))
-        batch_op.add_column(sa.Column('verification_photo_url', sa.String(length=500), nullable=True))
-        batch_op.add_column(sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True))
-        batch_op.alter_column('status',
-               existing_type=sa.VARCHAR(length=10),
-               type_=sa.Enum('CREATED', 'DISPONIBLE', 'OFFER_RECEIVED', 'ACCEPTED', 'EN_MISSION', 'COLLECTE', 'QUALITY_CHECK', 'PAYE', 'ANNULE', 'EXPIRED', name='lotstatus'),
-               existing_nullable=False)
-        batch_op.create_foreign_key(batch_op.f('fk_waste_lots_weight_verified_by_users'), 'users', ['weight_verified_by'], ['id'], ondelete='SET NULL')
-        batch_op.create_foreign_key(batch_op.f('fk_waste_lots_quality_verified_by_id_users'), 'users', ['quality_verified_by_id'], ['id'], ondelete='SET NULL')
+    if 'waste_lots' in inspector.get_table_names():
+        with op.batch_alter_table('waste_lots', schema=None) as batch_op:
+            batch_op.add_column(sa.Column('estimated_weight_kg', sa.Numeric(precision=10, scale=2), nullable=False))
+            batch_op.add_column(sa.Column('actual_weight_kg', sa.Numeric(precision=10, scale=2), nullable=True))
+            batch_op.add_column(sa.Column('quality_status', sa.String(length=50), nullable=True))
+            batch_op.add_column(sa.Column('quality_verified_by_id', sa.Uuid(), nullable=True))
+            batch_op.add_column(sa.Column('quality_verified_at', sa.DateTime(timezone=True), nullable=True))
+            batch_op.add_column(sa.Column('verification_method', sa.String(length=50), nullable=True))
+            batch_op.add_column(sa.Column('weight_verified_by', sa.Uuid(), nullable=True))
+            batch_op.add_column(sa.Column('verification_photo_url', sa.String(length=500), nullable=True))
+            batch_op.add_column(sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True))
+            batch_op.alter_column('status',
+                   existing_type=sa.VARCHAR(length=10),
+                   type_=sa.Enum('CREATED', 'DISPONIBLE', 'OFFER_RECEIVED', 'ACCEPTED', 'EN_MISSION', 'COLLECTE', 'QUALITY_CHECK', 'PAYE', 'ANNULE', 'EXPIRED', name='lotstatus'),
+                   existing_nullable=False)
+            batch_op.create_foreign_key(batch_op.f('fk_waste_lots_weight_verified_by_users'), 'users', ['weight_verified_by'], ['id'], ondelete='SET NULL')
+            batch_op.create_foreign_key(batch_op.f('fk_waste_lots_quality_verified_by_id_users'), 'users', ['quality_verified_by_id'], ['id'], ondelete='SET NULL')
 
-    with op.batch_alter_table('zones', schema=None) as batch_op:
-        batch_op.create_unique_constraint(batch_op.f('uq_zones_name'), ['name'])
+    if 'zones' in inspector.get_table_names():
+        with op.batch_alter_table('zones', schema=None) as batch_op:
+            batch_op.create_unique_constraint(batch_op.f('uq_zones_name'), ['name'])
 
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
-    with op.batch_alter_table('zones', schema=None) as batch_op:
-        batch_op.drop_constraint(batch_op.f('uq_zones_name'), type_='unique')
+    if 'zones' in inspector.get_table_names():
+        with op.batch_alter_table('zones', schema=None) as batch_op:
+            batch_op.drop_constraint(batch_op.f('uq_zones_name'), type_='unique')
 
-    with op.batch_alter_table('waste_lots', schema=None) as batch_op:
-        batch_op.drop_constraint(batch_op.f('fk_waste_lots_quality_verified_by_id_users'), type_='foreignkey')
-        batch_op.drop_constraint(batch_op.f('fk_waste_lots_weight_verified_by_users'), type_='foreignkey')
-        batch_op.alter_column('status',
-               existing_type=sa.Enum('CREATED', 'DISPONIBLE', 'OFFER_RECEIVED', 'ACCEPTED', 'EN_MISSION', 'COLLECTE', 'QUALITY_CHECK', 'PAYE', 'ANNULE', 'EXPIRED', name='lotstatus'),
-               type_=sa.VARCHAR(length=10),
-               existing_nullable=False)
-        batch_op.drop_column('deleted_at')
-        batch_op.drop_column('verification_photo_url')
-        batch_op.drop_column('weight_verified_by')
-        batch_op.drop_column('verification_method')
-        batch_op.drop_column('quality_verified_at')
-        batch_op.drop_column('quality_verified_by_id')
-        batch_op.drop_column('quality_status')
-        batch_op.drop_column('actual_weight_kg')
-        batch_op.drop_column('estimated_weight_kg')
+    if 'waste_lots' in inspector.get_table_names():
+        with op.batch_alter_table('waste_lots', schema=None) as batch_op:
+            batch_op.drop_constraint(batch_op.f('fk_waste_lots_quality_verified_by_id_users'), type_='foreignkey')
+            batch_op.drop_constraint(batch_op.f('fk_waste_lots_weight_verified_by_users'), type_='foreignkey')
+            batch_op.alter_column('status',
+                   existing_type=sa.Enum('CREATED', 'DISPONIBLE', 'OFFER_RECEIVED', 'ACCEPTED', 'EN_MISSION', 'COLLECTE', 'QUALITY_CHECK', 'PAYE', 'ANNULE', 'EXPIRED', name='lotstatus'),
+                   type_=sa.VARCHAR(length=10),
+                   existing_nullable=False)
+            batch_op.drop_column('deleted_at')
+            batch_op.drop_column('verification_photo_url')
+            batch_op.drop_column('weight_verified_by')
+            batch_op.drop_column('verification_method')
+            batch_op.drop_column('quality_verified_at')
+            batch_op.drop_column('quality_verified_by_id')
+            batch_op.drop_column('quality_status')
+            batch_op.drop_column('actual_weight_kg')
+            batch_op.drop_column('estimated_weight_kg')
 
-    with op.batch_alter_table('users', schema=None) as batch_op:
-        batch_op.alter_column('role',
-               existing_type=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
-               type_=sa.VARCHAR(length=10),
-               existing_nullable=False)
-        batch_op.drop_column('deleted_at')
+    if 'users' in inspector.get_table_names():
+        with op.batch_alter_table('users', schema=None) as batch_op:
+            batch_op.alter_column('role',
+                   existing_type=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
+                   type_=sa.VARCHAR(length=10),
+                   existing_nullable=False)
+            batch_op.drop_column('deleted_at')
 
-    with op.batch_alter_table('user_invitations', schema=None) as batch_op:
-        batch_op.alter_column('role',
-               existing_type=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
-               type_=sa.VARCHAR(length=10),
-               existing_nullable=False)
+    if 'user_invitations' in inspector.get_table_names():
+        with op.batch_alter_table('user_invitations', schema=None) as batch_op:
+            batch_op.alter_column('role',
+                   existing_type=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
+                   type_=sa.VARCHAR(length=10),
+                   existing_nullable=False)
 
-    with op.batch_alter_table('transactions', schema=None) as batch_op:
-        batch_op.drop_constraint(batch_op.f('fk_transactions_household_id_users'), type_='foreignkey')
-        batch_op.drop_constraint(batch_op.f('fk_transactions_pricing_rule_id_pricing_rules'), type_='foreignkey')
-        batch_op.drop_constraint(batch_op.f('fk_transactions_lot_id_waste_lots'), type_='foreignkey')
-        batch_op.drop_constraint(batch_op.f('fk_transactions_company_id_users'), type_='foreignkey')
-        batch_op.drop_constraint(batch_op.f('uq_transactions_idempotency_key'), type_='unique')
-        batch_op.drop_index(batch_op.f('ix_transactions_pricing_rule_id'))
-        batch_op.drop_index(batch_op.f('ix_transactions_lot_id'))
-        batch_op.drop_index(batch_op.f('ix_transactions_household_id'))
-        batch_op.drop_index(batch_op.f('ix_transactions_company_id'))
-        batch_op.alter_column('payment_method',
-               existing_type=sa.VARCHAR(length=12),
-               nullable=False)
-        batch_op.alter_column('net_amount',
-               existing_type=sa.NUMERIC(precision=12, scale=2),
-               nullable=False)
-        batch_op.alter_column('commission_amount',
-               existing_type=sa.NUMERIC(precision=12, scale=2),
-               nullable=False)
-        batch_op.alter_column('gross_amount',
-               existing_type=sa.NUMERIC(precision=12, scale=2),
-               nullable=False)
-        batch_op.alter_column('collector_id',
-               existing_type=sa.CHAR(length=32),
-               nullable=False)
-        batch_op.alter_column('producer_id',
-               existing_type=sa.CHAR(length=32),
-               nullable=False)
-        batch_op.alter_column('collection_id',
-               existing_type=sa.CHAR(length=32),
-               nullable=False)
-        batch_op.drop_column('updated_at')
-        batch_op.drop_column('idempotency_key')
-        batch_op.drop_column('payment_status')
-        batch_op.drop_column('payment_reference')
-        batch_op.drop_column('payment_provider')
-        batch_op.drop_column('guarantee_provider')
-        batch_op.drop_column('guarantee_status')
-        batch_op.drop_column('household_reward')
-        batch_op.drop_column('ecoloop_commission')
-        batch_op.drop_column('amount_paid_by_company')
-        batch_op.drop_column('weight_applied')
-        batch_op.drop_column('price_per_kg_applied')
-        batch_op.drop_column('material')
-        batch_op.drop_column('pricing_rule_id')
-        batch_op.drop_column('household_id')
-        batch_op.drop_column('company_id')
-        batch_op.drop_column('lot_id')
+    if 'transactions' in inspector.get_table_names():
+        with op.batch_alter_table('transactions', schema=None) as batch_op:
+            batch_op.drop_constraint(batch_op.f('fk_transactions_household_id_users'), type_='foreignkey')
+            batch_op.drop_constraint(batch_op.f('fk_transactions_pricing_rule_id_pricing_rules'), type_='foreignkey')
+            batch_op.drop_constraint(batch_op.f('fk_transactions_lot_id_waste_lots'), type_='foreignkey')
+            batch_op.drop_constraint(batch_op.f('fk_transactions_company_id_users'), type_='foreignkey')
+            batch_op.drop_constraint(batch_op.f('uq_transactions_idempotency_key'), type_='unique')
+            batch_op.drop_index(batch_op.f('ix_transactions_pricing_rule_id'))
+            batch_op.drop_index(batch_op.f('ix_transactions_lot_id'))
+            batch_op.drop_index(batch_op.f('ix_transactions_household_id'))
+            batch_op.drop_index(batch_op.f('ix_transactions_company_id'))
+            batch_op.alter_column('payment_method',
+                   existing_type=sa.VARCHAR(length=12),
+                   nullable=False)
+            batch_op.alter_column('net_amount',
+                   existing_type=sa.NUMERIC(precision=12, scale=2),
+                   nullable=False)
+            batch_op.alter_column('commission_amount',
+                   existing_type=sa.NUMERIC(precision=12, scale=2),
+                   nullable=False)
+            batch_op.alter_column('gross_amount',
+                   existing_type=sa.NUMERIC(precision=12, scale=2),
+                   nullable=False)
+            batch_op.alter_column('collector_id',
+                   existing_type=sa.CHAR(length=32),
+                   nullable=False)
+            batch_op.alter_column('producer_id',
+                   existing_type=sa.CHAR(length=32),
+                   nullable=False)
+            batch_op.alter_column('collection_id',
+                   existing_type=sa.CHAR(length=32),
+                   nullable=False)
+            batch_op.drop_column('updated_at')
+            batch_op.drop_column('idempotency_key')
+            batch_op.drop_column('payment_status')
+            batch_op.drop_column('payment_reference')
+            batch_op.drop_column('payment_provider')
+            batch_op.drop_column('guarantee_provider')
+            batch_op.drop_column('guarantee_status')
+            batch_op.drop_column('household_reward')
+            batch_op.drop_column('ecoloop_commission')
+            batch_op.drop_column('amount_paid_by_company')
+            batch_op.drop_column('weight_applied')
+            batch_op.drop_column('price_per_kg_applied')
+            batch_op.drop_column('material')
+            batch_op.drop_column('pricing_rule_id')
+            batch_op.drop_column('household_id')
+            batch_op.drop_column('company_id')
+            batch_op.drop_column('lot_id')
 
-    with op.batch_alter_table('reviews', schema=None) as batch_op:
-        batch_op.alter_column('reviewer_role',
-               existing_type=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
-               type_=sa.VARCHAR(length=10),
-               existing_nullable=False)
+    if 'reviews' in inspector.get_table_names():
+        with op.batch_alter_table('reviews', schema=None) as batch_op:
+            batch_op.alter_column('reviewer_role',
+                   existing_type=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
+                   type_=sa.VARCHAR(length=10),
+                   existing_nullable=False)
 
-    with op.batch_alter_table('purchase_offers', schema=None) as batch_op:
-        batch_op.drop_constraint(batch_op.f('uq_purchase_offers_idempotency_key'), type_='unique')
+    if 'purchase_offers' in inspector.get_table_names():
+        with op.batch_alter_table('purchase_offers', schema=None) as batch_op:
+            batch_op.drop_constraint(batch_op.f('uq_purchase_offers_idempotency_key'), type_='unique')
 
-    with op.batch_alter_table('notifications', schema=None) as batch_op:
-        batch_op.drop_column('updated_at')
-        batch_op.drop_column('priority')
+    if 'notifications' in inspector.get_table_names():
+        with op.batch_alter_table('notifications', schema=None) as batch_op:
+            batch_op.drop_column('updated_at')
+            batch_op.drop_column('priority')
 
-    with op.batch_alter_table('eco_point_transactions', schema=None) as batch_op:
-        batch_op.drop_constraint(batch_op.f('uq_eco_point_transactions_idempotency_key'), type_='unique')
+    if 'eco_point_transactions' in inspector.get_table_names():
+        with op.batch_alter_table('eco_point_transactions', schema=None) as batch_op:
+            batch_op.drop_constraint(batch_op.f('uq_eco_point_transactions_idempotency_key'), type_='unique')
 
-    with op.batch_alter_table('device_tokens', schema=None) as batch_op:
-        batch_op.alter_column('user_id',
-               existing_type=sa.UUID(),
-               type_=sa.NUMERIC(),
-               existing_nullable=False)
-        batch_op.alter_column('id',
-               existing_type=sa.UUID(),
-               type_=sa.NUMERIC(),
-               existing_nullable=False)
+    if 'device_tokens' in inspector.get_table_names():
+        with op.batch_alter_table('device_tokens', schema=None) as batch_op:
+            batch_op.alter_column('user_id',
+                   existing_type=sa.UUID(),
+                   type_=sa.NUMERIC(),
+                   existing_nullable=False)
+            batch_op.alter_column('id',
+                   existing_type=sa.UUID(),
+                   type_=sa.NUMERIC(),
+                   existing_nullable=False)
 
-    with op.batch_alter_table('collector_profiles', schema=None) as batch_op:
-        batch_op.drop_constraint(batch_op.f('fk_collector_profiles_company_id_users'), type_='foreignkey')
-        batch_op.drop_column('deleted_at')
-        batch_op.drop_column('updated_at')
-        batch_op.drop_column('created_at')
-        batch_op.drop_column('earnings_history')
-        batch_op.drop_column('new_partner_boost')
-        batch_op.drop_column('partner_since')
-        batch_op.drop_column('completed_missions')
-        batch_op.drop_column('reputation_score')
-        batch_op.drop_column('collector_reliability_score')
-        batch_op.drop_column('coverage_zone')
-        batch_op.drop_column('identity_verified')
-        batch_op.drop_column('company_id')
-        batch_op.drop_column('collector_type')
+    if 'collector_profiles' in inspector.get_table_names():
+        with op.batch_alter_table('collector_profiles', schema=None) as batch_op:
+            batch_op.drop_constraint(batch_op.f('fk_collector_profiles_company_id_users'), type_='foreignkey')
+            batch_op.drop_column('deleted_at')
+            batch_op.drop_column('updated_at')
+            batch_op.drop_column('created_at')
+            batch_op.drop_column('earnings_history')
+            batch_op.drop_column('new_partner_boost')
+            batch_op.drop_column('partner_since')
+            batch_op.drop_column('completed_missions')
+            batch_op.drop_column('reputation_score')
+            batch_op.drop_column('collector_reliability_score')
+            batch_op.drop_column('coverage_zone')
+            batch_op.drop_column('identity_verified')
+            batch_op.drop_column('company_id')
+            batch_op.drop_column('collector_type')
 
-    with op.batch_alter_table('collections', schema=None) as batch_op:
-        batch_op.alter_column('weight_verified_by',
-               existing_type=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
-               type_=sa.VARCHAR(length=10),
-               existing_nullable=True)
+    if 'collections' in inspector.get_table_names():
+        with op.batch_alter_table('collections', schema=None) as batch_op:
+            batch_op.alter_column('weight_verified_by',
+                   existing_type=sa.Enum('PRODUCTEUR', 'COLLECTEUR', 'INDUSTRIEL', 'MAIRIE', 'ADMIN', 'ADMIN_ARBITER', name='userrole'),
+                   type_=sa.VARCHAR(length=10),
+                   existing_nullable=True)
 
     conn = op.get_bind()
     inspector = sa.inspect(conn)
@@ -320,15 +345,16 @@ def downgrade() -> None:
         with op.batch_alter_table('collection_missions', schema=None) as batch_op:
             batch_op.drop_constraint(batch_op.f('uq_collection_missions_idempotency_key'), type_='unique')
 
-    with op.batch_alter_table('audit_logs', schema=None) as batch_op:
-        batch_op.alter_column('new_value',
-               existing_type=sa.JSON(),
-               type_=sa.TEXT(),
-               existing_nullable=True)
-        batch_op.alter_column('old_value',
-               existing_type=sa.JSON(),
-               type_=sa.TEXT(),
-               existing_nullable=True)
+    if 'audit_logs' in inspector.get_table_names():
+        with op.batch_alter_table('audit_logs', schema=None) as batch_op:
+            batch_op.alter_column('new_value',
+                   existing_type=sa.JSON(),
+                   type_=sa.TEXT(),
+                   existing_nullable=True)
+            batch_op.alter_column('old_value',
+                   existing_type=sa.JSON(),
+                   type_=sa.TEXT(),
+                   existing_nullable=True)
 
     op.create_table('_alembic_tmp_audit_logs',
     sa.Column('id', sa.CHAR(length=32), nullable=False),

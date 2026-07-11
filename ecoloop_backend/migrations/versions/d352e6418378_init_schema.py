@@ -34,8 +34,8 @@ def upgrade() -> None:
     sa.Column('otp_expires_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('reset_token_hash', sa.String(length=255), nullable=True),
     sa.Column('reset_token_expires_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
@@ -46,7 +46,7 @@ def upgrade() -> None:
     sa.Column('total_kg_recycled', sa.Float(), nullable=False),
     sa.Column('points', sa.Integer(), nullable=False),
     sa.Column('level', sa.String(length=30), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -63,8 +63,8 @@ def upgrade() -> None:
     sa.Column('latitude', sa.Numeric(precision=9, scale=6), nullable=False),
     sa.Column('longitude', sa.Numeric(precision=9, scale=6), nullable=False),
     sa.Column('status', sa.Enum('DISPONIBLE', 'RESERVE', 'COLLECTE', 'ANNULE', name='lotstatus'), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.ForeignKeyConstraint(['collector_id'], ['users.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['producer_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -79,7 +79,7 @@ def upgrade() -> None:
     sa.Column('status', sa.Enum('RESERVEE', 'EN_ROUTE', 'VALIDEE', 'ANNULEE', name='collectionstatus'), nullable=False),
     sa.Column('validation_code_hash', sa.String(length=255), nullable=True),
     sa.Column('actual_weight_kg', sa.Numeric(precision=10, scale=2), nullable=True),
-    sa.Column('reserved_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('reserved_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.Column('validated_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['collector_id'], ['users.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['waste_lot_id'], ['waste_lots.id'], ondelete='CASCADE'),
@@ -98,7 +98,7 @@ def upgrade() -> None:
     sa.Column('payment_method', sa.Enum('MOBILE_MONEY', 'ESPECES', 'VIREMENT', name='paymentmethod'), nullable=False),
     sa.Column('status', sa.Enum('EN_ATTENTE', 'PAYEE', 'ECHOUEE', 'REMBOURSEE', name='transactionstatus'), nullable=False),
     sa.Column('external_reference', sa.String(length=255), nullable=True),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.Column('paid_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['collection_id'], ['collections.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['collector_id'], ['users.id'], ondelete='RESTRICT'),
