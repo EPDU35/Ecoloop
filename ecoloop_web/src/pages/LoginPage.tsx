@@ -70,9 +70,11 @@ export function LoginPage() {
             />
           </div>
           
-          <button type="submit" className="btn btn-primary login-btn" disabled={isSubmitting}>
-            {isSubmitting ? 'Connexion en cours...' : (
-              <>Se connecter <ArrowRight size={18} /></>
+          <button type="submit" className="btn btn-primary login-btn flex items-center justify-center gap-2" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <span>Connexion en cours...</span>
+            ) : (
+              <span className="flex items-center gap-2">Se connecter <ArrowRight size={18} /></span>
             )}
           </button>
         </form>
