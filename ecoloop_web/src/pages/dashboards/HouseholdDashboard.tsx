@@ -52,16 +52,16 @@ export function HouseholdDashboard() {
     }
   };
 
+  // AI Scanner state
+  const [showScanner, setShowScanner] = useState(false);
+  const [scanStep, setScanStep] = useState<'idle'|'scanning'|'analyzing'|'result'>('idle');
+
   if (isLoading) {
     return <LoadingState fullPage message="Chargement de votre espace..." />;
   }
 
   const pastWastes = wastes.filter(w => w.status === 'COLLECTED');
   const points = pastWastes.reduce((sum, w) => sum + (w.weight_kg * 10), 0) + 150; // Mock base points
-
-  // AI Scanner state
-  const [showScanner, setShowScanner] = useState(false);
-  const [scanStep, setScanStep] = useState<'idle'|'scanning'|'analyzing'|'result'>('idle');
 
   const handleScan = () => {
     setShowScanner(true);
