@@ -1,7 +1,6 @@
-import logging
+import io
 import uuid
-
-logger = logging.getLogger(__name__)
+import logging
 
 import cloudinary
 import cloudinary.uploader
@@ -20,9 +19,23 @@ from app.services.matching_service import notify_nearby_collectors
 from app.services.ai_service import ai_service
 
 router = APIRouter(tags=["Déchets"])
+logger = logging.getLogger("ecoloop.wastes")
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+
+# Mapping des 8 classes IA (ecoloop_ai/models/waste_classifier/model.py)
+# vers les 7 valeurs de WasteCategory (app/models/waste.py).
+AI_CATEGORY_TO_WASTE = {
+    "plastique": WasteCategory.PLASTIQUE,
+    "metal": WasteCategory.METAL,
+    "verre": WasteCategory.VERRE,
+    "papier": WasteCategory.CARTON,      # pas d'enum PAPIER -> carton
+    "organique": WasteCategory.ORGANIQUE,
+    "dangereux": WasteCategory.AUTRE,    # pas d'enum dédié ; batteries -> AUTRE
+    "residuel": WasteCategory.AUTRE,
+    "autre": WasteCategory.AUTRE,
+}
 
 cloudinary.config(
     cloud_name=settings.cloudinary_cloud_name,
@@ -89,8 +102,8 @@ async def price_suggestion(
                 "suggested_price_per_kg": round(suggested_price, 2),
                 "source": "ai",
             }
-    except Exception as e:
-        logger.warning("AI price suggestion failed for %s: %s", category.value, e)
+    except Exception:
+        pass
 
     fallback_prices = {
         "PLASTIQUE": 150, "CARTON": 80, "METAL": 300,
@@ -162,14 +175,26 @@ async def upload_lot_photo(
     updated_lot = await waste_controller.attach_photo_url(db, lot, current_user, photo_url)
     await db.commit()
 
-    # AI classification on uploaded photo
+    # AI classification sur photo uploadée — persiste la catégorie détectée
     try:
-        import io
-        classify_file = UploadFile(filename=file.filename, file=io.BytesIO(contents), content_type=file.content_type)
+        classify_file = UploadFile(
+            filename=file.filename or "upload",
+            file=io.BytesIO(contents),
+            content_type=file.content_type or "image/jpeg",
+        )
         classify_result = await ai_service.classify_image(classify_file)
-        if classify_result and classify_result.get("type_dominant"):
-            pass  # Classification logged for analytics
-    except Exception as e:
-        logger.debug("AI classification unavailable: %s", e)
+        type_dominant = (classify_result or {}).get("type_dominant")
+        if type_dominant and type_dominant in AI_CATEGORY_TO_WASTE:
+            detected = AI_CATEGORY_TO_WASTE[type_dominant]
+            # On n'écrase que si la catégorie n'a pas été fixée explicitement
+            # par le producteur (AUTRE = non renseignée).
+            if lot.category == WasteCategory.AUTRE:
+                updated_lot = await waste_controller.attach_ai_category(
+                    db, lot, current_user, detected
+                )
+                await db.commit()
+            logger.info("AI classify lot %s -> %s", lot.id, detected.value)
+    except Exception as exc:
+        logger.warning("AI classification failed for lot %s: %s", lot.id, exc)
 
     return updated_lot

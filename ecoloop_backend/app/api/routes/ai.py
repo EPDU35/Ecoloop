@@ -1,23 +1,23 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import logging
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List, Dict, Any, Optional
 
 from app.config.database import get_db
 from app.services.ai.predictor_service import ZonePredictorService
 from app.services.ai.matching_service import MatchingService
 from app.services.ai.impact_service import ImpactService
+from app.services.ai_service import ai_service
 from app.middlewares.jwt import get_current_user
-from app.models.user import User, UserRole
-from app.models.company_profile import CompanyProfile
-from app.models.household_profile import HouseholdProfile
-from app.models.collector_profile import CollectorProfile, CollectorType
-from app.models.eco_points import EcoPointAccount
+from app.models.ai_models import Zone
+from app.models.user import User
 
 router = APIRouter()
-
-class OnboardingAssistantRequest(BaseModel):
-    text: str
+logger = logging.getLogger("ecoloop.ai_route")
 
 class ZoneRiskRequest(BaseModel):
     zone: str
@@ -44,13 +44,75 @@ class ImpactRequest(BaseModel):
     participation_months: int
     collections_count: int
 
+def _zone_int_id(zone_uuid) -> int:
+    """Le microservice IA attend un zone_id entier (ge=1). On dérive un int
+    stable > 0 depuis l'UUID de la zone (le VolumePredictor IA ne connaît pas
+    nos UUIDs ; cet identifiant permet au moins un appel réel et reproductible)."""
+    return (zone_uuid.int % 999_999) + 1
+
+
+def _normalize_zone_risk(zone_name: str, volume_pred: dict) -> dict:
+    """Aplatit la réponse /api/predict/volume vers le contrat frontend."""
+    predicted_volume = float(volume_pred.get("predicted_volume", 0.0) or 0.0)
+    confiance = float(volume_pred.get("confiance", 0.9) or 0.9)
+    # Heuristique de conversion volume (m³) -> score de risque 0-100
+    risk_score = min(98.0, max(12.0, predicted_volume * 2.0))
+    priority = "LOW"
+    action = "Surveillance"
+    if risk_score > 85:
+        action = "Ajouter 2 collecteurs d'urgence"
+        priority = "URGENT"
+    elif risk_score > 60:
+        action = "Augmenter la fréquence de collecte de 30%"
+        priority = "HIGH"
+    return {
+        "prediction_id": str(volume_pred.get("zone_id", "")),
+        "zone": zone_name,
+        "risk_score": round(risk_score, 1),
+        "confidence": round(confiance, 3),
+        "trend": "up" if risk_score > 60 else "stable",
+        "expected_volume_increase_percent": round(risk_score / 3, 1) if risk_score > 60 else 0,
+        "reasons": [f"Volume prédit par l'IA : {predicted_volume:.2f} m³"],
+        "recommendation": {
+            "action": action,
+            "priority": priority,
+            "estimated_impact": "-30% d'accumulation de déchets" if risk_score > 60 else None,
+        },
+    }
+
+
 @router.post("/zones-risk", summary="Prédiction IA du risque de saturation des zones")
-async def predict_zone_risk(req: ZoneRiskRequest, current_user: User = Depends(get_current_user)):
+async def predict_zone_risk(
+    req: ZoneRiskRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     """
     Évalue le risque de saturation d'une zone et propose des recommandations.
+    1) Résout la zone par son nom en DB, puis appelle le vrai microservice IA
+       (`/api/predict/volume`) via `ai_service.predict_volume`.
+    2) En cas d'échec IA (modèle non chargé, service down, zone absente),
+       fallback vers le moteur heuristique local `ZonePredictorService`.
     """
-    # Dans un cas réel, ces données (population, historique) viendraient de la DB via les tables `zones` et `waste_events`.
-    prediction = await ZonePredictorService.analyze_zone_risk(req.zone, req.population, req.historical_waste_kg)
+    db_zone = (await db.execute(select(Zone).where(Zone.name == req.zone))).scalar_one_or_none()
+    if db_zone is not None:
+        try:
+            volume_pred = await ai_service.predict_volume(
+                zone_id=_zone_int_id(db_zone.id),
+                date=datetime.now(timezone.utc).date().isoformat(),
+            )
+            data = _normalize_zone_risk(req.zone, volume_pred)
+            # Mise à jour du niveau de risque livré par l'IA (audit trail DB)
+            db_zone.risk_level = data["risk_score"]
+            await db.flush()
+            return {"status": "success", "data": data}
+        except Exception as e:
+            logger.warning("AI predict_volume indisponible (%s) — fallback mock local", e)
+
+    # Fallback mock (comportement précédent)
+    prediction = await ZonePredictorService.analyze_zone_risk(
+        req.zone, req.population, req.historical_waste_kg
+    )
     return {"status": "success", "data": prediction}
 
 @router.post("/match-collector", summary="Scoring et matching IA des collecteurs")
@@ -89,84 +151,94 @@ async def get_impact(req: ImpactRequest, current_user: User = Depends(get_curren
     }
 
 
-@router.post("/onboarding-assistant", summary="Assistant IA d'onboarding utilisateur")
-async def onboarding_assistant(
-    req: OnboardingAssistantRequest,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+# =====================================================================
+# Routes proxy vers le microservice IA (ecoloop_ai)
+# =====================================================================
+
+class PricePredictionRequest(BaseModel):
+    material: str
+    periods: int = 30
+
+
+class VolumePredictionRequest(BaseModel):
+    zone_id: int
+    date: str
+
+
+class FraudCheckRequest(BaseModel):
+    poids: float
+    prix: float
+    heure: int = 12
+    jour_semaine: int = 0
+
+
+def _ai_error(e: Exception):
+    """Transforme une erreur httpx en HTTPException/503 propre."""
+    detail = str(e)
+    if "timeout" in detail.lower() or "connect" in detail.lower():
+        return HTTPException(status_code=503, detail="Service IA temporairement indisponible (cold start). Réessayez dans 30s.")
+    return HTTPException(status_code=502, detail=f"Erreur du service IA: {detail}")
+
+
+@router.get("/health", summary="Santé du microservice IA")
+async def ai_health():
+    try:
+        result = await ai_service.health()
+        return result
+    except Exception as e:
+        raise _ai_error(e)
+
+
+@router.post("/classify", summary="Classifier un déchét par image (YOLO)")
+async def classify_waste(file: UploadFile = File(...)):
     """
-    Extrait les informations du profil utilisateur par IA et initialise son profil spécifique.
+    Proxy vers le microservice IA. Renvoie le format AnalyzeResult enrichi
+    (category, confidence, all_scores, total_items, items_trouves, tips, etc.).
     """
-    text_lower = req.text.lower()
-    
-    extracted_data = {}
-    profile_type = None
+    try:
+        result = await ai_service.classify_image(file)
+        return result
+    except Exception as e:
+        raise _ai_error(e)
 
-    if "recycleur" in text_lower or "industriel" in text_lower or "entreprise" in text_lower:
-        profile_type = "COMPANY"
-        extracted_data["company_name"] = "RecycleNet" if "recyclenet" in text_lower else "Industriel Partner"
-        extracted_data["license_info"] = "LIC-REF-99" if "license" in text_lower or "licence" in text_lower else None
-        extracted_data["coverage_zone"] = "Abidjan Zone Nord" if "abidjan" in text_lower else "Zone Standard"
-        
-        company = await db.get(CompanyProfile, current_user.id)
-        if not company:
-            company = CompanyProfile(
-                company_id=current_user.id,
-                company_name=extracted_data["company_name"],
-                license_info=extracted_data["license_info"],
-                coverage_zone=extracted_data["coverage_zone"],
-                buyer_reliability_score=1.0
-            )
-            db.add(company)
-        else:
-            company.company_name = extracted_data["company_name"]
-            company.license_info = extracted_data["license_info"]
-            company.coverage_zone = extracted_data["coverage_zone"]
 
-    elif "collecteur" in text_lower or "chauffeur" in text_lower or "logistique" in text_lower:
-        profile_type = "COLLECTOR"
-        extracted_data["vehicle_type"] = "Camionette" if "camion" in text_lower else "Moto"
-        extracted_data["vehicle_capacity_kg"] = 250.0 if "250" in text_lower else 100.0
-        extracted_data["coverage_zone"] = "Koumassi" if "koumassi" in text_lower else "Zone Standard"
+@router.get("/classify/categories", summary="Liste des catégories de déchets supportées par l'IA")
+async def classify_categories():
+    try:
+        result = await ai_service.get_categories()
+        return result
+    except Exception as e:
+        raise _ai_error(e)
 
-        collector = await db.get(CollectorProfile, current_user.id)
-        if not collector:
-            collector = CollectorProfile(
-                id=current_user.id,
-                collector_type=CollectorType.COLLECTOR_PARTNER,
-                vehicle_type=extracted_data["vehicle_type"],
-                vehicle_capacity_kg=extracted_data["vehicle_capacity_kg"],
-                coverage_zone=extracted_data["coverage_zone"],
-                collector_reliability_score=1.0
-            )
-            db.add(collector)
-        else:
-            collector.vehicle_type = extracted_data["vehicle_type"]
-            collector.vehicle_capacity_kg = extracted_data["vehicle_capacity_kg"]
-            collector.coverage_zone = extracted_data["coverage_zone"]
 
-    else:
-        profile_type = "HOUSEHOLD"
-        extracted_data["address_geo"] = "Abidjan Cocody" if "cocody" in text_lower else "Adresse Non Spécifiée"
+@router.post("/predict/price", summary="Prédire le prix d'un matériau (Prophet)")
+async def predict_price(req: PricePredictionRequest):
+    try:
+        result = await ai_service.predict_price(req.material, req.periods)
+        return result
+    except Exception as e:
+        raise _ai_error(e)
 
-        household = await db.get(HouseholdProfile, current_user.id)
-        if not household:
-            household = HouseholdProfile(
-                user_id=current_user.id,
-                address_geo=extracted_data["address_geo"],
-                seller_reliability_score=1.0
-            )
-            db.add(household)
-        else:
-            household.address_geo = extracted_data["address_geo"]
 
-        await EcoPointsService.get_or_create_account(db, current_user.id)
+@router.post("/predict/volume", summary="Prédire le volume de collecte (XGBoost)")
+async def predict_volume(req: VolumePredictionRequest):
+    try:
+        result = await ai_service.predict_volume(req.zone_id, req.date)
+        return result
+    except Exception as e:
+        raise _ai_error(e)
 
-    await db.commit()
-    
-    return {
-        "status": "success",
-        "message": f"Onboarding assisté par IA complété pour le type: {profile_type}.",
-        "extracted_data": extracted_data
-    }
+
+@router.post("/fraud/check", summary="Vérifier une transaction (Isolation Forest)")
+async def check_fraud(req: FraudCheckRequest):
+    try:
+        transaction_data = {
+            "poids": req.poids,
+            "prix": req.prix,
+            "heure": req.heure,
+            "jour_semaine": req.jour_semaine,
+        }
+        result = await ai_service.check_fraud(transaction_data)
+        return result
+    except Exception as e:
+        raise _ai_error(e)

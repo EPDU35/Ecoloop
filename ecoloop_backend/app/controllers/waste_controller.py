@@ -101,3 +101,20 @@ async def attach_photo_url(db: AsyncSession, lot: WasteLot, user: User, photo_ur
     lot.photo_url = photo_url
     await db.flush()
     return lot
+
+
+async def attach_ai_category(
+    db: AsyncSession,
+    lot: WasteLot,
+    owner: User,
+    category: WasteCategory,
+) -> WasteLot:
+    """
+    Affecte à un lot la catégorie de déchet détectée par l'IA.
+    Réutilise le check IDOR (`ensure_owner`) pour empêcher un producteur
+    de muter le lot d'un tiers via ce chemin.
+    """
+    ensure_owner(lot, owner)
+    lot.category = category
+    await db.flush()
+    return lot
