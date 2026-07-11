@@ -229,7 +229,7 @@ export function CollectorDashboard() {
       {/* NAVIGATION MODAL */}
       <AnimatePresence>
         {showNavigationModal && (
-          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200">
+          <div key="navigation-modal" className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200">
             <div className="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-xl animate-in zoom-in-95 duration-200">
               <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Navigation className="text-blue-600" size={32} />

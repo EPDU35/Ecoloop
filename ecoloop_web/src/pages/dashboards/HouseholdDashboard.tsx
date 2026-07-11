@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Recycle, Camera, Clock, BarChart3, CheckCircle2, ChevronRight, Leaf } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { wasteService } from '@/services/api/wasteService';
@@ -54,6 +54,9 @@ export function HouseholdDashboard() {
   };
 
   // AI Scanner state
+  const scannerInputRef = useRef<HTMLInputElement>(null);
+  const [scannerPhoto, setScannerPhoto] = useState<File | null>(null);
+  const [scannerPhotoUrl, setScannerPhotoUrl] = useState<string | null>(null);
   const [showScanner, setShowScanner] = useState(false);
   const [scanStep, setScanStep] = useState<'idle'|'camera'|'preview'|'analyzing'|'result'>('idle');
   const [analysisText, setAnalysisText] = useState('Analyse...');
@@ -68,19 +71,25 @@ export function HouseholdDashboard() {
   const points = pastWastes.reduce((sum, w) => sum + (w.weight_kg * 10), 0) + 150; // Mock base points
 
   const handleScan = () => {
-    setShowScanner(true);
-    setScanStep('camera');
+    scannerInputRef.current?.click();
+  };
+
+  const handleScannerPhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setScannerPhoto(file);
+      setScannerPhotoUrl(URL.createObjectURL(file));
+      setScanStep('preview');
+      setShowScanner(true);
+    }
   };
 
   const startAnalysis = async () => {
+    if (!scannerPhoto) return;
     setScanStep('analyzing');
     setAnalysisText('Analyse EcoLoop AI...');
     try {
-      const response = await fetch("https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=400&auto=format&fit=crop");
-      const blob = await response.blob();
-      const fileToUpload = new File([blob], "captured.jpg", { type: "image/jpeg" });
-      
-      const result = await aiService.classifyImage(fileToUpload);
+      const result = await aiService.classifyImage(scannerPhoto);
       if (result && result.category) {
         setDetectedCategory(result.category);
         setDetectedConfidence(result.confidence ? Math.round(result.confidence * 100) : 94);
@@ -194,35 +203,22 @@ export function HouseholdDashboard() {
       {/* AI SCANNER MODAL */}
       <AnimatePresence>
         {showScanner && (
-          <div className="fixed inset-0 bg-gray-900/90 z-50 flex items-center justify-center p-6">
+          <div key="scanner-modal" className="fixed inset-0 bg-gray-900/90 z-50 flex items-center justify-center p-6">
             <div className="bg-white w-full max-w-sm rounded-2xl p-6 text-center relative overflow-hidden">
-              {scanStep === 'camera' && (
-                <div className="py-8">
-                  <div className="w-full aspect-[4/3] bg-gray-100 rounded-xl mx-auto mb-6 flex flex-col items-center justify-center relative border-2 border-dashed border-gray-300">
-                    <Camera className="text-gray-400 mb-2" size={40} />
-                    <span className="text-sm text-gray-500 font-medium">Cadrez votre déchet</span>
-                  </div>
-                  <button onClick={() => setScanStep('preview')} className="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2">
-                    <Camera size={24} />
-                    Prendre la photo
-                  </button>
-                  <button onClick={closeScanner} className="mt-4 text-text-secondary hover:text-deep-forest font-bold transition-colors">
-                    Annuler
-                  </button>
-                </div>
-              )}
-
               {scanStep === 'preview' && (
                 <div className="py-8">
                   <div className="w-full aspect-[4/3] bg-gray-800 rounded-xl mx-auto mb-6 flex items-center justify-center relative overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=400&auto=format&fit=crop" alt="Captured waste" className="w-full h-full object-cover opacity-80" />
+                    {scannerPhotoUrl && <img src={scannerPhotoUrl} alt="Captured waste" className="w-full h-full object-contain" />}
                   </div>
                   <div className="flex flex-col gap-3">
                     <button onClick={startAnalysis} className="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2">
                       ✅ Utiliser cette photo
                     </button>
-                    <button onClick={() => setScanStep('camera')} className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-deep-forest font-bold rounded-xl transition-colors flex items-center justify-center gap-2">
+                    <button onClick={() => scannerInputRef.current?.click()} className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-deep-forest font-bold rounded-xl transition-colors flex items-center justify-center gap-2">
                       🔄 Reprendre
+                    </button>
+                    <button onClick={closeScanner} className="mt-2 text-text-secondary hover:text-deep-forest font-bold transition-colors">
+                      Fermer
                     </button>
                   </div>
                 </div>
@@ -301,7 +297,7 @@ export function HouseholdDashboard() {
       {/* RECYCLE MODAL */}
       <AnimatePresence>
         {showRecycleModal && (
-          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-6">
+          <div key="recycle-modal" className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-6">
             <div className="bg-white w-full sm:max-w-md rounded-t-[2rem] sm:rounded-2xl p-6 pb-12 sm:pb-6 shadow-xl">
               {recycleStep === 1 && (
                 <div>
@@ -380,6 +376,10 @@ export function HouseholdDashboard() {
           </div>
         )}
       </AnimatePresence>
+      <input 
+        type="file" accept="image/*" capture="environment" className="hidden"
+        ref={scannerInputRef} onChange={handleScannerPhotoCapture}
+      />
     </div>
   );
 }

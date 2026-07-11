@@ -142,7 +142,7 @@ export function SettingsPage() {
       {/* Privacy Modal */}
       <AnimatePresence>
         {showPrivacy && (
-          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex flex-col justify-end sm:justify-center items-center sm:p-6 animate-in fade-in duration-200">
+          <div key="privacy-modal" className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex flex-col justify-end sm:justify-center items-center sm:p-6 animate-in fade-in duration-200">
             <div className="bg-white w-full sm:max-w-md rounded-t-[2rem] sm:rounded-2xl flex flex-col max-h-[90vh] shadow-xl animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-4 duration-200">
               <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white sm:rounded-t-2xl z-10">
                 <h2 className="font-bold text-xl text-deep-forest">Confidentialité</h2>
@@ -171,7 +171,7 @@ export function SettingsPage() {
       {/* Logout Modal */}
       <AnimatePresence>
         {showLogout && (
-          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200">
+          <div key="logout-modal" className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200">
             <div className="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-xl animate-in zoom-in-95 duration-200">
               <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <LogOut className="text-red-500" size={32} />

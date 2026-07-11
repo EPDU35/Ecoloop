@@ -261,7 +261,7 @@ export function MainLayout() {
       {/* Bottom Sheet for Producer Actions */}
       <AnimatePresence>
         {showBottomSheet && (
-          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex flex-col justify-end animate-in fade-in duration-200" onClick={() => setShowBottomSheet(false)}>
+          <div key="producer-actions-sheet" className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex flex-col justify-end animate-in fade-in duration-200" onClick={() => setShowBottomSheet(false)}>
             <motion.div 
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
