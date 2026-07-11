@@ -103,7 +103,7 @@ cp .env.example .env
 python -m uvicorn app.main:app --reload --port 8000
 ```
 
-### 3. Démarrer le Frontend
+### 3. Démarrer le Frontend (Web App)
 ```bash
 cd ecoloop_web
 npm install
@@ -114,6 +114,35 @@ cp .env.example .env
 # Lancer le serveur de développement
 npm run dev
 ```
+
+### 4. Démarrer le Backoffice (Admin)
+```bash
+cd ecoloop_backoffice
+npm install
+npm run dev
+```
+
+### 5. Lancer les Tests (Backend)
+```bash
+cd ecoloop_backend
+# S'assurer d'être dans l'environnement virtuel
+pytest tests/ -v
+```
+
+---
+
+## 🔐 Configuration des Variables d'Environnement (`.env`)
+
+EcoLoop utilise plusieurs secrets qui **ne doivent jamais être committés** (ils sont ignorés par `.gitignore`).
+
+**Backend (`ecoloop_backend/.env`)** :
+- `DATABASE_URL` : Chaîne de connexion PostgreSQL (ex: `postgresql+psycopg://user:pass@host:5432/db`)
+- `SECRET_KEY` : Clé secrète pour signer les JWT.
+- `ENVIRONMENT` : `development` ou `production`.
+- `AI_SERVICE_URL` : URL du moteur IA (optionnel).
+
+**Frontend (`ecoloop_web/.env` et `ecoloop_backoffice/.env`)** :
+- `VITE_API_URL` : L'URL du backend FastAPI (ex: `http://localhost:8000/api/v1`).
 
 ---
 
