@@ -19,26 +19,20 @@ async def create_report(
 ) -> IllegalDumpReport:
     """Create a new illegal dump report with optional AI classification/fraud check."""
     
-    # 1. Utilisation de l'IA pour pré-classifier et évaluer le risque de fraude
-    # basé sur la photo ou la description.
+    # 1. Évaluation du risque de fraude (Heuristique MVP)
+    # Note (VIBEATHON): Le modèle Isolation Forest actuel (V1) est entraîné 
+    # sur les transactions (poids, prix_kg). Il n'est pas pertinent pour les 
+    # dépôts sauvages (sans prix, basé sur volume m3 et géolocalisation).
+    # L'intégration d'un modèle de fraude spécifique aux signalements (V2) 
+    # est prévue sur la roadmap. En attendant, on utilise une heuristique simple.
     ai_confidence = 0.85
     ai_tags = {"detected": ["plastique", "encombrants"]}
-    try:
-        ai_response = await ai_service.check_fraud({
-            "type": "illegal_dump",
-            "user_id": str(user_id),
-            "description": payload.description,
-            "volume": payload.estimated_volume_m3
-        })
-        # L'API IA retourne typiquement un score de confiance et des tags.
-        # Si le score de fraude (risque) est trop élevé, on baisse la confiance.
-        fraud_score = ai_response.get("risk_score", 0.0)
-        ai_confidence = ai_response.get("confidence", max(0.1, 1.0 - fraud_score))
-        ai_tags = ai_response.get("tags", ai_tags)
-    except Exception as e:
-        import logging
-        logger = logging.getLogger("ecoloop.ai_service")
-        logger.warning(f"AI service unavailable or returned error for report: {e}")
+    
+    # Heuristique : Si le volume déclaré est anormalement grand (> 10m3), 
+    # on baisse la confiance pour forcer une vérification humaine plus stricte.
+    if payload.estimated_volume_m3 and payload.estimated_volume_m3 > 10.0:
+        ai_confidence = 0.40
+        ai_tags["detected"].append("volume_suspect")
     
     report = IllegalDumpReport(
         reporter_id=user_id,
