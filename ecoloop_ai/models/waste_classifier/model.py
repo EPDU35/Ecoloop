@@ -49,57 +49,47 @@ class WasteClassifier:
     """
 
     CATEGORIES_ECOLOOP = [
-        'plastique', 'metal', 'verre', 'papier',
-        'organique', 'dangereux', 'residuel', 'autre',
+        'plastique', 'carton', 'metal', 'verre', 'papier', 'non-recyclable'
     ]
 
     # ------------------------------------------------------------------ #
     # Mapping EXPLICITE des 18 classes de best.pt (TACO garbage subset)
-    # vers les 8 catégories EcoLoop.
+    # vers les 6 catégories EcoLoop.
     # Source : self.model.names de best.pt (vérifié au runtime).
     # ------------------------------------------------------------------ #
-    # Indices basés sur best.pt : {
-    #   0: 'Aluminium foil',     1: 'Bottle cap',         2: 'Bottle',
-    #   3: 'Broken glass',       4: 'Can',                5: 'Carton',
-    #   6: 'Cigarette',          7: 'Cup',                8: 'Lid',
-    #   9: 'Other litter',      10: 'Other plastic',     11: 'Paper',
-    #  12: 'Plastic bag wrapper',13: 'Plastic container', 14: 'Pop tab',
-    #  15: 'Straw',             16: 'Styrofoam piece',   17: 'Unlabeled litter'
-    # }
     BEST_CLASS_TO_ECOLOOP = {
         0:  'metal',       # Aluminium foil
-        1:  'plastique',   # Bottle cap (généralement plastique)
-        2:  'plastique',   # Bottle (bouteille plastique majoritaire)
+        1:  'plastique',   # Bottle cap
+        2:  'plastique',   # Bottle
         3:  'verre',       # Broken glass
         4:  'metal',       # Can
-        5:  'papier',      # Carton
-        6:  'residuel',    # Cigarette (mégot = résiduel, pas recyclable)
-        7:  'plastique',   # Cup (gobelet jetable, majoritairement plastique/PS)
-        8:  'metal',       # Lid (couvercle métal majoritaire)
-        9:  'residuel',    # Other litter
+        5:  'carton',      # Carton
+        6:  'non-recyclable', # Cigarette
+        7:  'plastique',   # Cup
+        8:  'metal',       # Lid
+        9:  'non-recyclable', # Other litter
         10: 'plastique',   # Other plastic
         11: 'papier',      # Paper
         12: 'plastique',   # Plastic bag - wrapper
         13: 'plastique',   # Plastic container
-        14: 'metal',       # Pop tab (languette de canette)
-        15: 'plastique',   # Straw (paille plastique)
-        16: 'plastique',   # Styrofoam piece (polystyrène expansé)
-        17: 'residuel',    # Unlabeled litter
+        14: 'metal',       # Pop tab
+        15: 'plastique',   # Straw
+        16: 'plastique',   # Styrofoam piece
+        17: 'non-recyclable', # Unlabeled litter
     }
 
-    # Mapping heuristique de secours (si un autre modèle que best.pt est chargé,
-    # e.g. ecoloop_yolo.pt 60 classes ou yolov8n.pt COCO 80 classes).
-    # On retombe sur la correspondance par nom de classe.
+    # Mapping heuristique de secours
     NAME_KEYWORD_TO_ECOLOOP = [
         (['plastic', 'bottle', 'cup', 'bag', 'wrapper', 'styrofoam',
           'straw', 'wrapper', 'polystyrene'], 'plastique'),
         (['can', 'metal', 'tin', 'aluminum', 'aluminium', 'aerosol',
           'foil', 'pop tab', 'pop-tab'], 'metal'),
         (['glass', 'jar', 'broken glass'], 'verre'),
-        (['paper', 'cardboard', 'carton', 'magazine', 'book', 'box'], 'papier'),
-        (['food', 'apple', 'orange', 'banana', 'organic', 'fruit'], 'organique'),
-        (['battery', 'electronic', 'chemical', 'paint'], 'dangereux'),
-        (['cigarette', 'litter', 'unlabeled'], 'residuel'),
+        (['cardboard', 'carton', 'box'], 'carton'),
+        (['paper', 'magazine', 'book'], 'papier'),
+        (['food', 'apple', 'orange', 'banana', 'organic', 'fruit', 
+          'battery', 'electronic', 'chemical', 'paint', 'cigarette', 
+          'litter', 'unlabeled'], 'non-recyclable'),
     ]
 
     def __init__(self, model_path: Optional[str] = None):

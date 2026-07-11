@@ -14,9 +14,16 @@ import uuid
 import logging
 from datetime import datetime
 from typing import Optional, Dict, Any
+import io
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 from pydantic import BaseModel, Field, field_validator
+from PIL import Image
+try:
+    import imagehash
+except ImportError:
+    imagehash = None
+
 
 # --- Import du modèle de détection de fraude ---
 from models.fraud_detection.fraud_model import FraudDetector
@@ -334,3 +341,46 @@ async def check_fraud(request: TransactionRequest):
                 "message": f"Erreur lors de la vérification de fraude : {str(e)}"
             }
         )
+
+class ImageFraudResponse(BaseModel):
+    is_duplicate: bool
+    phash: str
+    message: str
+
+# Mock database of previous hashes
+KNOWN_HASHES = set()
+
+@router.post(
+    "/verify_image",
+    response_model=ImageFraudResponse,
+    summary="Vérifier si une photo est dupliquée (Fonction 3)",
+)
+async def verify_image(file: UploadFile = File(...)):
+    """
+    Fonction 3: Détection de fraude visuelle.
+    Vérifie si la photo a déjà été soumise via le calcul d'un Perceptual Hash (pHash).
+    """
+    if imagehash is None:
+        raise HTTPException(status_code=500, detail="Librairie imagehash non installée")
+    
+    try:
+        contents = await file.read()
+        img = Image.open(io.BytesIO(contents))
+        img_hash = str(imagehash.phash(img))
+        
+        is_duplicate = img_hash in KNOWN_HASHES
+        if not is_duplicate:
+            KNOWN_HASHES.add(img_hash)
+            msg = "Image originale, aucun doublon détecté."
+        else:
+            msg = "ALERTE FRAUDE: Cette image a déjà été soumise dans le système ou provient d'Internet."
+            
+        return ImageFraudResponse(
+            is_duplicate=is_duplicate,
+            phash=img_hash,
+            message=msg
+        )
+    except Exception as e:
+        logger.error(f"Erreur hachage image: {e}")
+        raise HTTPException(status_code=400, detail="Image invalide")
+
