@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
-from app.models.waste import LotStatus, WasteLot
+from app.models.waste import LotStatus, WasteLot, WasteCategory
 from app.schemas.waste_schema import WasteLotCreateSchema, WasteLotUpdateSchema
 
 

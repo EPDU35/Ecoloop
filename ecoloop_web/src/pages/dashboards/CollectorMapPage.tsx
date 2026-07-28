@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Navigation, Map as MapIcon, Truck, Phone, MessageSquare } from 'lucide-react';
+import { ArrowLeft, MapPin, Navigation, Truck, Phone, MessageSquare } from 'lucide-react';
 import { useDemo } from '@/contexts/DemoContext';
 
 export function CollectorMapPage() {

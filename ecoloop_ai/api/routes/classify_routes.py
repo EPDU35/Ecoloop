@@ -171,23 +171,74 @@ def _compute_all_scores(items_trouves: list[dict]) -> dict:
     return {cat: round(sum(v) / len(v), 4) for cat, v in scores.items()}
 
 
-def _estimate_weights(resume_quantite: dict) -> tuple[float, dict, float]:
-    """Estime le poids total, le poids par catégorie, et le volume (m3)."""
+def _estimate_weights(resume_quantite: dict, items_trouves: list[dict] = None, image_size: list[int] = None) -> tuple[float, dict, float]:
+    """Estime le poids total, le poids par catégorie, et le volume (m3).
+       Utilise l'Algorithme de Masse Relative basé sur YOLO boxes.
+    """
+    if items_trouves is None:
+        items_trouves = []
+    if image_size is None:
+        image_size = [640, 640]
+        
     poids_par_cat = {}
     total_poids = 0.0
     total_volume = 0.0
-    for cat, qte in resume_quantite.items():
-        unitaire = WEIGHTS_PER_ITEM_KG.get(cat, 0.05)
-        poids_cat = round(unitaire * qte, 3)
-        poids_par_cat[cat] = poids_cat
-        total_poids += poids_cat
-        
-        # Heuristique basique de volume par objet
-        vol_unitaire = 0.01 # 10 litres par défaut
-        if cat == "plastique": vol_unitaire = 0.015
-        elif cat == "verre": vol_unitaire = 0.002
-        elif cat == "carton": vol_unitaire = 0.03
-        total_volume += vol_unitaire * qte
+    
+    img_width = image_size[0] if len(image_size) == 2 else 640
+    img_height = image_size[1] if len(image_size) == 2 else 640
+    total_image_area = max(img_width * img_height, 1)
+
+    # Densité approximative en kg / litre (1 litre = 0.001 m3)
+    DENSITE = {
+        "plastique": 0.3,
+        "carton": 0.15,
+        "metal": 0.5,
+        "verre": 1.2,
+        "papier": 0.2,
+        "non-recyclable": 0.4
+    }
+
+    if not items_trouves:
+        # Fallback si pas de données géométriques
+        for cat, qte in resume_quantite.items():
+            unitaire = WEIGHTS_PER_ITEM_KG.get(cat, 0.05)
+            poids_cat = round(unitaire * qte, 3)
+            poids_par_cat[cat] = poids_cat
+            total_poids += poids_cat
+            
+            vol_unitaire = 0.01
+            if cat == "plastique": vol_unitaire = 0.015
+            elif cat == "verre": vol_unitaire = 0.002
+            elif cat == "carton": vol_unitaire = 0.03
+            total_volume += vol_unitaire * qte
+
+        return round(total_poids, 3), poids_par_cat, round(total_volume, 3)
+
+    # Algorithme de Masse Relative
+    for it in items_trouves:
+        cat = it["type"]
+        box = it.get("box_xywh", [])
+        if len(box) >= 4:
+            bw, bh = box[2], box[3]
+            box_area = bw * bh
+            relative_area = box_area / total_image_area
+            
+            # Heuristique: La photo cadre environ 1 m^2 de surface, épaisseur moyenne du tas 0.2m
+            vol_m3 = relative_area * 1.0 * 0.2 
+            
+            # Densité en kg/m3 (Densité kg/L * 1000)
+            densite_kg_m3 = DENSITE.get(cat, 0.3) * 1000
+            poids_kg = vol_m3 * densite_kg_m3
+        else:
+            poids_kg = WEIGHTS_PER_ITEM_KG.get(cat, 0.05)
+            vol_m3 = 0.01
+            
+        poids_par_cat[cat] = poids_par_cat.get(cat, 0.0) + poids_kg
+        total_poids += poids_kg
+        total_volume += vol_m3
+
+    for cat in poids_par_cat:
+        poids_par_cat[cat] = round(poids_par_cat[cat], 3)
 
     return round(total_poids, 3), poids_par_cat, round(total_volume, 3)
 
@@ -344,7 +395,9 @@ def _analyze_bytes(contents: bytes, filename: Optional[str],
     all_scores = _compute_all_scores(items_trouves_raw)
     confidence_avg = (round(sum(it.confidence for it in items_trouves) / len(items_trouves), 4)
                       if items_trouves else 0.0)
-    poids_total, poids_par_cat, volume_total = _estimate_weights(resume_quantite)
+    poids_total, poids_par_cat, volume_total = _estimate_weights(
+        resume_quantite, items_trouves_raw, result.get("image_size", [640, 640])
+    )
     score_qualite = _compute_score_qualite(items_trouves_raw, resume_quantite,
                                            type_dominant, fallback_used)
     etat = _compute_etat(resume_quantite, type_dominant, fallback_used, score_qualite)

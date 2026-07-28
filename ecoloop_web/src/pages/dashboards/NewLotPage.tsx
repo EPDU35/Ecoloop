@@ -47,14 +47,13 @@ export function NewLotPage() {
   const startAnalysis = async () => {
     setStep('analyzing');
     try {
-      let fileToUpload = photo;
-      if (!fileToUpload) {
-         const response = await fetch("https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=400&auto=format&fit=crop");
-         const blob = await response.blob();
-         fileToUpload = new File([blob], "captured.jpg", { type: "image/jpeg" });
+      if (!photo) {
+         setError("Aucune photo sélectionnée.");
+         setStep('photo');
+         return;
       }
       
-      const result = await aiService.classifyImage(fileToUpload);
+      const result = await aiService.classifyImage(photo);
       
       if (result && result.category) {
         setSelectedCategories([result.category]);
@@ -125,42 +124,21 @@ export function NewLotPage() {
       </div>
 
       <div className="max-w-md mx-auto px-4 mt-6">
+        <input 
+          type="file" accept="image/*" capture="environment" className="hidden"
+          ref={fileInputRef} onChange={handlePhotoCapture}
+        />
         
         {step === 'photo' && (
           <div className="animate-in fade-in zoom-in-95 duration-300 flex flex-col items-center justify-center py-12">
-            <div className="w-full aspect-[4/3] bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-6 text-center mb-8 relative hover:bg-gray-200 transition-colors cursor-pointer" onClick={() => setStep('camera')}>
+            <div className="w-full aspect-[4/3] bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-6 text-center mb-8 relative hover:bg-gray-200 transition-colors cursor-pointer" onClick={triggerFileInput}>
               <Camera size={48} className="text-gray-400 mb-4" />
               <h3 className="font-bold text-deep-forest text-lg mb-2">Photographier vos déchets</h3>
               <p className="text-sm text-text-secondary">L'IA détectera automatiquement les matières pour vous faire gagner du temps.</p>
             </div>
-            <button className="btn-primary w-full py-4 text-lg" onClick={() => setStep('camera')}>
+            <button className="btn-primary w-full py-4 text-lg" onClick={triggerFileInput}>
               Ouvrir l'appareil photo
             </button>
-          </div>
-        )}
-
-        {step === 'camera' && (
-          <div className="animate-in fade-in duration-300 flex flex-col py-6">
-            <h3 className="font-bold text-lg text-deep-forest mb-4">Cadrez votre déchet</h3>
-            <div className="w-full aspect-[4/3] bg-gray-800 rounded-2xl overflow-hidden mb-6 relative">
-              <img src="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=400&auto=format&fit=crop" alt="Camera feed" className="w-full h-full object-cover opacity-60" />
-              <div className="absolute inset-0 border-2 border-white/50 m-8 rounded-xl border-dashed"></div>
-            </div>
-            <div className="flex flex-col gap-3 pb-24">
-              <button 
-                onClick={() => {
-                  setPhotoUrl("https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=400&auto=format&fit=crop");
-                  setStep('preview');
-                }} 
-                className="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2"
-              >
-                <Camera size={24} />
-                Capturer la photo
-              </button>
-              <button onClick={() => setStep('photo')} className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-deep-forest font-bold rounded-xl transition-colors">
-                Annuler
-              </button>
-            </div>
           </div>
         )}
 
@@ -185,10 +163,6 @@ export function NewLotPage() {
                 <Trash2 size={20} className="text-red-600 mb-1" />
                 <span className="text-xs font-bold text-red-700">Supprimer</span>
               </button>
-              <input 
-                type="file" accept="image/*" className="hidden"
-                ref={fileInputRef} onChange={handlePhotoCapture}
-              />
             </div>
 
             <div className="pb-24">

@@ -1,27 +1,35 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, ArrowLeft, Loader2, CheckCircle2, Sparkles, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { aiService } from '@/services/api/aiService';
+import { AILoadingMascot } from '@/components/ui/AILoadingMascot';
 
 export function ReportWastePage() {
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [step, setStep] = useState<'camera' | 'photo' | 'analyzing' | 'gps' | 'form' | 'success'>('photo');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [description, setDescription] = useState('');
   const [locationName, setLocationName] = useState('');
+  const [detectedText, setDetectedText] = useState('Mélange de déchets organiques et plastiques.');
 
-  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      simulateFlow();
-    }
-  };
-
-  const simulateFlow = () => {
-    // 1. Analyse IA
-    setStep('analyzing');
-    setTimeout(() => {
+      const file = e.target.files[0];
+      setStep('analyzing');
+      
+      try {
+        const result = await aiService.classifyImage(file);
+        if (result && result.category) {
+            setDetectedText(`Lot contenant majoritairement : ${result.category}`);
+        }
+      } catch (err) {
+        console.error("AI Analysis failed", err);
+      }
+      
       // 2. Fetch GPS
       setStep('gps');
       setTimeout(() => {
@@ -29,7 +37,11 @@ export function ReportWastePage() {
         // 3. Formulaire (commentaire)
         setStep('form');
       }, 1500);
-    }, 2000);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,48 +68,23 @@ export function ReportWastePage() {
       </div>
 
       <div className="max-w-md mx-auto px-4 mt-6">
+        <input type="file" accept="image/*" capture="environment" className="hidden" ref={fileInputRef} onChange={handlePhotoCapture} />
         
         {step === 'photo' && (
           <div className="animate-in fade-in zoom-in-95 duration-300 flex flex-col items-center justify-center py-12">
-            <div className="w-full aspect-[4/3] bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-6 text-center mb-8 relative hover:bg-gray-200 transition-colors cursor-pointer" onClick={() => setStep('camera')}>
+            <div className="w-full aspect-[4/3] bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-6 text-center mb-8 relative hover:bg-gray-200 transition-colors cursor-pointer" onClick={triggerFileInput}>
               <Camera size={48} className="text-gray-400 mb-4" />
               <h3 className="font-bold text-deep-forest text-lg mb-2">Prendre en photo</h3>
               <p className="text-sm text-text-secondary">Prenez une photo du dépôt sauvage. Nous nous occupons du reste en moins de 20s.</p>
             </div>
-            <button className="btn-primary w-full py-4 text-lg" onClick={() => setStep('camera')}>
+            <button className="btn-primary w-full py-4 text-lg" onClick={triggerFileInput}>
               Ouvrir la caméra
             </button>
           </div>
         )}
 
-        {step === 'camera' && (
-          <div className="animate-in fade-in duration-300 flex flex-col py-6">
-            <h3 className="font-bold text-lg text-deep-forest mb-4">Cadrez le dépôt sauvage</h3>
-            <div className="w-full aspect-[4/3] bg-gray-800 rounded-2xl overflow-hidden mb-6 relative">
-              <img src="https://images.unsplash.com/photo-1605600659908-0ef719419d41?q=80&w=400&auto=format&fit=crop" alt="Camera feed" className="w-full h-full object-cover opacity-60" />
-              <div className="absolute inset-0 border-2 border-white/50 m-8 rounded-xl border-dashed"></div>
-            </div>
-            <div className="flex flex-col gap-3 pb-24">
-              <button onClick={simulateFlow} className="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2">
-                <Camera size={24} />
-                Capturer et Signaler
-              </button>
-              <button onClick={() => setStep('photo')} className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-deep-forest font-bold rounded-xl transition-colors">
-                Annuler
-              </button>
-            </div>
-          </div>
-        )}
-
         {step === 'analyzing' && (
-          <div className="animate-in fade-in duration-300 flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6 relative">
-              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }} className="absolute inset-0 border-4 border-blue-200 border-t-blue-500 rounded-full" />
-              <Sparkles className="text-blue-500" size={32} />
-            </div>
-            <h3 className="font-bold text-2xl text-deep-forest mb-2">Analyse EcoLoop AI</h3>
-            <p className="text-blue-600 font-medium">Identification des déchets...</p>
-          </div>
+          <AILoadingMascot message="Identification des déchets..." />
         )}
 
         {step === 'gps' && (
@@ -126,7 +113,7 @@ export function ReportWastePage() {
               <Sparkles className="text-blue-500 shrink-0 mt-0.5" size={20} />
               <div>
                 <p className="text-sm text-blue-900 font-bold mb-1">Dépôt analysé</p>
-                <p className="text-xs text-blue-700">Mélange de plastiques et organiques.</p>
+                <p className="text-xs text-blue-700">{detectedText}</p>
               </div>
             </div>
 

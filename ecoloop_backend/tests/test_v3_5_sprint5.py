@@ -3,6 +3,7 @@ import pytest
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.pool import StaticPool
 from sqlalchemy import select
 from fastapi import UploadFile, HTTPException
 
@@ -34,7 +35,7 @@ def async_test(f):
 
 
 async def setup_db_session():
-    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:", poolclass=StaticPool)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     session_factory = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)

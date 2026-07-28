@@ -257,8 +257,13 @@ class WasteClassifier:
 
         items_trouves = []
         resume_quantite = {}
+        image_size = [640, 640] # Default fallback
 
         for r in results:
+            if hasattr(r, 'orig_shape'):
+                # r.orig_shape is (height, width)
+                image_size = [r.orig_shape[1], r.orig_shape[0]]
+                
             boxes = r.boxes
             for box in boxes:
                 class_id = int(box.cls[0])
@@ -297,6 +302,7 @@ class WasteClassifier:
             'type_dominant': type_dominant,
             'resume_quantite': resume_quantite,
             'items_trouves': items_trouves,
+            'image_size': image_size,
             'fallback_used': False,
         }
 
@@ -309,6 +315,7 @@ class WasteClassifier:
             'type_dominant': 'autre',
             'resume_quantite': {},
             'items_trouves': [],
+            'image_size': [640, 640],
             'fallback_used': fallback_used,
         }
 

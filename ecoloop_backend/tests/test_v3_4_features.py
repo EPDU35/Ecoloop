@@ -3,6 +3,7 @@ import pytest
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.pool import StaticPool
 from sqlalchemy import select
 
 from app.config.database import Base

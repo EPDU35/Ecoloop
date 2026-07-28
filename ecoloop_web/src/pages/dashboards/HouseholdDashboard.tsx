@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Recycle, Camera, Clock, BarChart3, CheckCircle2, ChevronRight, Leaf } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { wasteService } from '@/services/api/wasteService';
 import { aiService } from '@/services/api/aiService';
 import { LoadingState } from '@/components/feedback';
+import { AILoadingMascot } from '@/components/ui/AILoadingMascot';
 import { useNavigate } from 'react-router-dom';
 
 export function HouseholdDashboard() {
@@ -59,6 +60,19 @@ export function HouseholdDashboard() {
   const [analysisText, setAnalysisText] = useState('Analyse...');
   const [detectedCategory, setDetectedCategory] = useState('Plastique PET');
   const [detectedConfidence, setDetectedConfidence] = useState(94);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPhoto(file);
+      setPhotoUrl(URL.createObjectURL(file));
+      setScanStep('preview');
+      setShowScanner(true);
+    }
+  };
 
   if (isLoading) {
     return <LoadingState fullPage message="Chargement de votre espace..." />;
@@ -68,19 +82,15 @@ export function HouseholdDashboard() {
   const points = pastWastes.reduce((sum, w) => sum + (w.weight_kg * 10), 0) + 150; // Mock base points
 
   const handleScan = () => {
-    setShowScanner(true);
-    setScanStep('camera');
+    fileInputRef.current?.click();
   };
 
   const startAnalysis = async () => {
+    if (!photo) return;
     setScanStep('analyzing');
     setAnalysisText('Analyse EcoLoop AI...');
     try {
-      const response = await fetch("https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=400&auto=format&fit=crop");
-      const blob = await response.blob();
-      const fileToUpload = new File([blob], "captured.jpg", { type: "image/jpeg" });
-      
-      const result = await aiService.classifyImage(fileToUpload);
+      const result = await aiService.classifyImage(photo);
       if (result && result.category) {
         setDetectedCategory(result.category);
         setDetectedConfidence(result.confidence ? Math.round(result.confidence * 100) : 94);
@@ -119,6 +129,7 @@ export function HouseholdDashboard() {
       </div>
 
       <div className="max-w-3xl mx-auto px-6 -mt-10">
+        <input type="file" accept="image/*" capture="environment" className="hidden" ref={fileInputRef} onChange={handlePhotoCapture} />
         
         {/* EFFET WOW : Bannière d'impact direct */}
         <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-5 mb-8 flex items-center gap-4">
@@ -194,34 +205,18 @@ export function HouseholdDashboard() {
       {/* AI SCANNER MODAL */}
       <AnimatePresence>
         {showScanner && (
-          <div className="fixed inset-0 bg-gray-900/90 z-50 flex items-center justify-center p-6">
+          <div key="scanner-modal" className="fixed inset-0 bg-gray-900/90 z-50 flex items-center justify-center p-6">
             <div className="bg-white w-full max-w-sm rounded-2xl p-6 text-center relative overflow-hidden">
-              {scanStep === 'camera' && (
-                <div className="py-8">
-                  <div className="w-full aspect-[4/3] bg-gray-100 rounded-xl mx-auto mb-6 flex flex-col items-center justify-center relative border-2 border-dashed border-gray-300">
-                    <Camera className="text-gray-400 mb-2" size={40} />
-                    <span className="text-sm text-gray-500 font-medium">Cadrez votre déchet</span>
-                  </div>
-                  <button onClick={() => setScanStep('preview')} className="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2">
-                    <Camera size={24} />
-                    Prendre la photo
-                  </button>
-                  <button onClick={closeScanner} className="mt-4 text-text-secondary hover:text-deep-forest font-bold transition-colors">
-                    Annuler
-                  </button>
-                </div>
-              )}
-
               {scanStep === 'preview' && (
                 <div className="py-8">
                   <div className="w-full aspect-[4/3] bg-gray-800 rounded-xl mx-auto mb-6 flex items-center justify-center relative overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=400&auto=format&fit=crop" alt="Captured waste" className="w-full h-full object-cover opacity-80" />
+                    {photoUrl && <img src={photoUrl} alt="Captured waste" className="w-full h-full object-contain bg-black" />}
                   </div>
                   <div className="flex flex-col gap-3">
                     <button onClick={startAnalysis} className="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2">
                       ✅ Utiliser cette photo
                     </button>
-                    <button onClick={() => setScanStep('camera')} className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-deep-forest font-bold rounded-xl transition-colors flex items-center justify-center gap-2">
+                    <button onClick={() => fileInputRef.current?.click()} className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-deep-forest font-bold rounded-xl transition-colors flex items-center justify-center gap-2">
                       🔄 Reprendre
                     </button>
                   </div>
@@ -229,29 +224,7 @@ export function HouseholdDashboard() {
               )}
 
               {scanStep === 'analyzing' && (
-                <div className="py-12">
-                  <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 relative">
-                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }} className="absolute inset-0 border-4 border-blue-200 border-t-blue-500 rounded-full" />
-                    <Recycle className="text-blue-500" size={40} />
-                  </div>
-                  <h3 className="font-bold text-2xl text-deep-forest mb-2">EcoLoop AI</h3>
-                  <motion.p 
-                    key={analysisText}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-blue-600 font-medium text-lg"
-                  >
-                    {analysisText}
-                  </motion.p>
-                  <div className="w-48 h-2 bg-gray-100 rounded-full mx-auto mt-6 overflow-hidden">
-                    <motion.div 
-                      className="h-full bg-blue-500"
-                      initial={{ width: "0%" }}
-                      animate={{ width: "100%" }}
-                      transition={{ duration: 3.2, ease: "linear" }}
-                    />
-                  </div>
-                </div>
+                <AILoadingMascot message={analysisText} />
               )}
 
               {scanStep === 'result' && (
@@ -301,7 +274,7 @@ export function HouseholdDashboard() {
       {/* RECYCLE MODAL */}
       <AnimatePresence>
         {showRecycleModal && (
-          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-6">
+          <div key="recycle-modal" className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-6">
             <div className="bg-white w-full sm:max-w-md rounded-t-[2rem] sm:rounded-2xl p-6 pb-12 sm:pb-6 shadow-xl">
               {recycleStep === 1 && (
                 <div>

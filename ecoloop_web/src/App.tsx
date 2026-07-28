@@ -6,7 +6,7 @@ import { MainLayout } from './components/layout/MainLayout';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { MunicipalityDashboard } from './pages/dashboards/MunicipalityDashboard';
-import { CollectorMapPage } from './pages/dashboards/CollectorMapPage';
+
 import { HouseholdDashboard } from './pages/dashboards/HouseholdDashboard';
 import { CollectorDashboard } from './pages/dashboards/CollectorDashboard';
 import { RecyclerDashboard } from './pages/dashboards/RecyclerDashboard';
