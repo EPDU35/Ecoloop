@@ -21,8 +21,11 @@ Notes de robustesse (audit 2026-07-11) :
 import os
 import logging
 from typing import Optional
+from functools import wraps
 
 from PIL import Image, ImageOps
+
+import torch
 
 try:
     from ultralytics import YOLO
@@ -92,6 +95,31 @@ class WasteClassifier:
           'litter', 'unlabeled'], 'non-recyclable'),
     ]
 
+    @staticmethod
+    def _safe_load_yolo(path: str):
+        """
+        Charge un modèle YOLO en contournant la restriction PyTorch 2.6+.
+
+        PyTorch ≥2.6 utilise ``weights_only=True`` par défaut dans
+        ``torch.load()``, ce qui empêche le dé-sérialisation des fichiers
+        .pt Ultralytics (qui contiennent des classes custom).
+        On monkey-patche temporairement ``torch.load`` pour forcer
+        ``weights_only=False`` le temps du chargement.
+        """
+        _original_load = torch.load
+
+        @wraps(_original_load)
+        def _patched_load(*args, **kwargs):
+            kwargs.setdefault('weights_only', False)
+            return _original_load(*args, **kwargs)
+
+        torch.load = _patched_load
+        try:
+            model = YOLO(path)
+        finally:
+            torch.load = _original_load  # toujours restaurer
+        return model
+
     def __init__(self, model_path: Optional[str] = None):
         """
         Initialise le détecteur YOLO.
@@ -135,7 +163,7 @@ class WasteClassifier:
         for path in candidates:
             if path and os.path.exists(path):
                 try:
-                    self.model = YOLO(path)
+                    self.model = self._safe_load_yolo(path)
                     self._using_best = "best.pt" in os.path.basename(path)
                     logger.info(f"✅ Modèle YOLO chargé : {path}")
                     logger.info(f"   Classes ({len(self.model.names)}): "
@@ -150,7 +178,7 @@ class WasteClassifier:
         # Dernier recours : poids COCO générique (téléchargé auto).
         try:
             logger.warning("Aucun .pt local trouvé -> yolov8n.pt (COCO générique).")
-            self.model = YOLO("yolov8n.pt")
+            self.model = self._safe_load_yolo("yolov8n.pt")
             self._using_best = False
             logger.info("✅ Modèle YOLO de secours COCO chargé.")
         except Exception as e:  # noqa: BLE001
