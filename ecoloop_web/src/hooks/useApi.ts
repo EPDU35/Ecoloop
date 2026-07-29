@@ -9,19 +9,23 @@ import { reportService, type CreateReportData } from '@/services/api/reportServi
 // ─── Server Health ────────────────────────────────────────────────
 
 export function useServerHealth() {
+  const maxRetries = 15;
   const query = useQuery({
     queryKey: queryKeys.serverHealth,
     queryFn: dashboardService.checkHealth,
-    retry: 12,
-    retryDelay: 5000,
+    retry: maxRetries,
+    retryDelay: 4000,
     staleTime: 0,
     gcTime: 0,
   });
 
+  const isWaking = !query.isSuccess && query.failureCount < maxRetries;
+  const isError = !query.isSuccess && query.failureCount >= maxRetries;
+
   return {
     isReady: query.isSuccess,
-    isWaking: query.isLoading || query.isFetching,
-    isError: query.isError && !query.isFetching,
+    isWaking,
+    isError,
     retry: query.refetch,
   };
 }
