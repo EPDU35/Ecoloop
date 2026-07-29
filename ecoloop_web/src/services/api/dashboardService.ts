@@ -96,24 +96,12 @@ export const dashboardService = {
 
   checkHealth: async (): Promise<{ status: string }> => {
     const baseURL = import.meta.env.VITE_API_URL || 'https://ecoloop-backend-s1vd.onrender.com/api/v1';
-    const rootURL = baseURL.replace(/\/api\/v1$/, '');
+    const rootURL = baseURL.replace(/\/api\/v1\/?$/, '');
     
-    // Plain fetch without credentials/auth headers to avoid unnecessary preflights during cold start
-    try {
-      const res = await fetch(`${rootURL}/health`, { method: 'GET', cache: 'no-store' });
-      if (res.ok) {
-        return await res.json();
-      }
-      throw new Error(`Server status: ${res.status}`);
-    } catch (e) {
-      // Fallback try with /api/v1 prefix
-      try {
-        const res2 = await fetch(`${baseURL}/health`, { method: 'GET', cache: 'no-store' });
-        if (res2.ok) {
-          return await res2.json();
-        }
-      } catch (_) {}
-      throw e;
+    const res = await fetch(`${rootURL}/health`, { method: 'GET', cache: 'no-store' });
+    if (res.ok) {
+      return await res.json();
     }
+    throw new Error(`Server status: ${res.status}`);
   },
 };

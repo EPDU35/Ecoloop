@@ -14,7 +14,7 @@ export function useServerHealth() {
     queryKey: queryKeys.serverHealth,
     queryFn: dashboardService.checkHealth,
     retry: maxRetries,
-    retryDelay: 4000,
+    retryDelay: 5000,
     staleTime: 0,
     gcTime: 0,
   });
