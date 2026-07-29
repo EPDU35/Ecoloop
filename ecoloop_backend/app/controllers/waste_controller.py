@@ -15,7 +15,7 @@ async def create_waste_lot(db: AsyncSession, producer: User, payload: WasteLotCr
         category=payload.category,
         description=payload.description,
         weight_kg=payload.weight_kg,
-        price_per_kg=payload.price_per_kg,
+        price_per_kg=0.0,
         latitude=payload.latitude,
         longitude=payload.longitude,
         status=LotStatus.DISPONIBLE,
@@ -79,8 +79,6 @@ async def update_waste_lot(db: AsyncSession, lot: WasteLot, user: User, payload:
         lot.description = payload.description
     if payload.weight_kg is not None:
         lot.weight_kg = payload.weight_kg
-    if payload.price_per_kg is not None:
-        lot.price_per_kg = payload.price_per_kg
     await db.flush()
     return lot
 

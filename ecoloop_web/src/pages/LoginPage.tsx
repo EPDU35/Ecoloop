@@ -22,7 +22,20 @@ export function LoginPage() {
       await login(email, password);
       navigate('/dashboard'); 
     } catch (err: any) {
-      setError(err.response?.data?.detail || err.message || "Erreur de connexion. Vérifiez vos identifiants.");
+      let errorMessage = "Erreur de connexion. Vérifiez vos identifiants.";
+      if (err.response?.data?.detail) {
+        const d = err.response.data.detail;
+        if (typeof d === 'string') {
+          errorMessage = d;
+        } else if (Array.isArray(d) && d.length > 0) {
+          errorMessage = d.map((e: any) => typeof e === 'string' ? e : e.msg || JSON.stringify(e)).join('. ');
+        } else {
+          errorMessage = JSON.stringify(d);
+        }
+      } else if (err.message && typeof err.message === 'string') {
+        errorMessage = err.message;
+      }
+      setError(typeof errorMessage === 'string' ? errorMessage : String(errorMessage));
     } finally {
       setIsSubmitting(false);
     }

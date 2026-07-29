@@ -25,8 +25,8 @@ export function RecyclerDashboard() {
   ];
 
   const baseLots = [
-    { id: 'LOT-902', type: 'PET Clair (Balles)', purity: '98%', humidity: '< 2%', origin: 'Abidjan Sud', distance: '12 km', price: '250F/kg', available: 'Immédiate', weight: '2.5 T' },
-    { id: 'LOT-903', type: 'Carton Ondulé', purity: '95%', humidity: '4%', origin: 'Zone Industrielle Yopougon', distance: '5 km', price: '75F/kg', available: 'Dans 24h', weight: '5.0 T' },
+    { id: 'LOT-902', type: 'PET Clair (Balles)', purity: '98%', humidity: '< 2%', origin: 'Abidjan Sud', distance: '12 km', price: '2500 pts/kg', available: 'Immédiate', weight: '2.5 T' },
+    { id: 'LOT-903', type: 'Carton Ondulé', purity: '95%', humidity: '4%', origin: 'Zone Industrielle Yopougon', distance: '5 km', price: '750 pts/kg', available: 'Dans 24h', weight: '5.0 T' },
   ];
 
   const demoLot = {
@@ -36,7 +36,7 @@ export function RecyclerDashboard() {
     humidity: '1%',
     origin: 'Cocody Riviera',
     distance: '3 km',
-    price: '120F/kg',
+    price: '1200 pts/kg',
     available: 'Immédiatement disponible',
     weight: '100 kg'
   };
@@ -117,8 +117,8 @@ export function RecyclerDashboard() {
               {lot.id === 'ECO-00094' && (
                 <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-4">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-bold text-purple-900">Valeur marché estimée</span>
-                    <span className="font-heading text-xl font-black text-purple-700">12 000 FCFA</span>
+                    <span className="text-sm font-bold text-purple-900">Valeur d'échange</span>
+                    <span className="font-heading text-xl font-black text-purple-700">12 000 pts</span>
                   </div>
                   <p className="text-xs text-purple-600 italic">"EcoLoop crée une économie circulaire où chaque acteur possède une source de valeur."</p>
                 </div>
@@ -128,7 +128,7 @@ export function RecyclerDashboard() {
                 onClick={() => setPurchaseLotId(lot.id)}
                 className="w-full btn-primary bg-purple-600 hover:bg-purple-700 py-3 rounded-xl flex items-center justify-center gap-2"
               >
-                <PackageOpen size={20} /> Acheter ce lot
+                <PackageOpen size={20} /> Réserver ce lot
               </button>
             </div>
           ))}
@@ -160,7 +160,7 @@ export function RecyclerDashboard() {
           <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl animate-in zoom-in-95 duration-200">
             {purchaseStep === 1 && (
               <>
-                <h3 className="font-bold text-2xl text-deep-forest mb-2">Confirmer l'achat</h3>
+                <h3 className="font-bold text-2xl text-deep-forest mb-2">Confirmer la réservation</h3>
                 <p className="text-text-secondary mb-6">Sélectionnez un jour pour la collecte de ce lot.</p>
                 
                 <div className="space-y-4 mb-8">
@@ -211,7 +211,7 @@ export function RecyclerDashboard() {
                 <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 className="text-ecoloop-green" size={32} />
                 </div>
-                <h3 className="font-bold text-2xl text-deep-forest mb-2">Achat confirmé</h3>
+                <h3 className="font-bold text-2xl text-deep-forest mb-2">Réservation confirmée</h3>
                 <p className="text-text-secondary mb-2">Les notifications ont été envoyées au producteur et au réseau de collecteurs.</p>
                 <p className="text-purple-600 font-bold text-sm">Collecte prévue : {collectionDay}</p>
               </div>

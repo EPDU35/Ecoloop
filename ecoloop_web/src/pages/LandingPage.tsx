@@ -324,8 +324,8 @@ export function LandingPage() {
               <p className="text-sm text-text-secondary mt-2">Collecteurs professionnalisés</p>
             </div>
             <div>
-              <span className="block text-5xl font-extrabold text-purple-500 mb-2">45M</span>
-              <span className="font-bold text-deep-forest">FCFA redistribués</span>
+              <span className="font-heading text-4xl font-black text-ecoloop-green block mb-1">18M+</span>
+              <span className="font-bold text-deep-forest">Points redistribués</span>
               <p className="text-sm text-text-secondary mt-2">Aux particuliers et professionnels</p>
             </div>
           </div>

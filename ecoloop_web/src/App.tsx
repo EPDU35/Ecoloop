@@ -9,6 +9,7 @@ import { MunicipalityDashboard } from './pages/dashboards/MunicipalityDashboard'
 
 import { HouseholdDashboard } from './pages/dashboards/HouseholdDashboard';
 import { CollectorDashboard } from './pages/dashboards/CollectorDashboard';
+import { CollectorMapPage } from './pages/dashboards/CollectorMapPage';
 import { RecyclerDashboard } from './pages/dashboards/RecyclerDashboard';
 import { TraceabilityPage } from './pages/dashboards/TraceabilityPage';
 import { ImpactPage } from './pages/dashboards/ImpactPage';
@@ -33,7 +34,7 @@ import { StatusPage } from './pages/StatusPage';
 
 function DashboardRedirect() {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user || !user.role) return <Navigate to="/login" replace />;
   
   switch (user.role.toLowerCase()) {
     case 'mairie':
@@ -110,6 +111,11 @@ function App() {
             <Route path="/collector/dashboard" element={
               <ProtectedRoute allowedRoles={['collecteur']}>
                 <CollectorDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/collector/map" element={
+              <ProtectedRoute allowedRoles={['collecteur']}>
+                <CollectorMapPage />
               </ProtectedRoute>
             } />
             <Route path="/recycler/dashboard" element={

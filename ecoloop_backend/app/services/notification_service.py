@@ -108,7 +108,7 @@ async def notify_payment_completed(
 ) -> None:
     await _create_notification(
         db, user_id, "Paiement effectué",
-        f"Un paiement de {net_amount} FCFA a été enregistré.",
+        f"L'attribution de {net_amount} points a été enregistrée.",
         NotificationType.PAYMENT_RECEIVED,
     )
     logger.info("Notification -> user=%s title=%s", user_id, "Paiement effectué")

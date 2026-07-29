@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Map, Camera, UserCircle, LogOut, Settings, Bell, Check, Trash2, X, Plus, Package, MapPin } from 'lucide-react';
+import { Home, Map, Camera, UserCircle, LogOut, Settings, Bell, Check, Trash2, X, Plus, Recycle, MapPin, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthContext';
 import { useState, useRef, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -101,10 +101,10 @@ export function MainLayout() {
                 <Home size={24} /> <span>Accueil</span>
               </Link>
               <Link to="/producer/new-lot" className={`nav-link ${isActive('/producer/new-lot') ? 'active' : ''}`}>
-                <Package size={24} /> <span>Vendre</span>
+                <Recycle size={24} /> <span>Recycler</span>
               </Link>
               <Link to="/producer/report" className={`nav-link ${isActive('/producer/report') ? 'active' : ''}`}>
-                <MapPin size={24} /> <span>Signaler</span>
+                <AlertTriangle size={24} /> <span>Signaler</span>
               </Link>
               <Link to="/profile" className={`nav-link ${isActive('/profile') ? 'active' : ''}`}>
                 <UserCircle size={24} /> <span>Profil</span>
@@ -279,17 +279,17 @@ export function MainLayout() {
                 <div className="space-y-4">
                   <button onClick={() => { setShowBottomSheet(false); navigate('/producer/new-lot'); }} className="w-full bg-green-50 text-ecoloop-green font-bold text-lg p-5 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-green-100 transition-colors active:scale-95 border border-green-100">
                     <div className="flex items-center gap-2">
-                      <Package size={24} />
-                      Vendre mes déchets
+                      <Recycle size={24} />
+                      Recycler mes déchets
                     </div>
-                    <span className="text-sm font-medium text-green-700">Transformer mes déchets en valeur</span>
+                    <span className="text-sm font-medium text-green-700">Scanner avec l'IA et publier un lot</span>
                   </button>
-                  <button onClick={() => { setShowBottomSheet(false); navigate('/producer/report'); }} className="w-full bg-blue-50 text-blue-600 font-bold text-lg p-5 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-blue-100 transition-colors active:scale-95 border border-blue-100">
+                  <button onClick={() => { setShowBottomSheet(false); navigate('/producer/report'); }} className="w-full bg-amber-50 text-amber-600 font-bold text-lg p-5 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-amber-100 transition-colors active:scale-95 border border-amber-100">
                     <div className="flex items-center gap-2">
-                      <MapPin size={24} />
-                      Signaler un dépôt
+                      <AlertTriangle size={24} />
+                      Signaler un dépotoir
                     </div>
-                    <span className="text-sm font-medium text-blue-700">Alerter la ville d'un problème</span>
+                    <span className="text-sm font-medium text-amber-700">Alerter la mairie d'un dépôt sauvage</span>
                   </button>
                 </div>
                 <div className="mt-6 border-t border-gray-100 pt-6">

@@ -11,7 +11,6 @@ class WasteLotCreateSchema(BaseModel):
     category: WasteCategory
     description: str | None = Field(default=None, max_length=1000)
     weight_kg: float = Field(gt=0, le=50000)
-    price_per_kg: float = Field(gt=0, le=1_000_000)
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
 
@@ -24,7 +23,6 @@ class WasteLotCreateSchema(BaseModel):
 class WasteLotUpdateSchema(BaseModel):
     description: str | None = Field(default=None, max_length=1000)
     weight_kg: float | None = Field(default=None, gt=0, le=50000)
-    price_per_kg: float | None = Field(default=None, gt=0, le=1_000_000)
 
 
 class WasteLotOutSchema(BaseModel):
@@ -36,7 +34,6 @@ class WasteLotOutSchema(BaseModel):
     category: WasteCategory
     description: str | None
     weight_kg: float
-    price_per_kg: float
     photo_url: str | None
     latitude: float
     longitude: float

@@ -9,7 +9,7 @@ export function InvestorDashboard() {
     { label: 'Lots Valorisés', value: '12 840', icon: Package, color: 'text-purple-500', bg: 'bg-purple-50' },
     { label: 'Tonnes Recyclées', value: '342 t', icon: TrendingUp, color: 'text-ecoloop-green', bg: 'bg-green-50' },
     { label: 'CO₂ Évité', value: '45.6 t', icon: CloudFog, color: 'text-gray-600', bg: 'bg-gray-100' },
-    { label: 'Revenus Générés (MRR)', value: '18M FCFA', icon: Banknote, color: 'text-orange-500', bg: 'bg-orange-50' }
+    { label: 'Points Générés', value: '18M', icon: Banknote, color: 'text-orange-500', bg: 'bg-orange-50' }
   ];
 
   return (

@@ -36,14 +36,13 @@ export function CollectorDashboard() {
 
   if (isLoading) return <LoadingState fullPage message="Recherche de missions..." />;
 
-  const todayRevenue = 18500; // Mock from user requirement
+  const todayPoints = 850;
   const missionsCount = 12; // Mock
   
   const demoLot = {
     id: 'ECO-00094',
     category: 'PET transparent',
     weight_kg: 12,
-    price_per_kg: 250,
     address: 'Cocody Riviera',
     purity: '98%',
     created_at: new Date(Date.now() - 4 * 60000).toISOString()
@@ -85,8 +84,8 @@ export function CollectorDashboard() {
               </div>
               <div className="border-t border-gray-200 my-2"></div>
               <div className="flex justify-between items-center bg-green-100 p-3 rounded-lg">
-                <span className="text-sm font-bold text-green-800">Gain net :</span>
-                <span className="font-heading text-xl font-black text-ecoloop-green">+2 500 FCFA</span>
+                <span className="text-sm font-bold text-green-800">Points obtenus :</span>
+                <span className="font-heading text-xl font-black text-ecoloop-green">+120 pts</span>
               </div>
             </div>
             <p className="text-sm font-medium text-text-secondary italic">"EcoLoop crée une économie circulaire où chaque acteur possède une source de valeur."</p>
@@ -105,9 +104,9 @@ export function CollectorDashboard() {
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="block text-sm text-text-secondary mb-1">Gain net</span>
+                  <span className="block text-sm text-text-secondary mb-1">Points</span>
                   <span className="font-heading text-3xl font-extrabold text-blue-600">
-                    {(topLot.weight_kg * topLot.price_per_kg).toLocaleString()} FCFA
+                    {(topLot.weight_kg * 10).toLocaleString()} pts
                   </span>
                 </div>
               </div>
@@ -134,18 +133,10 @@ export function CollectorDashboard() {
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
                 <div className="flex justify-between items-center mb-3">
                   <h4 className="font-bold text-blue-900 flex items-center gap-2">
-                    <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-black">94%</span>
-                    Score IA
+                    <ShieldCheck size={18} />
+                    Recommandation IA
                   </h4>
-                  <span className="text-xs text-blue-600 font-medium">Recommandation optimale</span>
-                </div>
-                
-                <div className="flex justify-between text-xs text-blue-800 mb-4 px-2">
-                  <div className="text-center"><span className="block font-bold text-lg">+35</span>Distance</div>
-                  <div className="text-center"><span className="block font-bold text-lg">+20</span>Capacité</div>
-                  <div className="text-center"><span className="block font-bold text-lg">+18</span>Trafic</div>
-                  <div className="text-center"><span className="block font-bold text-lg">+12</span>Urgence</div>
-                  <div className="text-center"><span className="block font-bold text-lg">+9</span>Historique</div>
+                  <span className="text-xs text-blue-600 font-medium">Itinéraire optimal</span>
                 </div>
 
                 <div className="text-sm text-blue-800 bg-white/50 p-3 rounded-lg">
@@ -192,8 +183,8 @@ export function CollectorDashboard() {
             colorClass="text-deep-forest"
           />
           <StatCard 
-            title="Gains" 
-            value={`${todayRevenue.toLocaleString()} FCFA`} 
+            title="Points obtenus" 
+            value={`${todayPoints.toLocaleString()} pts`} 
             colorClass="text-blue-600"
           />
         </div>
@@ -217,7 +208,7 @@ export function CollectorDashboard() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="font-bold text-blue-600 block">{(lot.weight_kg * lot.price_per_kg).toLocaleString()} FCFA</span>
+                    <span className="font-bold text-blue-600 block">{(lot.weight_kg * 10).toLocaleString()} pts</span>
                   </div>
                 </Card>
               ))}

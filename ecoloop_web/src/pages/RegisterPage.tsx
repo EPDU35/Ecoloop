@@ -65,9 +65,11 @@ export function RegisterPage() {
       await authService.register({
         full_name: formData.fullName,
         email: formData.email,
-        phone: formData.phone.replace(/\s+/g, ''),
+        phone: formData.phone.startsWith('+225') 
+          ? formData.phone.replace(/\s+/g, '') 
+          : `+225${formData.phone.replace(/\s+/g, '')}`,
         password: formData.password,
-        role: selectedRole
+        role: selectedRole.toUpperCase()
       });
 
       // 2. Auto-login
@@ -76,7 +78,21 @@ export function RegisterPage() {
       // 3. Redirection
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.detail || err.message || "Erreur lors de l'inscription, veuillez réessayer.");
+      let errorMessage = "Erreur lors de l'inscription, veuillez réessayer.";
+      if (err.response?.data?.detail) {
+        const d = err.response.data.detail;
+        if (typeof d === 'string') {
+          errorMessage = d;
+        } else if (Array.isArray(d) && d.length > 0) {
+          // Pydantic validation errors: [{type, loc, msg, input, ctx}]
+          errorMessage = d.map((e: any) => typeof e === 'string' ? e : e.msg || JSON.stringify(e)).join('. ');
+        } else {
+          errorMessage = JSON.stringify(d);
+        }
+      } else if (err.message) {
+        errorMessage = typeof err.message === 'string' ? err.message : JSON.stringify(err.message);
+      }
+      setError(typeof errorMessage === 'string' ? errorMessage : String(errorMessage));
     } finally {
       setIsSubmitting(false);
     }
@@ -186,7 +202,7 @@ export function RegisterPage() {
                     placeholder="••••••••"
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">Au moins 8 caractères.</p>
+                  <p className="text-xs text-gray-500 mt-1">Min. 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre.</p>
                 </div>
 
                 <div>

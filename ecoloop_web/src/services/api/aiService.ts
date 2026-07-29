@@ -22,6 +22,7 @@ export interface ClassificationResult {
   etat?: string;
   score_qualite?: number;
   poids_estime_kg?: number;
+  poids_par_categorie_kg?: Record<string, number>;
   collectable?: boolean;
   raison_collectabilite?: string;
   recommandations?: string[];

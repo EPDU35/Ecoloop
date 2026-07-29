@@ -96,7 +96,7 @@ async def register_user(db: AsyncSession, payload: UserRegisterSchema) -> tuple[
         auto_active = True
         is_verified = True
     else:
-        auto_active = payload.role == UserRole.PRODUCTEUR
+        auto_active = True  # Activé automatiquement par défaut pour tous les rôles
         is_verified = True  # Bypass OTP pour l'instant
 
     user = User(

@@ -173,7 +173,8 @@ def _compute_all_scores(items_trouves: list[dict]) -> dict:
 
 def _estimate_weights(resume_quantite: dict, items_trouves: list[dict] = None, image_size: list[int] = None) -> tuple[float, dict, float]:
     """Estime le poids total, le poids par catégorie, et le volume (m3).
-       Utilise l'Algorithme de Masse Relative basé sur YOLO boxes.
+       Utilise des poids moyens réalistes par objet détecté, ajustés par
+       la taille relative de la bounding box (petit/moyen/grand objet).
     """
     if items_trouves is None:
         items_trouves = []
@@ -188,50 +189,75 @@ def _estimate_weights(resume_quantite: dict, items_trouves: list[dict] = None, i
     img_height = image_size[1] if len(image_size) == 2 else 640
     total_image_area = max(img_width * img_height, 1)
 
-    # Densité approximative en kg / litre (1 litre = 0.001 m3)
-    DENSITE = {
-        "plastique": 0.3,
-        "carton": 0.15,
-        "metal": 0.5,
-        "verre": 1.2,
-        "papier": 0.2,
-        "non-recyclable": 0.4
+    # Poids moyen réaliste par objet (kg) — ce qu'un objet typique pèse
+    POIDS_MOYEN_OBJET = {
+        "plastique": 0.035,        # bouteille vide ~30-40g
+        "carton": 0.080,           # carton plié ~80g
+        "metal": 0.025,            # canette ~15-25g
+        "verre": 0.250,            # bouteille verre ~250g
+        "papier": 0.020,           # feuille/journal ~20g
+        "non-recyclable": 0.050,   # déchet moyen ~50g
+    }
+
+    # Poids max par objet (kg) — cap réaliste
+    POIDS_MAX_OBJET = {
+        "plastique": 0.200,
+        "carton": 0.500,
+        "metal": 0.150,
+        "verre": 1.000,
+        "papier": 0.100,
+        "non-recyclable": 0.300,
+    }
+
+    # Volume moyen par objet (m³)
+    VOL_MOYEN_OBJET = {
+        "plastique": 0.002,
+        "carton": 0.005,
+        "metal": 0.001,
+        "verre": 0.001,
+        "papier": 0.001,
+        "non-recyclable": 0.002,
     }
 
     if not items_trouves:
-        # Fallback si pas de données géométriques
+        # Fallback simple par comptage
         for cat, qte in resume_quantite.items():
-            unitaire = WEIGHTS_PER_ITEM_KG.get(cat, 0.05)
+            unitaire = POIDS_MOYEN_OBJET.get(cat, 0.05)
             poids_cat = round(unitaire * qte, 3)
             poids_par_cat[cat] = poids_cat
             total_poids += poids_cat
-            
-            vol_unitaire = 0.01
-            if cat == "plastique": vol_unitaire = 0.015
-            elif cat == "verre": vol_unitaire = 0.002
-            elif cat == "carton": vol_unitaire = 0.03
-            total_volume += vol_unitaire * qte
+            total_volume += VOL_MOYEN_OBJET.get(cat, 0.002) * qte
 
         return round(total_poids, 3), poids_par_cat, round(total_volume, 3)
 
-    # Algorithme de Masse Relative
+    # Estimation par objet avec ajustement taille relative
     for it in items_trouves:
         cat = it["type"]
         box = it.get("box_xywh", [])
+        poids_base = POIDS_MOYEN_OBJET.get(cat, 0.05)
+        poids_max = POIDS_MAX_OBJET.get(cat, 0.3)
+
         if len(box) >= 4:
             bw, bh = box[2], box[3]
             box_area = bw * bh
             relative_area = box_area / total_image_area
-            
-            # Heuristique: La photo cadre environ 1 m^2 de surface, épaisseur moyenne du tas 0.2m
-            vol_m3 = relative_area * 1.0 * 0.2 
-            
-            # Densité en kg/m3 (Densité kg/L * 1000)
-            densite_kg_m3 = DENSITE.get(cat, 0.3) * 1000
-            poids_kg = vol_m3 * densite_kg_m3
+
+            # Multiplicateur basé sur la taille relative de l'objet
+            # < 2% de l'image = petit (x0.5), ~5% = moyen (x1), > 15% = grand (x2)
+            if relative_area < 0.02:
+                size_mult = 0.5
+            elif relative_area < 0.10:
+                size_mult = 1.0
+            elif relative_area < 0.25:
+                size_mult = 1.5
+            else:
+                size_mult = 2.0
+
+            poids_kg = min(poids_base * size_mult, poids_max)
         else:
-            poids_kg = WEIGHTS_PER_ITEM_KG.get(cat, 0.05)
-            vol_m3 = 0.01
+            poids_kg = poids_base
+
+        vol_m3 = VOL_MOYEN_OBJET.get(cat, 0.002)
             
         poids_par_cat[cat] = poids_par_cat.get(cat, 0.0) + poids_kg
         total_poids += poids_kg
