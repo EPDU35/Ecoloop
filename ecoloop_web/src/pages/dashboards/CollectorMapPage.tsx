@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Navigation, Truck, Phone, MessageSquare } from 'lucide-react';
-import { useDemo } from '@/contexts/DemoContext';
 
 export function CollectorMapPage() {
   const navigate = useNavigate();
-  const { setDemoStep } = useDemo();
   const [isNavigating, setIsNavigating] = useState(false);
   const [distance, setDistance] = useState('1.3 km');
   const [time, setTime] = useState('8 min');
@@ -23,14 +21,12 @@ export function CollectorMapPage() {
       const timer3 = setTimeout(() => {
         setDistance('0 m');
         setTime('Arrivé');
-        // Simulator triggers completion
-        setDemoStep(3);
         setTimeout(() => navigate('/collector/dashboard'), 2000);
       }, 9000);
       
       return () => { clearTimeout(timer1); clearTimeout(timer2); clearTimeout(timer3); };
     }
-  }, [isNavigating, navigate, setDemoStep]);
+  }, [isNavigating, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-100 font-body relative flex flex-col h-[100dvh] overflow-hidden">
@@ -46,14 +42,13 @@ export function CollectorMapPage() {
         </div>
       </div>
 
-      {/* FAKE MAP AREA */}
+      {/* MAP AREA */}
       <div className="flex-1 relative bg-[#e5e3df]">
         <img 
           src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=600&auto=format&fit=crop" 
           alt="Map" 
           className="w-full h-full object-cover opacity-70"
         />
-        {/* Fake itinerary line */}
         <div className="absolute inset-0 flex items-center justify-center">
           <svg className="w-full h-full" style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))' }}>
             <path d="M 100 400 Q 200 300 250 200 T 300 100" fill="none" stroke="#2563eb" strokeWidth="6" strokeLinecap="round" strokeDasharray="12 12" className="animate-[dash_1s_linear_infinite]" />
@@ -62,12 +57,10 @@ export function CollectorMapPage() {
           </svg>
         </div>
         
-        {/* User pin */}
         <div className="absolute bottom-1/4 left-1/4 w-12 h-12 bg-blue-600 rounded-full border-4 border-white shadow-xl flex items-center justify-center z-10 animate-bounce">
           <Truck size={20} className="text-white" />
         </div>
         
-        {/* Destination pin */}
         <div className="absolute top-[20%] left-[70%] w-10 h-10 bg-green-500 rounded-full border-4 border-white shadow-xl flex items-center justify-center z-10">
           <MapPin size={18} className="text-white" />
         </div>
@@ -97,7 +90,7 @@ export function CollectorMapPage() {
               <span className="font-bold text-green-700">PR</span>
             </div>
             <div>
-              <p className="font-bold text-deep-forest">Producteur (Koffi)</p>
+              <p className="font-bold text-deep-forest">Producteur</p>
               <p className="text-xs text-text-secondary">Cocody Riviera - Lot PET</p>
             </div>
           </div>

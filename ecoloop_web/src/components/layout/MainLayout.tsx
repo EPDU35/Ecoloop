@@ -1,30 +1,26 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Map, Camera, UserCircle, LogOut, Settings, Bell, Check, Trash2, X, Plus, Package, MapPin } from 'lucide-react';
+import { Home, Map, UserCircle, LogOut, Settings, Bell, Check, X, Plus, Package, MapPin } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthContext';
 import { useState, useRef, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { DemoController } from '../DemoController';
-
-// Mock Notifications
-const INITIAL_NOTIFICATIONS = [
-  { id: 1, type: 'mission', title: 'Nouvelle mission disponible', desc: 'Collecte de 50kg de PET à proximité.', time: 'Il y a 5 min', read: false },
-  { id: 2, type: 'success', title: 'Collecte validée', desc: 'Votre lot a été réceptionné par l\'industriel.', time: 'Il y a 2 h', read: false },
-  { id: 3, type: 'reward', title: 'Récompense obtenue', desc: 'Vous avez reçu 500 points EcoLoop.', time: 'Hier', read: true },
-  { id: 4, type: 'ai', title: 'Analyse IA terminée', desc: 'Votre déchet a été identifié comme HDPE.', time: 'Hier', read: true },
-];
+import { useNotifications, useMarkNotificationRead } from '@/hooks/useApi';
+import { safeArray } from '@/utils/parseResponse';
 
 export function MainLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const { data: notificationsData } = useNotifications();
+  const markReadMutation = useMarkNotificationRead();
+  const notifications = safeArray(notificationsData, []);
+
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
 
   const [showBottomSheet, setShowBottomSheet] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n: any) => !n.is_read).length;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -36,21 +32,12 @@ export function MainLayout() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
-  };
-
-  const deleteNotification = (id: number) => {
-    setNotifications(notifications.filter(n => n.id !== id));
-  };
-
-  const markAsRead = (id: number) => {
-    setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+  const markAsRead = (id: string) => {
+    markReadMutation.mutate(id);
   };
 
   const userRole = user?.role.toLowerCase() || '';
 
-  // Determine the correct dashboard path per role
   const dashboardPath = (() => {
     switch (userRole) {
       case 'collecteur': return '/collector/dashboard';
@@ -77,6 +64,28 @@ export function MainLayout() {
     return location.pathname.startsWith(path);
   };
 
+  const getNotifIcon = (type: string) => {
+    switch (type) {
+      case 'COLLECTION': return <Map size={18} />;
+      case 'VALIDATION': return <Check size={18} />;
+      case 'REWARD': return <span className="font-bold text-sm">pts</span>;
+      default: return <Bell size={18} />;
+    }
+  };
+
+  const formatNotifTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return "À l'instant";
+    if (diffMin < 60) return `Il y a ${diffMin} min`;
+    const diffH = Math.floor(diffMin / 60);
+    if (diffH < 24) return `Il y a ${diffH} h`;
+    const diffD = Math.floor(diffH / 24);
+    return `Il y a ${diffD} j`;
+  };
+
   return (
     <div className="app-shell">
       <aside className="sidebar-desktop">
@@ -101,7 +110,7 @@ export function MainLayout() {
                 <Home size={24} /> <span>Accueil</span>
               </Link>
               <Link to="/producer/new-lot" className={`nav-link ${isActive('/producer/new-lot') ? 'active' : ''}`}>
-                <Package size={24} /> <span>Vendre</span>
+                <Package size={24} /> <span>Soumettre un lot</span>
               </Link>
               <Link to="/producer/report" className={`nav-link ${isActive('/producer/report') ? 'active' : ''}`}>
                 <MapPin size={24} /> <span>Signaler</span>
@@ -133,19 +142,7 @@ export function MainLayout() {
 
       <main className="main-content w-full relative z-0 flex-1">
         {/* Top bar + notifications */}
-        <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-40 pointer-events-none" ref={notifRef}>
-          <div className="pointer-events-auto mt-2 md:mt-0">
-            <div 
-              className="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm text-ecoloop-green px-3 py-1.5 rounded-full text-xs font-bold shadow-sm border border-gray-100 cursor-help" 
-              title="EcoLoop Demo Environment: Certaines données sont simulées afin de présenter le fonctionnement complet du produit."
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-              </span>
-              Demo Live
-            </div>
-          </div>
+        <div className="absolute top-0 left-0 right-0 p-4 flex justify-end items-start z-40 pointer-events-none" ref={notifRef}>
           <div className="flex gap-2 pointer-events-auto">
             <button 
               onClick={logout}
@@ -171,11 +168,6 @@ export function MainLayout() {
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white md:rounded-t-2xl">
                   <h3 className="font-bold text-lg text-deep-forest">Notifications</h3>
                   <div className="flex items-center gap-2">
-                    {unreadCount > 0 && (
-                      <button onClick={markAllAsRead} className="text-xs font-medium text-ecoloop-green hover:underline cursor-pointer px-2 py-1">
-                        Tout marquer lu
-                      </button>
-                    )}
                     <button onClick={() => setIsNotifOpen(false)} className="md:hidden p-1 text-gray-500 hover:bg-gray-100 rounded-full">
                       <X size={20} />
                     </button>
@@ -190,39 +182,21 @@ export function MainLayout() {
                     </div>
                   ) : (
                     <div className="divide-y divide-gray-50">
-                      {notifications.map(n => (
-                        <div key={n.id} className={`p-4 flex gap-3 hover:bg-gray-50 transition-colors ${!n.read ? 'bg-green-50/30' : ''}`} onClick={() => markAsRead(n.id)}>
-                          <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center ${!n.read ? 'bg-ecoloop-green text-white' : 'bg-gray-100 text-gray-500'}`}>
-                            {n.type === 'mission' && <Map size={18} />}
-                            {n.type === 'success' && <Check size={18} />}
-                            {n.type === 'reward' && <span className="font-bold text-sm">pts</span>}
-                            {n.type === 'ai' && <Camera size={18} />}
+                      {notifications.map((n: any) => (
+                        <div key={n.id} className={`p-4 flex gap-3 hover:bg-gray-50 transition-colors cursor-pointer ${!n.is_read ? 'bg-green-50/30' : ''}`} onClick={() => markAsRead(n.id)}>
+                          <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center ${!n.is_read ? 'bg-ecoloop-green text-white' : 'bg-gray-100 text-gray-500'}`}>
+                            {getNotifIcon(n.type)}
                           </div>
-                          <div className="flex-1 cursor-pointer">
-                            <h4 className={`text-sm ${!n.read ? 'font-bold text-deep-forest' : 'font-medium text-gray-700'}`}>{n.title}</h4>
-                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.desc}</p>
-                            <span className="text-[10px] text-gray-400 mt-1 block">{n.time}</span>
+                          <div className="flex-1">
+                            <h4 className={`text-sm ${!n.is_read ? 'font-bold text-deep-forest' : 'font-medium text-gray-700'}`}>{n.title}</h4>
+                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.message}</p>
+                            <span className="text-[10px] text-gray-400 mt-1 block">{formatNotifTime(n.created_at)}</span>
                           </div>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); deleteNotification(n.id); }}
-                            className="text-gray-300 hover:text-red-500 p-1 opacity-0 hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none"
-                            aria-label="Supprimer"
-                          >
-                            <Trash2 size={16} />
-                          </button>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
-                
-                {notifications.length > 0 && (
-                  <div className="p-3 border-t border-gray-100 text-center bg-gray-50 md:rounded-b-2xl">
-                    <button className="text-sm font-bold text-deep-forest hover:text-ecoloop-green transition-colors cursor-pointer w-full py-1">
-                      Voir toutes les notifications
-                    </button>
-                  </div>
-                )}
               </div>
             )}
             </div>
@@ -231,8 +205,6 @@ export function MainLayout() {
 
         <Outlet />
       </main>
-
-      <DemoController />
 
       {/* FAB Producer */}
       {userRole === 'producteur' ? (
@@ -289,9 +261,9 @@ export function MainLayout() {
                   <button onClick={() => { setShowBottomSheet(false); navigate('/producer/new-lot'); }} className="w-full bg-green-50 text-ecoloop-green font-bold text-lg p-5 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-green-100 transition-colors active:scale-95 border border-green-100">
                     <div className="flex items-center gap-2">
                       <Package size={24} />
-                      Vendre mes déchets
+                      Soumettre mon lot de déchets recyclables
                     </div>
-                    <span className="text-sm font-medium text-green-700">Transformer mes déchets en valeur</span>
+                    <span className="text-sm font-medium text-green-700">Publier un lot trié pour le collecteur</span>
                   </button>
                   <button onClick={() => { setShowBottomSheet(false); navigate('/producer/report'); }} className="w-full bg-blue-50 text-blue-600 font-bold text-lg p-5 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-blue-100 transition-colors active:scale-95 border border-blue-100">
                     <div className="flex items-center gap-2">

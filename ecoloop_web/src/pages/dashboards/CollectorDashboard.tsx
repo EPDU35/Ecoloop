@@ -1,96 +1,85 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Truck, Map as MapIcon, ShieldCheck, Clock, MapPin, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { wasteService } from '@/services/api/wasteService';
-import type { WasteLot } from '@/types';
 import { LoadingState } from '@/components/feedback';
+import { ApiErrorDisplay } from '@/components/feedback/ApiErrorDisplay';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { StatCard } from '@/components/ui/StatCard';
-import { useDemo } from '@/contexts/DemoContext';
+import { useAuth } from '@/features/auth/AuthContext';
+import { useCollectorDashboard, useReserveCollection } from '@/hooks/useApi';
+import { safeNumber, safeArray } from '@/utils/parseResponse';
 
 export function CollectorDashboard() {
-  const { demoStep } = useDemo();
-  const [availableLots, setAvailableLots] = useState<WasteLot[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const { data, isLoading, isError, error, refetch } = useCollectorDashboard();
+  const reserveMutation = useReserveCollection();
   const [showNavigationModal, setShowNavigationModal] = useState(false);
+  const [reserveError, setReserveError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [lots] = await Promise.all([
-          wasteService.getAvailableWastes(),
-        ]);
-        setAvailableLots(lots);
-      } catch (err: any) {
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
   if (isLoading) return <LoadingState fullPage message="Recherche de missions..." />;
+  if (isError) return <ApiErrorDisplay error={error} onRetry={() => refetch()} context="Dashboard collecteur" />;
 
-  const missionsCount = demoStep >= 3 ? 5 : 4; 
-  
-  const demoLot = {
-    id: 'ECO-00094',
-    category: 'PET transparent',
-    weight_kg: 12,
-    price_per_kg: 250,
-    address: 'Cocody Riviera',
-    purity: '98%',
-    created_at: new Date(Date.now() - 4 * 60000).toISOString()
+  const completedCollections = safeNumber(data?.completed_collections, 0);
+  const totalCollections = safeNumber(data?.total_collections, 0);
+  const totalEarnings = safeNumber(data?.total_earnings_fcfa, 0);
+  const reputationScore = safeNumber(data?.reputation_score, 0);
+  const availableLots = safeArray<any>(data?.available_lots, []);
+  const myCollections = safeArray<any>(data?.my_collections, []);
+
+  const totalCollectedKg = myCollections.reduce((sum: number, c: any) =>
+    sum + safeNumber(c.actual_weight_kg, 0), 0
+  );
+
+  const topLot = availableLots[0];
+  const firstName = user?.full_name?.split(' ')[0] || 'Collecteur';
+
+  const handleReserve = async (lotId: string) => {
+    setReserveError(null);
+    try {
+      await reserveMutation.mutateAsync(lotId);
+      setShowNavigationModal(true);
+    } catch (err: any) {
+      if (err?.response?.status === 409) {
+        setReserveError('Ce lot a déjà été réservé par un autre collecteur.');
+      } else {
+        setReserveError('Erreur lors de la réservation. Réessayez.');
+      }
+    }
   };
-
-  const topLot = demoStep >= 1 ? demoLot : availableLots[0];
 
   return (
     <div className="min-h-screen bg-bg font-body text-text-main pb-24">
-      {/* Header gig-economy */}
+      {/* Header */}
       <div className="bg-blue-600 text-white pt-12 pb-24 px-6 rounded-b-[2rem] shadow-sm">
         <div className="max-w-3xl mx-auto flex justify-between items-center">
           <div>
             <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-sm font-medium mb-3">
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> En service
             </div>
-            <h1 className="font-heading text-2xl font-bold">Bonjour, Collecteur</h1>
+            <h1 className="font-heading text-2xl font-bold">Bonjour, {firstName}</h1>
+          </div>
+          <div className="text-right bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20">
+            <span className="text-xs font-bold uppercase tracking-widest opacity-80 block mb-1">Revenus</span>
+            <span className="font-heading text-xl font-extrabold">{totalEarnings.toLocaleString()} F</span>
           </div>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-6 -mt-16">
         
-        {/* MISSION RECOMMANDÉE OU TERMINÉE */}
-        {demoStep >= 3 ? (
-          <div className="bg-white rounded-2xl shadow-sm border border-green-100 overflow-hidden mb-8 p-6 text-center">
-            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-green-100">
-              <ShieldCheck className="text-ecoloop-green" size={32} />
-            </div>
-            <h3 className="font-heading text-2xl font-bold text-deep-forest mb-2">Mission terminée</h3>
-            <div className="bg-gray-50 rounded-xl p-4 my-6 text-left border border-gray-100 space-y-3">
-              <div className="flex justify-between">
-                <span className="text-text-secondary">Distance :</span>
-                <span className="font-bold text-deep-forest">3,2 km</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-text-secondary">Temps :</span>
-                <span className="font-bold text-deep-forest">25 min</span>
-              </div>
-              <div className="border-t border-gray-200 my-2"></div>
-              <div className="flex justify-between items-center bg-green-100 p-3 rounded-lg">
-                <span className="text-sm font-bold text-green-800">Points récoltés :</span>
-                <span className="font-heading text-xl font-black text-ecoloop-green">+250 pts</span>
-              </div>
-            </div>
-            <p className="text-sm font-medium text-text-secondary italic">"EcoLoop crée une économie circulaire où chaque acteur possède une source de valeur."</p>
+        {/* Reserve error */}
+        {reserveError && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl mb-6 text-sm font-medium">
+            {reserveError}
           </div>
-        ) : topLot ? (
+        )}
+
+        {/* Top lot or empty */}
+        {topLot ? (
           <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden mb-8">
             <div className="bg-blue-50 text-blue-800 px-5 py-3 font-bold text-sm uppercase tracking-wide flex justify-between items-center border-b border-blue-100">
               <span>🌟 Mission recommandée</span>
@@ -108,8 +97,8 @@ export function CollectorDashboard() {
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100">
                   <MapIcon size={20} className="mx-auto text-blue-500 mb-2" />
-                  <span className="block font-bold text-deep-forest">1.3 km</span>
-                  <span className="text-xs text-text-secondary">Distance</span>
+                  <span className="block font-bold text-deep-forest">{topLot.description || 'À proximité'}</span>
+                  <span className="text-xs text-text-secondary">Lieu</span>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100">
                   <Truck size={20} className="mx-auto text-blue-500 mb-2" />
@@ -118,37 +107,8 @@ export function CollectorDashboard() {
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100">
                   <Clock size={20} className="mx-auto text-blue-500 mb-2" />
-                  <span className="block font-bold text-deep-forest">8 min</span>
-                  <span className="text-xs text-text-secondary">Temps estimé</span>
-                </div>
-              </div>
-
-              {/* AI EXPLANATION BLOCK */}
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
-                <div className="flex justify-between items-center mb-3">
-                  <h4 className="font-bold text-blue-900 flex items-center gap-2">
-                    <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-black">94%</span>
-                    Score IA
-                  </h4>
-                  <span className="text-xs text-blue-600 font-medium">Recommandation optimale</span>
-                </div>
-                
-                <div className="flex justify-between text-xs text-blue-800 mb-4 px-2">
-                  <div className="text-center"><span className="block font-bold text-lg">+35</span>Distance</div>
-                  <div className="text-center"><span className="block font-bold text-lg">+20</span>Capacité</div>
-                  <div className="text-center"><span className="block font-bold text-lg">+18</span>Trafic</div>
-                  <div className="text-center"><span className="block font-bold text-lg">+12</span>Urgence</div>
-                  <div className="text-center"><span className="block font-bold text-lg">+9</span>Historique</div>
-                </div>
-
-                <div className="text-sm text-blue-800 bg-white/50 p-3 rounded-lg">
-                  <p className="font-bold mb-1">Pourquoi cette mission ?</p>
-                  <ul className="list-disc pl-4 space-y-1 text-xs">
-                    <li>Vous êtes le collecteur le plus proche (1.3 km).</li>
-                    <li>Votre camion dispose encore de 280 kg de capacité.</li>
-                    <li>Le trafic actuel est faible sur cet itinéraire.</li>
-                    <li>Cette zone est prioritaire (risque météo).</li>
-                  </ul>
+                  <span className="block font-bold text-deep-forest">{Math.round(topLot.estimated_value).toLocaleString()} F</span>
+                  <span className="text-xs text-text-secondary">Valeur</span>
                 </div>
               </div>
 
@@ -158,9 +118,10 @@ export function CollectorDashboard() {
                   size="lg"
                   variant="primary"
                   className="bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() => setShowNavigationModal(true)}
+                  onClick={() => handleReserve(topLot.id)}
+                  disabled={reserveMutation.isPending}
                 >
-                  Accepter la mission
+                  {reserveMutation.isPending ? 'Réservation...' : 'Accepter la mission'}
                 </Button>
               </div>
             </div>
@@ -169,34 +130,44 @@ export function CollectorDashboard() {
           <div className="mb-8">
             <EmptyState 
               icon={<Truck size={32} />}
-              title="Aucune mission" 
+              title="Aucune mission disponible" 
               description="Il n'y a pas de lot disponible dans votre zone pour le moment. Nous vous notifierons dès qu'un producteur publiera un lot." 
             />
           </div>
         )}
 
-        {/* STATISTIQUES AUJOURD'HUI */}
-        <h2 className="font-heading text-xl font-bold text-deep-forest mb-4">Aujourd'hui</h2>
+        {/* Stats */}
+        <h2 className="font-heading text-xl font-bold text-deep-forest mb-4">Statistiques</h2>
         
         <div className="grid grid-cols-2 gap-4 mb-8">
           <StatCard 
-            title="Missions" 
-            value={missionsCount} 
+            title="Missions terminées" 
+            value={completedCollections} 
             colorClass="text-deep-forest"
           />
           <StatCard 
             title="Volume collecté" 
-            value="185 kg" 
+            value={`${totalCollectedKg.toFixed(0)} kg`} 
             colorClass="text-blue-600"
+          />
+          <StatCard 
+            title="Note moyenne" 
+            value={reputationScore > 0 ? `${reputationScore.toFixed(1)}/5` : '—'} 
+            colorClass="text-yellow-600"
+          />
+          <StatCard 
+            title="Total missions" 
+            value={totalCollections} 
+            colorClass="text-purple-600"
           />
         </div>
 
-        {/* AUTRES MISSIONS (Si plus d'une) */}
+        {/* Other lots */}
         {availableLots.length > 1 && (
           <div>
             <h2 className="font-heading text-xl font-bold text-deep-forest mb-4">À proximité ({availableLots.length - 1})</h2>
             <div className="space-y-4">
-              {availableLots.slice(1).map(lot => (
+              {availableLots.slice(1).map((lot: any) => (
                 <Card key={lot.id} hoverable padding="sm" className="flex justify-between items-center">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
@@ -205,7 +176,7 @@ export function CollectorDashboard() {
                     <div>
                       <p className="font-bold text-deep-forest text-lg">{lot.category}</p>
                       <p className="text-sm text-text-secondary flex items-center gap-1">
-                        <MapIcon size={12} /> 4.2 km • {lot.weight_kg} kg
+                        <MapIcon size={12} /> {lot.weight_kg} kg • {Math.round(lot.estimated_value).toLocaleString()} F
                       </p>
                     </div>
                   </div>

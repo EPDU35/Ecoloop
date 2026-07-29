@@ -1,10 +1,27 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck, Award, MapPin, LogOut } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Award, MapPin, LogOut, Loader2 } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthContext';
+import { useMyRewards } from '@/hooks/useApi';
+import { safeNumber, safeString } from '@/utils/parseResponse';
 
 export function ProfilePage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { data: rewards, isLoading } = useMyRewards();
+
+  const points = safeNumber(rewards?.points, 0);
+  const level = safeString(rewards?.level, 'bronze');
+  
+  const levelThresholds: Record<string, { next: string; remaining: number }> = {
+    'bronze': { next: 'Argent', remaining: Math.max(0, 500 - points) },
+    'argent': { next: 'Or', remaining: Math.max(0, 1000 - points) },
+    'silver': { next: 'Or', remaining: Math.max(0, 1000 - points) },
+    'or': { next: 'Platine', remaining: Math.max(0, 2500 - points) },
+    'gold': { next: 'Platine', remaining: Math.max(0, 2500 - points) },
+    'platine': { next: 'Diamant', remaining: Math.max(0, 5000 - points) },
+    'platinum': { next: 'Diamant', remaining: Math.max(0, 5000 - points) },
+  };
+  const currentLevel = levelThresholds[level.toLowerCase()] || { next: 'Prochain', remaining: 100 };
 
   return (
     <div className="min-h-screen bg-bg font-body text-text-main pb-24">
@@ -38,10 +55,14 @@ export function ProfilePage() {
             <div className="w-12 h-12 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center flex-shrink-0">
               <Award size={24} />
             </div>
-            <div>
-              <span className="font-bold text-deep-forest block">Niveau Argent</span>
-              <span className="text-sm text-text-secondary">Encore 50 pts pour l'Or</span>
-            </div>
+            {isLoading ? (
+              <Loader2 className="animate-spin text-gray-400" size={20} />
+            ) : (
+              <div>
+                <span className="font-bold text-deep-forest block capitalize">Niveau {level}</span>
+                <span className="text-sm text-text-secondary">Encore {currentLevel.remaining} pts pour {currentLevel.next}</span>
+              </div>
+            )}
           </div>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -49,7 +70,7 @@ export function ProfilePage() {
             </div>
             <div>
               <span className="font-bold text-deep-forest block">Zone d'activité</span>
-              <span className="text-sm text-text-secondary">Abidjan, Cocody</span>
+              <span className="text-sm text-text-secondary">{user?.phone || 'Non renseignée'}</span>
             </div>
           </div>
           

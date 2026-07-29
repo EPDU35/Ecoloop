@@ -1,47 +1,33 @@
-import { useEffect, useState } from 'react';
-import { PackageOpen, FileText, Clock, TrendingUp, MapPin, CheckCircle2, Factory } from 'lucide-react';
+import { useState } from 'react';
+import { PackageOpen, FileText, Clock, CheckCircle2, Factory } from 'lucide-react';
 import { LoadingState } from '@/components/feedback';
-import { useDemo } from '@/contexts/DemoContext';
+import { ApiErrorDisplay } from '@/components/feedback/ApiErrorDisplay';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { useAuth } from '@/features/auth/AuthContext';
+import { useIndustrialDashboard } from '@/hooks/useApi';
+import { safeArray, safeRecord } from '@/utils/parseResponse';
 
 export function RecyclerDashboard() {
-  const { demoStep } = useDemo();
-  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const { data, isLoading, isError, error, refetch } = useIndustrialDashboard();
   const [purchaseLotId, setPurchaseLotId] = useState<string | null>(null);
   const [collectionDay, setCollectionDay] = useState('');
   const [purchaseStep, setPurchaseStep] = useState(1);
 
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 500);
-  }, []);
-
   if (isLoading) return <LoadingState fullPage message="Chargement du stock en temps réel..." />;
+  if (isError) return <ApiErrorDisplay error={error} onRetry={() => refetch()} context="Dashboard industriel" />;
 
-  const stocks = [
-    { name: 'Plastique PET', quantity: '12.5 T', trend: '+18%' },
-    { name: 'Plastique HDPE', quantity: '4.2 T', trend: '+5%' },
-    { name: 'Carton', quantity: '28.0 T', trend: '-2%' },
-    { name: 'Métal / Alu', quantity: '1.8 T', trend: '+12%' },
-    { name: 'Verre', quantity: '8.4 T', trend: '+0%' }
-  ];
+  const categoryKg = safeRecord(data?.available_by_category_kg, {});
+  const availableLots = safeArray(data?.available_lots, []);
+  const topProducers = safeArray(data?.top_producers, []);
+  const firstName = user?.full_name?.split(' ')[0] || 'Industriel';
 
-  const baseLots = [
-    { id: 'LOT-902', type: 'PET Clair (Balles)', purity: '98%', humidity: '< 2%', origin: 'Abidjan Sud', distance: '12 km', price: '250F/kg', available: 'Immédiate', weight: '2.5 T' },
-    { id: 'LOT-903', type: 'Carton Ondulé', purity: '95%', humidity: '4%', origin: 'Zone Industrielle Yopougon', distance: '5 km', price: '75F/kg', available: 'Dans 24h', weight: '5.0 T' },
-  ];
-
-  const demoLot = {
-    id: 'ECO-00094',
-    type: 'PET transparent',
-    purity: '98%',
-    humidity: '1%',
-    origin: 'Cocody Riviera',
-    distance: '3 km',
-    price: '120F/kg',
-    available: 'Immédiatement disponible',
-    weight: '100 kg'
-  };
-
-  const marketplaceLots = demoStep >= 4 ? [demoLot, ...baseLots] : baseLots;
+  // Build stock cards from real category data
+  const stocks = Object.entries(categoryKg).map(([name, kg]) => ({
+    name,
+    quantity: kg >= 1000 ? `${(kg / 1000).toFixed(1)} T` : `${kg.toFixed(0)} kg`,
+    rawKg: kg,
+  }));
 
   return (
     <div className="min-h-screen bg-bg font-body text-text-main pb-24">
@@ -51,7 +37,7 @@ export function RecyclerDashboard() {
             <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-sm font-medium mb-3">
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> Approvisionnement Actif
             </div>
-            <h1 className="font-heading text-3xl font-bold">Bonjour, Industriel</h1>
+            <h1 className="font-heading text-3xl font-bold">Bonjour, {firstName}</h1>
             <p className="opacity-90 mt-1">Sécurisez votre approvisionnement en matière première secondaire.</p>
           </div>
         </div>
@@ -59,69 +45,108 @@ export function RecyclerDashboard() {
 
       <div className="max-w-4xl mx-auto px-6 -mt-16">
         
-        <h2 className="font-heading text-xl font-bold text-white mb-4">Stock disponible aujourd'hui</h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
-          {stocks.map((stock) => (
-            <div key={stock.name} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col justify-between">
-              <span className="text-sm font-bold text-text-secondary mb-2">{stock.name}</span>
-              <div>
-                <span className="font-heading text-2xl font-extrabold text-purple-900 block">{stock.quantity}</span>
-                <span className={`text-xs font-bold flex items-center gap-1 ${stock.trend.startsWith('+') ? 'text-ecoloop-green' : 'text-orange-500'}`}>
-                  <TrendingUp size={12} /> {stock.trend}
-                </span>
+        <h2 className="font-heading text-xl font-bold text-white mb-4">Stock disponible</h2>
+        {stocks.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
+            {stocks.map((stock) => (
+              <div key={stock.name} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col justify-between">
+                <span className="text-sm font-bold text-text-secondary mb-2">{stock.name}</span>
+                <div>
+                  <span className="font-heading text-2xl font-extrabold text-purple-900 block">{stock.quantity}</span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mb-8">
+            <EmptyState 
+              icon={<PackageOpen size={32} />}
+              title="Aucun stock disponible" 
+              description="Le marketplace se met à jour en temps réel. Revenez bientôt." 
+            />
+          </div>
+        )}
 
         <h2 className="font-heading text-xl font-bold text-deep-forest mb-4 flex items-center gap-2">
           <Factory size={24} className="text-purple-600" />
           Marketplace B2B
         </h2>
 
-        <div className="space-y-4 mb-8">
-          {marketplaceLots.map(lot => (
-            <div key={lot.id} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:border-purple-300 transition-colors">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded-full">{lot.id}</span>
-                    <span className="text-xs font-bold bg-green-50 text-ecoloop-green px-2 py-1 rounded-full flex items-center gap-1"><CheckCircle2 size={12} /> Vérifié</span>
+        {availableLots.length > 0 ? (
+          <div className="space-y-4 mb-8">
+            {availableLots.map((lot: any) => (
+              <div key={lot.id} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:border-purple-300 transition-colors">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded-full">{lot.id.slice(0, 8)}</span>
+                      <span className="text-xs font-bold bg-green-50 text-ecoloop-green px-2 py-1 rounded-full flex items-center gap-1"><CheckCircle2 size={12} /> Vérifié</span>
+                    </div>
+                    <h3 className="font-heading text-xl font-bold text-deep-forest">{lot.category}</h3>
+                    {lot.description && (
+                      <p className="text-sm text-text-secondary mt-1">{lot.description}</p>
+                    )}
                   </div>
-                  <h3 className="font-heading text-xl font-bold text-deep-forest">{lot.type}</h3>
-                  <p className="text-sm text-text-secondary flex items-center gap-1 mt-1">
-                    <MapPin size={14} /> {lot.origin} • à {lot.distance}
-                  </p>
+                  <div className="text-right">
+                    <span className="block text-2xl font-black text-purple-600">
+                      {lot.weight_kg >= 1000 ? `${(lot.weight_kg / 1000).toFixed(1)} T` : `${lot.weight_kg} kg`}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="block text-2xl font-black text-purple-600">{lot.weight}</span>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-3 gap-4 bg-gray-50 rounded-xl p-4 mb-4">
-                <div>
-                  <span className="block text-xs text-text-secondary mb-1">Pureté</span>
-                  <span className="font-bold text-deep-forest">{lot.purity}</span>
+                <div className="grid grid-cols-3 gap-4 bg-gray-50 rounded-xl p-4 mb-4">
+                  <div>
+                    <span className="block text-xs text-text-secondary mb-1">Prix/kg</span>
+                    <span className="font-bold text-deep-forest">{lot.price_per_kg} F</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-text-secondary mb-1">Valeur totale</span>
+                    <span className="font-bold text-deep-forest">{Math.round(lot.estimated_total).toLocaleString()} F</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-text-secondary mb-1">Disponibilité</span>
+                    <span className="font-bold text-deep-forest">Immédiate</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="block text-xs text-text-secondary mb-1">Humidité</span>
-                  <span className="font-bold text-deep-forest">{lot.humidity}</span>
-                </div>
-                <div>
-                  <span className="block text-xs text-text-secondary mb-1">Disponibilité</span>
-                  <span className="font-bold text-deep-forest">{lot.available}</span>
-                </div>
-              </div>
 
-              <button 
-                onClick={() => setPurchaseLotId(lot.id)}
-                className="w-full btn-primary bg-purple-600 hover:bg-purple-700 py-3 rounded-xl flex items-center justify-center gap-2"
-              >
-                <PackageOpen size={20} /> Acheter ce lot
-              </button>
+                <button 
+                  onClick={() => setPurchaseLotId(lot.id)}
+                  className="w-full btn-primary bg-purple-600 hover:bg-purple-700 py-3 rounded-xl flex items-center justify-center gap-2"
+                >
+                  <PackageOpen size={20} /> Acheter ce lot
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mb-8">
+            <EmptyState 
+              icon={<Factory size={32} />}
+              title="Aucun lot disponible" 
+              description="Le marketplace se met à jour en temps réel. Consultez à nouveau dans quelques minutes." 
+            />
+          </div>
+        )}
+
+        {/* Top Producers */}
+        {topProducers.length > 0 && (
+          <div className="mb-8">
+            <h2 className="font-heading text-xl font-bold text-deep-forest mb-4">Top Producteurs</h2>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              {topProducers.map((producer: any, idx: number) => (
+                <div key={idx} className={`p-4 flex justify-between items-center ${idx < topProducers.length - 1 ? 'border-b border-gray-50' : ''}`}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm">
+                      {idx + 1}
+                    </div>
+                    <span className="font-bold text-deep-forest">{producer.name}</span>
+                  </div>
+                  <span className="font-bold text-purple-600">{producer.total_kg_recycled.toFixed(0)} kg</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <button className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center group hover:border-purple-300 transition-colors">
@@ -178,13 +203,7 @@ export function RecyclerDashboard() {
                       setTimeout(() => {
                         setPurchaseStep(1);
                         setPurchaseLotId(null);
-                        // Move demo step to trigger Collector mission visibility
-                        if (purchaseLotId === 'ECO-00094') {
-                          // Note: In demo, producer publishes (1), then recycler buys -> Collector alerted. 
-                          // The demo step for collector alert could be 1 or 1.5. In our V7 flow, step 1 is "Lot published (Collector alerted)".
-                          // If we are at step 0, we can jump to 1.
-                        }
-                        alert("Le producteur et le collecteur ont été notifiés de cette collecte prévue pour " + collectionDay);
+                        setCollectionDay('');
                       }, 2000);
                     }} 
                     className="flex-[2] py-3 font-bold text-white bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 disabled:cursor-not-allowed rounded-xl transition-colors"

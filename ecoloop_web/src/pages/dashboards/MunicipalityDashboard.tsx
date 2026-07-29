@@ -1,24 +1,37 @@
-import { useEffect, useState } from 'react';
-import { Activity, AlertTriangle, BrainCircuit, Target, CheckCircle2, Navigation } from 'lucide-react';
+import { useState } from 'react';
+import { Activity, AlertTriangle, BrainCircuit, Target, CheckCircle2, Users, Recycle, TrendingUp } from 'lucide-react';
 import { LoadingState } from '@/components/feedback';
+import { ApiErrorDisplay } from '@/components/feedback/ApiErrorDisplay';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useDemo } from '@/contexts/DemoContext';
 import { aiService, type ZoneRiskAdapter } from '@/services/api/aiService';
+import { useMunicipalityDashboard } from '@/hooks/useApi';
+import { safeNumber, safeRecord, safeArray } from '@/utils/parseResponse';
 
 export function MunicipalityDashboard() {
-  const { demoStep } = useDemo();
-  const [isLoading, setIsLoading] = useState(true);
+  const { data, isLoading, isError, error, refetch } = useMunicipalityDashboard();
   const [decisionTaken, setDecisionTaken] = useState(false);
   const [simulationTriggered, setSimulationTriggered] = useState(false);
   const [aiRiskData, setAiRiskData] = useState<ZoneRiskAdapter | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 500);
-  }, []);
+  if (isLoading) return <LoadingState fullPage message="Initialisation du Centre de Commandement..." />;
+  if (isError) return <ApiErrorDisplay error={error} onRetry={() => refetch()} context="Dashboard mairie" />;
+
+  const totalWeight = safeNumber(data?.total_weight_kg, 0);
+  const activeUsers = safeNumber(data?.active_users, 0);
+  const validatedCollections = safeNumber(data?.validated_collections, 0);
+  const co2Avoided = safeNumber(data?.co2_avoided_kg, 0);
+  const totalPaid = safeNumber(data?.total_paid_amount_fcfa, 0);
+  const byCategory = safeRecord(data?.by_category_kg, {});
+  const weeklyActivity = safeArray(data?.weekly_activity, []);
+
+  // Cleanliness index based on real data
+  const cleanlinessIndex = validatedCollections > 0
+    ? Math.min(99, Math.round(70 + (validatedCollections / (validatedCollections + 10)) * 30))
+    : 70;
 
   const handleSimulation = async () => {
     setSimulationTriggered(true);
@@ -28,27 +41,24 @@ export function MunicipalityDashboard() {
       setAiRiskData(riskData);
     } catch (e) {
       console.error(e);
-      // Fallback
       setAiRiskData({
         zone: 'Cocody',
         risk_score: 85,
         confidence: 0.9,
         trend: 'up',
-        reasons: ["Pluies diluviennes", "Chute de 40% des collectes"],
-        recommendation: { action: "Déployer 5 collecteurs d'urgence", priority: "URGENT", estimated_impact: "-30% déchets" }
+        reasons: ["Analyse de risque indisponible"],
+        recommendation: { action: "Vérifier manuellement la zone", priority: "URGENT", estimated_impact: null }
       });
     } finally {
       setIsAiLoading(false);
     }
   };
 
-  if (isLoading) return <LoadingState fullPage message="Initialisation du Centre de Commandement..." />;
-
   const abidjanCenter: [number, number] = [5.3364, -4.0267];
 
   return (
     <div className="min-h-screen bg-bg font-body text-text-main pb-24">
-      {/* Header Centre de Commandement */}
+      {/* Header */}
       <div className="bg-orange-500 text-white pt-12 pb-24 px-6 rounded-b-[2rem] shadow-sm">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -59,23 +69,17 @@ export function MunicipalityDashboard() {
           </div>
           <div className="flex gap-4">
             <div className="bg-white/10 p-4 rounded-xl border border-white/20 backdrop-blur-sm">
-              <span className="text-xs font-medium uppercase tracking-widest block mb-1 opacity-80">Index de propreté globale</span>
+              <span className="text-xs font-medium uppercase tracking-widest block mb-1 opacity-80">Index de propreté</span>
               <div className="flex items-center gap-2">
                 <Activity className="text-green-300" />
-                <span className="font-heading text-2xl font-bold">{demoStep >= 5 ? 89 : 88}<span className="text-sm opacity-80">/100</span></span>
-                {demoStep >= 5 && (
-                  <span className="ml-2 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-bold animate-bounce">
-                    +1
-                  </span>
-                )}
+                <span className="font-heading text-2xl font-bold">{cleanlinessIndex}<span className="text-sm opacity-80">/100</span></span>
               </div>
-              {demoStep >= 5 && <span className="text-xs text-green-200 mt-1 block">Suite à 4 collectes terminées</span>}
             </div>
             <div className="bg-white/10 p-4 rounded-xl border border-white/20 backdrop-blur-sm">
-              <span className="text-xs font-medium uppercase tracking-widest block mb-1 opacity-80">Collecteurs actifs</span>
+              <span className="text-xs font-medium uppercase tracking-widest block mb-1 opacity-80">Utilisateurs actifs</span>
               <div className="flex items-center gap-2">
-                <Navigation className="text-blue-300" />
-                <span className="font-heading text-2xl font-bold">128</span>
+                <Users className="text-blue-300" />
+                <span className="font-heading text-2xl font-bold">{activeUsers}</span>
               </div>
             </div>
           </div>
@@ -84,7 +88,33 @@ export function MunicipalityDashboard() {
 
       <div className="max-w-6xl mx-auto px-6 -mt-10">
         
-        {/* CARTE INTERACTIVE */}
+        {/* Stats cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card className="text-center">
+            <Recycle size={24} className="mx-auto text-ecoloop-green mb-2" />
+            <span className="font-heading text-2xl font-black text-deep-forest block">
+              {totalWeight >= 1000 ? `${(totalWeight / 1000).toFixed(1)} T` : `${totalWeight.toFixed(0)} kg`}
+            </span>
+            <span className="text-xs text-text-secondary">Déchets collectés</span>
+          </Card>
+          <Card className="text-center">
+            <CheckCircle2 size={24} className="mx-auto text-blue-500 mb-2" />
+            <span className="font-heading text-2xl font-black text-deep-forest block">{validatedCollections}</span>
+            <span className="text-xs text-text-secondary">Collectes validées</span>
+          </Card>
+          <Card className="text-center">
+            <TrendingUp size={24} className="mx-auto text-orange-500 mb-2" />
+            <span className="font-heading text-2xl font-black text-deep-forest block">{co2Avoided.toFixed(0)} kg</span>
+            <span className="text-xs text-text-secondary">CO₂ évité</span>
+          </Card>
+          <Card className="text-center">
+            <span className="text-2xl block mb-1">💰</span>
+            <span className="font-heading text-2xl font-black text-deep-forest block">{totalPaid.toLocaleString()} F</span>
+            <span className="text-xs text-text-secondary">Total payé</span>
+          </Card>
+        </div>
+
+        {/* Map */}
         <Card padding="none" className="mb-8 overflow-hidden border-orange-100 relative">
           <div className="absolute top-4 right-4 z-[400] bg-white p-3 rounded-xl shadow-lg border border-gray-100">
             <h3 className="font-bold text-sm mb-2">Légende</h3>
@@ -100,23 +130,19 @@ export function MunicipalityDashboard() {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              {/* Producteurs / Zones stables */}
               <CircleMarker center={[5.345, -4.015]} radius={10} color="transparent" fillColor="#22c55e" fillOpacity={0.7}>
                 <Popup>Zone Stable (Marcory)</Popup>
               </CircleMarker>
               <CircleMarker center={[5.320, -4.005]} radius={15} color="transparent" fillColor="#22c55e" fillOpacity={0.6}>
                 <Popup>Zone Stable (Treichville)</Popup>
               </CircleMarker>
-              
-              {/* Collecteurs */}
               <CircleMarker center={[5.350, -4.030]} radius={6} color="#ffffff" weight={2} fillColor="#3b82f6" fillOpacity={1}>
-                <Popup>Collecteur: Amadou</Popup>
+                <Popup>Collecteur actif</Popup>
               </CircleMarker>
               <CircleMarker center={[5.330, -3.990]} radius={6} color="#ffffff" weight={2} fillColor="#3b82f6" fillOpacity={1}>
-                <Popup>Collecteur: Sarah</Popup>
+                <Popup>Collecteur actif</Popup>
               </CircleMarker>
 
-              {/* Simulation J+7 effect: Zone critique */}
               {simulationTriggered && (
                 <>
                   <CircleMarker center={[5.370, -3.980]} radius={40} color="#ef4444" weight={2} fillColor="#ef4444" fillOpacity={0.4}>
@@ -125,23 +151,16 @@ export function MunicipalityDashboard() {
                       Risque de saturation: {aiRiskData?.risk_score || 85}%
                     </Popup>
                   </CircleMarker>
-                  <CircleMarker center={[5.365, -3.990]} radius={10} color="#000000" weight={2} fillColor="#f59e0b" fillOpacity={0.8} className="animate-pulse">
-                    <Popup>
-                      <strong>⚠️ Dépôt sauvage critique</strong><br/>
-                      Signalé il y a 10 minutes<br/>
-                      Point d'apport volontaire saturé.
-                    </Popup>
-                  </CircleMarker>
                 </>
               )}
             </MapContainer>
           </div>
         </Card>
 
-        {/* PRÉVISION J+7 & IA */}
+        {/* Forecast & AI */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           
-          {/* PRÉVISION */}
+          {/* Forecast */}
           <Card className="relative overflow-hidden border-gray-200 shadow-sm">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-3">
@@ -162,33 +181,46 @@ export function MunicipalityDashboard() {
               <div>
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-text-secondary">Risque de saturation ({aiRiskData?.zone || 'Cocody'})</span>
-                  <span className={`${simulationTriggered ? 'text-red-500' : 'text-orange-500'} font-bold`}>{simulationTriggered ? (aiRiskData?.risk_score || 85) + '%' : '42%'}</span>
+                  <span className={`${simulationTriggered ? 'text-red-500' : 'text-orange-500'} font-bold`}>{simulationTriggered ? (aiRiskData?.risk_score || 85) + '%' : '—'}</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
-                  <div className={`${simulationTriggered ? 'bg-red-500' : 'bg-orange-500'} h-2 rounded-full transition-all duration-1000`} style={{ width: simulationTriggered ? (aiRiskData?.risk_score || 85) + '%' : '42%' }}></div>
+                  <div className={`${simulationTriggered ? 'bg-red-500' : 'bg-gray-300'} h-2 rounded-full transition-all duration-1000`} style={{ width: simulationTriggered ? (aiRiskData?.risk_score || 85) + '%' : '0%' }}></div>
                 </div>
               </div>
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-text-secondary">Taux de collecte estimé (Globale)</span>
-                  <span className="text-ecoloop-green font-bold">92%</span>
+
+              {/* Weekly activity chart */}
+              {weeklyActivity.length > 0 ? (
+                <div>
+                  <h4 className="text-sm font-bold text-text-secondary mb-3">Collectes (30 derniers jours)</h4>
+                  <div className="flex items-end gap-1 h-20">
+                    {weeklyActivity.slice(-14).map((day: any, idx: number) => (
+                      <div key={idx} className="flex-1 flex flex-col items-center gap-1">
+                        <div 
+                          className="w-full bg-orange-400 rounded-t-sm min-h-[2px] transition-all"
+                          style={{ height: `${Math.max(8, (day.collections / Math.max(...weeklyActivity.map((d: any) => d.collections), 1)) * 100)}%` }}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="w-full bg-gray-100 rounded-full h-2">
-                  <div className="bg-ecoloop-green h-2 rounded-full" style={{ width: '92%' }}></div>
+              ) : (
+                <div className="bg-gray-50 rounded-xl p-4 text-center text-text-secondary text-sm">
+                  Pas encore assez de données pour afficher le graphique.
                 </div>
-              </div>
+              )}
               
               {simulationTriggered && (
                 <div className="pt-4 border-t border-gray-100">
                   <p className="text-sm text-text-secondary leading-relaxed bg-red-50 p-3 rounded-lg border border-red-100">
-                    <strong className="text-red-600">Alerte IA ({aiRiskData?.confidence ? Math.round(aiRiskData.confidence * 100) : 90}% confiance) :</strong> {aiRiskData?.reasons?.join(' ') || "Les données météorologiques annoncent de fortes pluies dans 4 jours. Risque d'inondation CRITIQUE."}
+                    <strong className="text-red-600">Alerte IA ({aiRiskData?.confidence ? Math.round(aiRiskData.confidence * 100) : 90}% confiance) :</strong>{' '}
+                    {aiRiskData?.reasons?.join(' ') || "Analyse en cours."}
                   </p>
                 </div>
               )}
             </div>
           </Card>
 
-          {/* RECOMMANDATION IA & DÉCISION */}
+          {/* AI Recommendation */}
           <Card className="relative overflow-hidden flex flex-col shadow-sm border-gray-200">
             <div className="flex items-center gap-3 mb-6">
               <BrainCircuit className="text-purple-600" size={28} />
@@ -206,8 +238,7 @@ export function MunicipalityDashboard() {
                     <AlertTriangle size={18} /> Action préventive requise ({aiRiskData?.recommendation?.priority || 'URGENT'})
                   </h3>
                   <ul className="text-sm text-orange-700 space-y-2 ml-6 list-disc">
-                    <li>{aiRiskData?.recommendation?.action || "Déployer 5 collecteurs partenaires en urgence sur Cocody Riviera."}</li>
-                    <li>Résoudre le signalement de dépôt sauvage détecté ce matin.</li>
+                    <li>{aiRiskData?.recommendation?.action || "Analyse de la zone recommandée."}</li>
                   </ul>
                   {aiRiskData?.recommendation?.estimated_impact && (
                     <p className="mt-3 text-xs font-bold text-orange-900 bg-orange-200 inline-block px-2 py-1 rounded">
@@ -235,14 +266,39 @@ export function MunicipalityDashboard() {
                   <CheckCircle2 size={40} className="text-ecoloop-green" />
                 </div>
                 <h3 className="font-heading text-2xl font-bold text-deep-forest mb-2">Décision Prise</h3>
-                <p className="text-text-secondary">Les collecteurs partenaires ont été notifiés et la prime a été augmentée automatiquement. La zone devrait être sécurisée d'ici 24h.</p>
+                <p className="text-text-secondary">Les collecteurs partenaires ont été notifiés. La zone devrait être sécurisée d'ici 24h.</p>
               </div>
             )}
           </Card>
 
         </div>
 
-        {/* EXPORTS & REPORTING */}
+        {/* Category breakdown */}
+        {Object.keys(byCategory).length > 0 && (
+          <div className="mb-8">
+            <h2 className="font-heading text-xl font-bold text-deep-forest mb-4">Répartition par catégorie</h2>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <div className="space-y-3">
+                {Object.entries(byCategory).map(([cat, kg]) => (
+                  <div key={cat} className="flex items-center justify-between">
+                    <span className="font-bold text-deep-forest">{cat}</span>
+                    <div className="flex items-center gap-3 flex-1 mx-4">
+                      <div className="flex-1 bg-gray-100 rounded-full h-2">
+                        <div 
+                          className="bg-orange-400 h-2 rounded-full"
+                          style={{ width: `${totalWeight > 0 ? (kg / totalWeight * 100) : 0}%` }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-sm font-bold text-text-secondary w-20 text-right">{kg.toFixed(0)} kg</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Exports */}
         <h2 className="font-heading text-xl font-bold text-deep-forest mb-4">Rapports & Exports (ESG)</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <button className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center group hover:border-orange-300 hover:bg-orange-50 transition-colors">
